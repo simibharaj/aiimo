@@ -33,7 +33,9 @@ function mount(root,ctx,T){
     if(T.isDone&&T.isDone(text,vals)&&vals.started){const r=T.finishSay?T.finishSay(vals):'';if(r)say('ai',esc(r));finish();return;}
     const res=T.update(text,vals)||{};if(!first&&vals.started)first=JSON.parse(JSON.stringify(vals));
     lit=new Set(T.lit(vals));note.textContent=res.note||'';paint(true);ctx.tone&&ctx.tone(res.changed?620:330,.4,.05);
-    if(res.reply)setTimeout(()=>say('ai',esc(res.reply)),ctx.reduce?0:200);chips();}
+    if(res.reply)setTimeout(()=>say('ai',esc(res.reply)),ctx.reduce?0:200);chips();
+    /* bite 5 follows along live, so the note there always matches the drink here */
+    if(vals.started){const p=T.prompt(vals);try{ctx.store&&ctx.store(ctx.key+'-prompt',p);}catch(_){}window.dispatchEvent(new CustomEvent('aiimo:prompt',{detail:p}));}}
   function ask(){if(T.open){say('ai',esc(val(T.ai,vals)));chips();return;}const s=T.steps[step];say('ai',esc(val(s.ai,vals)));sugs.innerHTML=(val(s.chips,vals)||[]).map(c=>`<button type="button">${esc(c)}</button>`).join('');}
   function submit(text){text=text.trim();if(!text||done)return;say('you',esc(text));input.value='';
     const s=T.steps[step];const ok=s.check?s.check(text,vals):true;
