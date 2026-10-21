@@ -111,6 +111,6 @@ $('#share').addEventListener('click',e=>copy('ai, in my opinion · edition '+E.n
 let ac=null,g=null,on=false;
 function tone(f,d,v){if(!ac||!on)return;const t=ac.currentTime,o=ac.createOscillator(),k=ac.createGain();o.frequency.value=f;k.gain.setValueAtTime(0,t);k.gain.linearRampToValueAtTime(v,t+.01);k.gain.exponentialRampToValueAtTime(.0005,t+d);o.connect(k);k.connect(ac.destination);o.start(t);o.stop(t+d+.05);}
 $('#sound').addEventListener('click',async e=>{const btn=e.currentTarget;try{if(!ac){ac=new(window.AudioContext||window.webkitAudioContext)();g=ac.createGain();g.gain.value=0;const lp=ac.createBiquadFilter();lp.type='lowpass';lp.frequency.value=600;lp.connect(g);g.connect(ac.destination);[130.81,196,261.63,329.63].forEach(fq=>{const o=ac.createOscillator(),l=ac.createGain();o.frequency.value=fq;l.gain.value=.05;o.connect(l);l.connect(lp);o.start();});}
-  await ac.resume();on=!on;g.gain.setTargetAtTime(on?.12:0,ac.currentTime,.5);btn.setAttribute('aria-pressed',on);btn.textContent=on?'sound on':'sound off';}catch(_){btn.textContent='no sound here';}});
+  await ac.resume();on=!on;g.gain.setTargetAtTime(on?.12:0,ac.currentTime,.5);btn.setAttribute('aria-pressed',on);btn.textContent=on?'sound on · tap to mute':'turn sound on';}catch(_){btn.textContent='no sound here';}});
 document.addEventListener('visibilitychange',()=>{if(ac&&on)(document.hidden?ac.suspend():ac.resume()).catch(()=>{});});
 })();

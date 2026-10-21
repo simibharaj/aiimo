@@ -403,3 +403,21 @@ pre.t5{margin:0;padding:16px 18px 20px;white-space:pre-wrap;font:400 14.5px/1.6 
   .steps3 li{font-size:16px}
   #lab .tpv{position:sticky;top:52px}
 }
+/* terminal fills its column so the input sits at the bottom */
+#lab .term .log{flex:1 1 auto;height:auto;min-height:330px}
+@media (max-width:860px){
+  #lab .term .log{min-height:220px;max-height:46svh}
+  /* the pinned preview on phones is solid, so the terminal never shows through it */
+  #lab .tpv{background:#fff;box-shadow:0 14px 30px -16px rgba(18,18,22,.35);-webkit-backdrop-filter:none;backdrop-filter:none}
+}
+@media (max-width:860px){
+  /* phones: a compact pinned preview so you can watch it change while you type */
+  #lab .tpv .tscreen{zoom:.72;margin:6px auto 4px}
+  #lab .tpv .tscreen.cup{zoom:.82}
+  #lab .tpv .pv-top{padding-top:8px;padding-bottom:8px}
+  #lab .tnote{display:none}
+  .rail{gap:4px;padding:10px 10px 0;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
+  .rail::-webkit-scrollbar{display:none}
+  .rail li{flex:none;padding:3px 8px 3px 3px;font-size:11px}
+  .rail li span{width:18px;height:18px;font-size:10px}
+}
