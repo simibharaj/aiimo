@@ -147,13 +147,7 @@ const kind=v=>{const n=v.drink?v.drink.name:'',vs=v.drink?v.drink.vessel:'cup';i
   if(v.temp==='iced'||(!v.temp&&/cold brew|refresher|iced tea/.test(n)))return 'iced';return 'hot';};
 
 E.term={open:true,title:'the counter',previewLabel:'preview · what you get handed',device:'cup',
-  placeholder:'type your drink order here, then press enter',
-  howto:['click the dark box below that says "type your drink order here."',
-    'type a drink you would really order, the way you would say it out loud. coffee, tea, a cocktail, anything. for example: "large iced latte with oat milk."',
-    'press enter. your drink and its order ticket appear.',
-    'change anything by typing it, like "make it hot" or "add whipped cream." the drink updates each time.',
-    'when it looks right, type "that\'s it."'],
-  why:"why this matters: talking to ai works the same way. say what you want, add the details that matter to you, then fix it until it's right.",
+  placeholder:'type your drink here',
   startNote:'your drink will show up here.',
   ai:"hi! what can i get you? type any drink, exactly how you'd order it.",
   parts:[{k:'goal',short:'goal',c:'#ff6fa3',why:'what you actually want.'},
@@ -215,5 +209,6 @@ E.take={label:'your request to ai',mine:'made from your drink in bite 4',
   empty:'order a drink in bite 4 first. your request shows up here as soon as you do.',emptyButton:'go to bite 4',
   hint:'tap a button. claude or chatgpt opens with this already typed in. press send and you get a recipe for your exact drink. notice the four parts: goal, context, limits, format.'};
 E.ui.b5={h2:'now get ai to *make it for you.*',say:'your drink from bite 4 just became a real request to ai, written the same way you ordered: what you want, what is true about you, what to avoid, how you want it back.',hint:'try it with anything. a dinner plan, a text to your landlord, a gift. same four parts.'};
-E.ui.b4={h2:'order exactly what you want. *it works on ai too.*',say:"this is practice for talking to ai, using something you already know how to do: ordering a drink."};
+E.ui.b4={h2:'order exactly what you want. *it works on ai too.*',say:"practice talking to ai with something you already know how to do: ordering a drink.",
+  steps:["type your drink in the black box below, the way you'd say it out loud.","press enter. watch it get made.",'change anything. type "that\'s it" when it\'s right.']};
 })(window.EDITION);

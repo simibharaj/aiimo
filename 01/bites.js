@@ -54,7 +54,7 @@ ${(E.open||[]).length?`<section class="opennow" id="open" aria-label="open now">
 
 <section class="bite lab" id="b4" style="--accent:var(--mint)">
   <div class="lab-head">${obj(4,'a mint glass number four')}<div class="copy"><span class="tag reveal">bite 4 · the skill</span><h2 class="reveal">${em(U.b4.h2)}</h2>
-  <p class="say reveal">${esc(U.b4.say)}</p></div></div>
+  <p class="say reveal">${esc(U.b4.say)}</p>${U.b4.steps?`<ol class="steps3 reveal">${U.b4.steps.map(x=>`<li>${esc(x)}</li>`).join('')}</ol>`:''}</div></div>
   <div id="lab" class="reveal"></div>
 </section>
 
