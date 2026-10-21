@@ -9,7 +9,7 @@ function mount(root,ctx,T){
   const parts=T.parts,color=k=>(parts.find(p=>p.k===k)||{}).c||'#999';
   let vals={},step=0,lit=new Set(),done=false,first=null;
   const hl=(k,text)=>`<mark class="hl" style="--c:${color(k)}">${esc(text)}</mark>`;
-  root.innerHTML=`<div class="tgrid">
+  root.innerHTML=`${T.howto?`<div class="howto"><b>how to do it</b><ol>${T.howto.map(h=>`<li>${esc(h)}</li>`).join('')}</ol>${T.why?`<p>${esc(T.why)}</p>`:''}</div>`:''}<div class="tgrid">
     <div class="tpv" aria-live="polite"><div class="pv-top"><span>${esc(T.previewLabel||'preview')}</span><b>${parts.map(p=>`<i data-k="${p.k}" style="--c:${p.c}" title="${esc(p.short)}"></i>`).join('')}</b></div>
       <div class="tscreen ${esc(T.device||'')}"><div class="tview"></div></div><p class="tnote"></p></div>
     <div class="term" role="region" aria-label="terminal">
@@ -25,9 +25,16 @@ function mount(root,ctx,T){
   function say(who,html){const d=document.createElement('div');d.className='ln '+who;d.innerHTML=`<b>${who==='ai'?'ai ›':'you ›'}</b><span>${html}</span>`;log.append(d);log.scrollTop=log.scrollHeight;}
   function paint(flash){view.innerHTML=T.render(vals,{hl,esc,step,done});
     root.querySelectorAll('.pv-top i').forEach(i=>i.classList.toggle('on',lit.has(i.dataset.k)));
-    root.querySelectorAll('.rail li').forEach(li=>{li.classList.toggle('on',lit.has(li.dataset.k));li.classList.toggle('now',!done&&T.steps[step]&&T.steps[step].part===li.dataset.k);});
+    root.querySelectorAll('.rail li').forEach(li=>{li.classList.toggle('on',lit.has(li.dataset.k));li.classList.toggle('now',!done&&!!T.steps&&!!T.steps[step]&&T.steps[step].part===li.dataset.k);});
     if(flash&&!ctx.reduce){view.classList.remove('flash');void view.offsetWidth;view.classList.add('flash');}}
-  function ask(){const s=T.steps[step];say('ai',esc(val(s.ai,vals)));sugs.innerHTML=(val(s.chips,vals)||[]).map(c=>`<button type="button">${esc(c)}</button>`).join('');}
+  /* open mode: a real back-and-forth. every message updates the result; the reader decides when it's done. */
+  function chips(){sugs.innerHTML=(val(T.chips,vals)||[]).map(c=>`<button type="button">${esc(c)}</button>`).join('');}
+  function openSubmit(text){text=text.trim();if(!text||done)return;say('you',esc(text));input.value='';
+    if(T.isDone&&T.isDone(text,vals)&&vals.started){const r=T.finishSay?T.finishSay(vals):'';if(r)say('ai',esc(r));finish();return;}
+    const res=T.update(text,vals)||{};if(!first&&vals.started)first=JSON.parse(JSON.stringify(vals));
+    lit=new Set(T.lit(vals));note.textContent=res.note||'';paint(true);ctx.tone&&ctx.tone(res.changed?620:330,.4,.05);
+    if(res.reply)setTimeout(()=>say('ai',esc(res.reply)),ctx.reduce?0:200);chips();}
+  function ask(){if(T.open){say('ai',esc(val(T.ai,vals)));chips();return;}const s=T.steps[step];say('ai',esc(val(s.ai,vals)));sugs.innerHTML=(val(s.chips,vals)||[]).map(c=>`<button type="button">${esc(c)}</button>`).join('');}
   function submit(text){text=text.trim();if(!text||done)return;say('you',esc(text));input.value='';
     const s=T.steps[step];const ok=s.check?s.check(text,vals):true;
     if(ok!==true){setTimeout(()=>say('ai',esc(ok)),ctx.reduce?0:250);ctx.tone&&ctx.tone(330,.3,.04);return;}
@@ -52,8 +59,10 @@ function mount(root,ctx,T){
       <div class="ba" hidden><div><small>your first ask</small><div class="tscreen ${esc(T.device||'')}"><div class="tview">${T.render(first||{},{hl,esc,step:1,done:false})}</div></div></div><div><small>after the skill</small><div class="tscreen ${esc(T.device||'')}"><div class="tview">${T.render(vals,{hl,esc,step,done:true})}</div></div></div></div>
       <p class="hint">${esc(T.done.rule)}</p>`;}
   function reset(){vals={};step=0;lit=new Set();done=false;first=null;log.innerHTML='';note.textContent=T.startNote||'';$('.tdone').hidden=true;paint(false);ask();}
-  $('.tin').addEventListener('submit',e=>{e.preventDefault();submit(input.value);});
-  sugs.addEventListener('click',e=>{const b=e.target.closest('button');if(b)submit(b.textContent);});
+  const go=t=>T.open?openSubmit(t):submit(t);
+  if(T.placeholder)input.placeholder=T.placeholder;
+  $('.tin').addEventListener('submit',e=>{e.preventDefault();go(input.value);});
+  sugs.addEventListener('click',e=>{const b=e.target.closest('button');if(b)go(b.textContent);});
   $('.term-reset').addEventListener('click',reset);
   $('.tdone').addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b)return;
     if(b.dataset.a==='ba'){const ba=root.querySelector('.ba');ba.hidden=!ba.hidden;b.textContent=ba.hidden?'see before and after':'hide before and after';}
