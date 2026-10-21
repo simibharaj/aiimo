@@ -387,3 +387,19 @@ pre.t5{margin:0;padding:16px 18px 20px;white-space:pre-wrap;font:400 14.5px/1.6 
 .g-mug .teatag::after{content:"";position:absolute;bottom:-4px;left:-8px;width:18px;height:14px;background:#f2efe6;border:1px solid #d8d2c4}
 @media (max-width:860px){.g-highball .body,.g-pint .body{height:150px}.g-martini .bowl{width:120px;height:78px}.glass .stem{height:50px}}
 @media (max-width:860px){.tnote{display:none}}
+/* bite 4 hero matches every other bite: big numeral left, copy and three short steps right */
+.lab{max-width:1180px}
+.lab-head{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px 56px;align-items:center;min-height:calc(100svh - 184px)}
+.lab-head .obj{width:min(100%,460px)}
+.steps3{list-style:none;margin:4px 0 0;padding:0;display:flex;flex-direction:column;gap:10px;counter-reset:s}
+.steps3 li{counter-increment:s;display:grid;grid-template-columns:30px 1fr;gap:12px;align-items:start;font-size:17px;line-height:1.45;max-width:40ch}
+.steps3 li::before{content:counter(s);display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--accent);color:#fff;font:600 14px var(--sans)}
+#lab .tgrid{align-items:stretch}
+#lab .tpv{position:relative;top:0;display:flex;flex-direction:column}
+#lab .tpv .tscreen{margin:auto}
+@media (max-width:860px){
+  .lab-head{grid-template-columns:1fr;min-height:0}
+  .lab-head .obj{width:min(64vw,300px)}
+  .steps3 li{font-size:16px}
+  #lab .tpv{position:sticky;top:52px}
+}
