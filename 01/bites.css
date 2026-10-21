@@ -336,3 +336,54 @@ pre.t5{margin:0;padding:16px 18px 20px;white-space:pre-wrap;font:400 14.5px/1.6 
 .cupwrap::after{content:"";position:absolute;bottom:-6px;width:120%;height:14px;border-radius:50%;background:radial-gradient(rgba(18,18,22,.18),transparent 70%)}
 @media (max-width:860px){.cupm{min-height:0}.cupwrap{height:200px;width:110px}.cupwrap.s-venti .cup{width:96px;height:168px}.cupwrap.s-grande .cup{width:86px;height:138px}.cupwrap.s-tall .cup{width:76px;height:112px}}
 .ba .cupwrap{height:250px;width:auto}
+
+/* plain-language instructions above the terminal */
+.howto{margin:0 0 18px;padding:18px 22px;border-radius:22px;background:var(--glass);box-shadow:var(--shadow);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+.howto b{display:block;font:600 13px var(--mono);letter-spacing:.06em;color:var(--muted);margin-bottom:8px}
+.howto ol{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:6px;font-size:17px;line-height:1.45}
+.howto p{margin-top:12px;font-size:16px;color:var(--muted)}
+
+/* drink vessels: coffee cups by type, plus glassware for tea and the bar */
+.cup.k-iced,.cup.k-blended{background:linear-gradient(90deg,rgba(255,255,255,.55),rgba(255,255,255,.25) 50%,rgba(255,255,255,.5));box-shadow:inset 0 0 0 2px rgba(18,18,22,.12)}
+.cup.k-blended .lid{height:30px;top:-14px;border-radius:50% 50% 0 0;background:rgba(255,255,255,.55);border:2px solid rgba(18,18,22,.12)}
+.cup.k-blended{overflow:visible;clip-path:none;border-radius:4px 4px 22px 22px}
+.cup.k-blended .liq{top:14%;background:radial-gradient(circle at 30% 40%,rgba(255,255,255,.35) 0 2px,transparent 3px) 0 0/10px 10px,var(--liq)}
+.cup.k-hot .sleeve{position:absolute;z-index:2;left:0;right:0;top:42%;height:22%;background:#c99a6b;opacity:.92}
+.cup.k-mini{width:70px!important;height:62px!important;border-radius:4px 4px 26px 26px;clip-path:none}
+.cup.k-mini .lid{display:none}
+.cupwrap.k-mini::after{bottom:-4px;width:150%;height:10px;background:#efe9e2;border-radius:50%}
+.cupwrap .straw{position:absolute;z-index:0;bottom:55%;left:55%;width:7px;height:62%;background:#2a7a4b;border-radius:4px;transform:rotate(9deg)}
+.whip{height:34px;margin-top:-14px;background:radial-gradient(circle at 25% 70%,#fff 0 12px,transparent 13px),radial-gradient(circle at 55% 45%,#fffdf8 0 15px,transparent 16px),radial-gradient(circle at 80% 70%,#fff 0 12px,transparent 13px);position:relative}
+.whip .dz,.dzline{position:absolute;inset:6px 10%;background:repeating-linear-gradient(115deg,transparent 0 7px,#b0783f 7px 9px);opacity:.85}
+.dzline{position:relative;height:10px;inset:auto}
+.glass{position:relative;display:flex;flex-direction:column;align-items:center}
+.glass .liq{position:absolute;left:0;right:0;bottom:0;background:var(--liq);transition:background .5s}
+.g-martini .bowl{position:relative;width:150px;height:96px;clip-path:polygon(0 0,100% 0,52% 100%,48% 100%);background:linear-gradient(90deg,rgba(255,255,255,.6),rgba(230,236,240,.55));box-shadow:inset 0 0 0 2px rgba(18,18,22,.12)}
+.g-martini .bowl .liq{top:14%;clip-path:polygon(0 0,100% 0,52% 100%,48% 100%)}
+.glass .stem{width:4px;height:70px;background:rgba(18,18,22,.18)}
+.glass .foot{width:76px;height:6px;border-radius:50%;background:rgba(18,18,22,.18)}
+.g-martini .pick{position:absolute;top:-6px;left:30px;width:92px;height:3px;background:#8a6a3a;transform:rotate(28deg);transform-origin:left;display:flex;gap:4px;align-items:center;padding-left:26px}
+.g-martini .olive{display:block;width:16px;height:13px;border-radius:50%;background:radial-gradient(circle at 40% 45%,#c8463c 0 3px,#6f8a2a 4px);box-shadow:0 1px 2px rgba(0,0,0,.25)}
+.g-martini .peel,.glass .slice{position:absolute;top:2px;right:10px;width:30px;height:12px;border-radius:12px;background:#f2d24a;transform:rotate(-20deg)}
+.glass .slice.lime{background:#9ccc4a}.glass .slice.cherry{width:14px;height:14px;background:#b0122a}
+.g-wine .bowl{position:relative;width:96px;height:118px;border-radius:12px 12px 48px 48px;background:rgba(255,255,255,.45);box-shadow:inset 0 0 0 2px rgba(18,18,22,.12);overflow:hidden}
+.g-wine .bowl .liq{top:48%}
+.g-flute .bowl{position:relative;width:46px;height:150px;border-radius:6px 6px 22px 22px;background:rgba(255,255,255,.45);box-shadow:inset 0 0 0 2px rgba(18,18,22,.12);overflow:hidden}
+.g-flute .bowl .liq{top:18%}
+.g-flute .bub{position:absolute;width:4px;height:4px;border-radius:50%;background:rgba(255,255,255,.9);left:40%;bottom:20%}
+.g-flute .bub:nth-child(2){left:55%;bottom:45%}.g-flute .bub:nth-child(3){left:35%;bottom:65%}
+.g-rocks .body,.g-highball .body,.g-pint .body,.g-mug .body{position:relative;overflow:hidden;background:rgba(255,255,255,.45);box-shadow:inset 0 0 0 2px rgba(18,18,22,.12)}
+.g-rocks .body{width:118px;height:96px;border-radius:6px 6px 12px 12px}.g-rocks .body .liq{top:32%}
+.g-highball .body{width:88px;height:200px;border-radius:6px 6px 12px 12px}.g-highball .body .liq{top:14%}
+.g-pint .body{width:104px;height:200px;border-radius:4px 4px 14px 14px;clip-path:polygon(0 0,100% 0,90% 100%,10% 100%)}.g-pint .body .liq{top:8%}
+.g-pint .head{height:28px;background:#fbf4e2}
+.glass.rim .body{box-shadow:inset 0 0 0 2px rgba(18,18,22,.12),0 -4px 0 -1px #fafafa,0 -5px 0 0 rgba(18,18,22,.15)}
+.glass .ice{inset:auto 8% 16% 8%}
+.g-highball .straw{position:absolute;bottom:40%;left:58%;width:6px;height:80%;background:#e8457f;border-radius:4px;transform:rotate(8deg)}
+.g-mug .body{width:112px;height:108px;border-radius:8px 8px 22px 22px;background:#fff;box-shadow:inset 0 0 0 2px rgba(18,18,22,.12),0 20px 30px -18px rgba(18,18,22,.35)}
+.g-mug .body .liq{top:12%;inset:12% 6px 6px;border-radius:4px 4px 18px 18px}
+.g-mug .handle{position:absolute;right:-26px;top:26px;width:36px;height:46px;border:7px solid #fff;border-left:0;border-radius:0 24px 24px 0;box-shadow:2px 0 0 0 rgba(18,18,22,.12)}
+.g-mug .teatag{position:absolute;top:-28px;right:16px;width:2px;height:60px;background:#bba;}
+.g-mug .teatag::after{content:"";position:absolute;bottom:-4px;left:-8px;width:18px;height:14px;background:#f2efe6;border:1px solid #d8d2c4}
+@media (max-width:860px){.g-highball .body,.g-pint .body{height:150px}.g-martini .bowl{width:120px;height:78px}.glass .stem{height:50px}}
+@media (max-width:860px){.tnote{display:none}}
