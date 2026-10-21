@@ -35,7 +35,7 @@ function mount(root,ctx,T){
     lit=new Set(T.lit(vals));note.textContent=res.note||'';paint(true);ctx.tone&&ctx.tone(res.changed?620:330,.4,.05);
     if(res.reply)setTimeout(()=>say('ai',esc(res.reply)),ctx.reduce?0:200);chips();
     /* bite 5 follows along live, so the note there always matches the drink here */
-    if(vals.started){const p=T.prompt(vals);try{ctx.store&&ctx.store(ctx.key+'-prompt',p);}catch(_){}window.dispatchEvent(new CustomEvent('aiimo:prompt',{detail:p}));}}
+    if(vals.started){const p=T.prompt(vals);try{ctx.store&&ctx.store(ctx.key+'-p2',p);}catch(_){}window.dispatchEvent(new CustomEvent('aiimo:prompt',{detail:p}));}}
   function ask(){if(T.open){say('ai',esc(val(T.ai,vals)));chips();return;}const s=T.steps[step];say('ai',esc(val(s.ai,vals)));sugs.innerHTML=(val(s.chips,vals)||[]).map(c=>`<button type="button">${esc(c)}</button>`).join('');}
   function submit(text){text=text.trim();if(!text||done)return;say('you',esc(text));input.value='';
     const s=T.steps[step];const ok=s.check?s.check(text,vals):true;
@@ -52,7 +52,7 @@ function mount(root,ctx,T){
     if(reply)setTimeout(()=>say('ai',esc(reply)),ctx.reduce?0:200);
     if(step<T.steps.length)setTimeout(ask,ctx.reduce?0:(reply?500:250));else setTimeout(finish,ctx.reduce?0:(reply?400:0));}
   function finish(){done=true;sugs.innerHTML='';paint(false);const p=T.prompt(vals);
-    try{ctx.store&&ctx.store(ctx.key+'-prompt',p);}catch(_){}
+    try{ctx.store&&ctx.store(ctx.key+'-p2',p);}catch(_){}
     window.dispatchEvent(new CustomEvent('aiimo:prompt',{detail:p}));
     const d=$('.tdone');d.hidden=false;
     d.innerHTML=`<span class="tag" style="--accent:${parts[0].c}">your takeaway</span><h3>${esc(T.done.title)}</h3><p class="say">${esc(T.done.say)}</p>
@@ -75,15 +75,20 @@ function mount(root,ctx,T){
 
 /* bite 5: the prompt they just made, ready to open in a real ai */
 function take(root,ctx,K){
-  let p=null;try{p=ctx.store&&ctx.store(ctx.key+'-prompt');}catch(_){}
+  let p=null;try{p=ctx.store&&ctx.store(ctx.key+'-p2');}catch(_){}
   root.innerHTML=`<div class="take5"><div class="term"><div class="term-top"><span class="lights"><i></i><i></i><i></i></span><span>${esc(K.label)}</span><span class="t5state"></span></div><pre class="t5"></pre></div>
     <div class="row"><a class="go" data-app="claude" target="_blank" rel="noopener">open in claude ↗</a><a class="go light2" data-app="chatgpt" target="_blank" rel="noopener">open in chatgpt ↗</a><button class="go light2" type="button" data-a="copy">copy it</button></div>
     <p class="hint">${esc(K.hint)}</p></div>`;
   const pre=root.querySelector('.t5'),st=root.querySelector('.t5state');
-  function set(text,mine){pre.textContent=text;st.textContent=mine?'yours, from bite 4':'example · do bite 4 to make yours';
+  function set(text,mine){pre.textContent=text;st.textContent=mine?(K.mine||'yours, from bite 4'):'example · do bite 4 to make yours';
     root.querySelector('[data-app=claude]').href='https://claude.ai/new?q='+encodeURIComponent(text);
     root.querySelector('[data-app=chatgpt]').href='https://chatgpt.com/?q='+encodeURIComponent(text);}
+  const btns=root.querySelector('.row');
+  function empty(){pre.textContent=K.empty;st.textContent='waiting for bite 4';btns.hidden=true;
+    if(!root.querySelector('.t5go')){const g=document.createElement('button');g.className='go t5go';g.type='button';g.textContent=K.emptyButton||'go to bite 4';g.onclick=()=>{const b=document.getElementById('b4');b&&b.scrollIntoView({behavior:'smooth'});};btns.after(g);}}
+  function filled(text){const g=root.querySelector('.t5go');if(g)g.remove();btns.hidden=false;set(text,true);}
   if(K.fixed){set(K.example,false);st.textContent=K.state||'';}
+  else if(K.empty){p?filled(p):empty();window.addEventListener('aiimo:prompt',e=>filled(e.detail));}
   else{set(p||K.example,!!p);window.addEventListener('aiimo:prompt',e=>set(e.detail,true));}
   root.querySelector('[data-a=copy]').addEventListener('click',e=>ctx.copy(pre.textContent,e.currentTarget,'copy it'));
 }
