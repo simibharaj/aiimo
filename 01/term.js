@@ -31,11 +31,17 @@ function mount(root,ctx,T){
   function submit(text){text=text.trim();if(!text||done)return;say('you',esc(text));input.value='';
     const s=T.steps[step];const ok=s.check?s.check(text,vals):true;
     if(ok!==true){setTimeout(()=>say('ai',esc(ok)),ctx.reduce?0:250);ctx.tone&&ctx.tone(330,.3,.04);return;}
-    s.save(text,vals);lit.add(s.part);note.textContent=val(s.note,vals)||'';ctx.tone&&ctx.tone(520+step*60,.45,.05);
+    s.save(text,vals);lit.add(s.part);if(T.lit)T.lit(vals).forEach(k=>lit.add(k));
+    note.textContent=val(s.note,vals)||'';ctx.tone&&ctx.tone(520+step*60,.45,.05);
     if(step===0)first=JSON.parse(JSON.stringify(vals));
-    step++;paint(true);
-    if(s.reply)setTimeout(()=>say('ai',esc(val(s.reply,vals))),ctx.reduce?0:200);
-    if(step<T.steps.length)setTimeout(ask,ctx.reduce?0:(s.reply?500:250));else finish();}
+    step++;
+    /* a real, detailed answer can cover later parts already. skip those steps and say so. */
+    const skipped=[];while(step<T.steps.length&&T.steps[step].skip&&T.steps[step].skip(vals)){skipped.push(T.steps[step].part);lit.add(T.steps[step].part);step++;}
+    paint(true);
+    let reply=s.reply?val(s.reply,vals):'';
+    if(skipped.length&&T.skipSay)reply=(reply?reply+' ':'')+T.skipSay(skipped.map(k=>(parts.find(p=>p.k===k)||{}).short||k),vals,step>=T.steps.length);
+    if(reply)setTimeout(()=>say('ai',esc(reply)),ctx.reduce?0:200);
+    if(step<T.steps.length)setTimeout(ask,ctx.reduce?0:(reply?500:250));else setTimeout(finish,ctx.reduce?0:(reply?400:0));}
   function finish(){done=true;sugs.innerHTML='';paint(false);const p=T.prompt(vals);
     try{ctx.store&&ctx.store(ctx.key+'-prompt',p);}catch(_){}
     window.dispatchEvent(new CustomEvent('aiimo:prompt',{detail:p}));
