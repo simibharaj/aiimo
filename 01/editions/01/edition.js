@@ -49,58 +49,104 @@ window.EDITION={
   ]
 };
 
-/* bite 4: the coffee terminal. goal, context, limits, format. the cup changes with every detail. */
+/* bite 4: the coffee terminal. type your real order. every detail you give changes the cup.
+   one parser reads every answer for everything (drink, size, milk, temp, foam, pumps, shots, toppings, name),
+   so a full real order works on the first try and the steps it already covers get skipped. */
 (function(E){
-const DRINKS=[[/chai/,'chai latte','#c8915f'],[/matcha/,'matcha latte','#9cc27a'],[/cold brew/,'cold brew','#3d2618'],[/americano/,'americano','#4a2d1b'],[/espresso/,'espresso','#3a2214'],[/mocha/,'mocha','#5b3524'],[/latte|cappuccino|flat white/,'latte','#b98a62'],[/tea/,'tea','#b77a2e'],[/coffee/,'drip coffee','#4b2e1d']];
-const MILK={soy:'#efe2c9',oat:'#e9d8b4',almond:'#efe4d2',coconut:'#f6f1e7',whole:'#fbf6ee',skim:'#f4f2ee','2%':'#f8f3ea','two percent':'#f8f3ea',nonfat:'#f4f2ee'};
-const lc=t=>t.toLowerCase();
-function goal(t){t=lc(t);const d=DRINKS.find(x=>x[0].test(t));return d?{name:d[1],c:d[2]}:{name:t.replace(/^(?:a|an|one|some)\s+/,'').replace(/[.!]$/,'')||'drip coffee',c:'#4b2e1d'};}
-function context(t){t=lc(t);return {size:/venti|large|long|drive|all day|tired|big|double/.test(t)?'venti':/tall|small|quick|short|light/.test(t)?'tall':'grande',togo:/drive|to go|commute|road|run|walk/.test(t),who:(t.match(/for (my [a-z]+|me|her|him|them)/)||[])[1]||'me',raw:t};}
-function limits(t){t=lc(t);const m=t.match(/\b(soy|oat|almond|coconut|whole|skim|2%|two percent|nonfat)\b/);
-  return {milk:m?m[1]:null,sf:/sugar.?free|\bsf\b|no sugar|unsweet/.test(t),nowhip:/no whip/.test(t),decaf:/decaf/.test(t)};}
-function format(t){t=lc(t);const foam=t.match(/([a-z]+) cold foam/);const pumps=t.match(/(\d+)\s*pumps?(?:\s+of)?\s*((?:sf|sugar.?free)\s+)?([a-z]+)?/);const name=t.match(/name(?: on (?:the|my) cup)?\s*[:=]?\s*([a-z]+)/);
-  return {iced:/iced|cold\b|over ice/.test(t)&&!/hot/.test(t),hot:/hot|warm/.test(t),foam:foam?foam[1]+' cold foam':(/cold foam/.test(t)?'cold foam':null),topper:/protein|topper/.test(t)?'protein topper':null,
-    pumps:pumps?pumps[1]+' pumps'+(pumps[2]?' sf':'')+(pumps[3]&&!/of/.test(pumps[3])?' '+pumps[3]:''):null,name:name?name[1]:null,light:/light ice/.test(t)};}
-function orderLine(v){const g=v.goal,c=v.ctx,l=v.lim,f=v.fmt;if(!g)return '';
-  return [c&&c.size,f&&(f.iced?'iced':f.hot?'hot':''),l&&l.milk&&l.milk+' milk',g.name,f&&f.foam&&'with '+f.foam,f&&f.topper,f&&f.pumps,l&&l.sf&&!(f&&/sf/.test(f.pumps||''))&&'sugar free',l&&l.nowhip&&'no whip',l&&l.decaf&&'decaf'].filter(Boolean).join(' ').replace(/\s+/g,' ').trim();}
+const N={one:1,two:2,three:3,four:4,five:5,six:6,a:1,single:1,double:2,triple:3,quad:4};
+const DRINKS=[[/dirty chai/,'dirty chai latte','#b47a4c'],[/chai/,'chai latte','#c8915f'],[/matcha/,'matcha latte','#9cc27a'],[/london fog/,'london fog','#c9b79c'],[/hot choc|hot cocoa|cocoa/,'hot chocolate','#6b3f2a'],
+  [/nitro/,'nitro cold brew','#2e1c12'],[/cold brew/,'cold brew','#3d2618'],[/americano/,'americano','#4a2d1b'],[/cortado/,'cortado','#8a5a3a'],[/flat white/,'flat white','#a77a55'],
+  [/cappuccino|capp\b/,'cappuccino','#a8805c'],[/caramel macchiato/,'caramel macchiato','#b5875c'],[/macchiato/,'macchiato','#7a4c2e'],[/white mocha/,'white mocha','#c9a582'],[/mocha/,'mocha','#5b3524'],
+  [/frap|frappuccino|blended/,'frappuccino','#b08a68'],[/refresher|lemonade/,'refresher','#f07aa0'],[/espresso|doppio|shot of/,'espresso','#3a2214'],[/latte/,'latte','#b98a62'],[/tea/,'tea','#b77a2e'],[/coffee|drip|joe/,'drip coffee','#4b2e1d']];
+const MILKS=[['oat','#e9d8b4'],['almond','#efe4d2'],['soy','#efe2c9'],['coconut','#f6f1e7'],['cashew','#f1e6d4'],['macadamia','#f3e9d6'],['pistachio','#e6ecc9'],['lactose free','#f6f0e4'],['whole','#fbf6ee'],['skim','#f4f2ee'],['nonfat','#f4f2ee'],['2%','#f8f3ea'],['two percent','#f8f3ea'],['half and half','#fbf3e4'],['breve','#fbf3e4'],['heavy cream','#fdf6e8']];
+const FLAVORS='brown sugar|toffee nut|cinnamon dolce|white mocha|salted caramel|caramel|vanilla|hazelnut|mocha|peppermint|lavender|pumpkin spice|pumpkin|honey|maple|coconut|raspberry|almond|cinnamon|banana|strawberry|irish cream';
+const FOAM={banana:'#f7e7a4',vanilla:'#f8f0dc','salted caramel':'#ecd2a8',caramel:'#ecd2a8',pumpkin:'#f4c48a',strawberry:'#f7c6d3',matcha:'#cfe3b5',chocolate:'#cfae94',mocha:'#cfae94',lavender:'#e2d6f2',cinnamon:'#ecd6bd'};
+const num=s=>N[s]||parseInt(s,10)||0;
+function absorb(t,v){const l=' '+t.toLowerCase().replace(/[’']/g,"'")+' ';
+  /* drink */
+  const d=DRINKS.find(x=>x[0].test(l));
+  if(d&&(!v.drink||v.drink.name==='drip coffee'||d[1]!=='drip coffee'))v.drink={name:d[1],c:d[2]};
+  /* size: context */
+  const sz=l.match(/\b(short|tall|grande|venti|trenta|small|medium|large|extra large|(8|12|16|20|24|30) ?oz)\b/);
+  if(sz)v.size=({small:'tall',medium:'grande',large:'venti','extra large':'trenta'})[sz[1]]||sz[1].replace(/ ?oz/,' oz');
+  else if(/long (drive|day|night)|all day|exhausted|tired|road trip/.test(l)&&!v.size)v.size='venti';
+  else if(/quick|on the go|in a rush/.test(l)&&!v.size)v.size='tall';
+  if(/to go|drive|commute|road|on the go|in a rush|walk/.test(l))v.togo=true;
+  if(/for (my boss|my mom|my dad|my friend|a friend|the team|her|him|them)/.test(l))v.who=l.match(/for (my boss|my mom|my dad|my friend|a friend|the team|her|him|them)/)[1];
+  /* limits: swaps and avoids */
+  const mk=MILKS.find(m=>new RegExp('\\b'+m[0].replace('%','%')+'\\b').test(l)&&!new RegExp('no '+m[0]).test(l));if(mk)v.milk=mk;
+  if(/dairy.?free|non.?dairy/.test(l)&&!v.milk)v.milk=['oat','#e9d8b4'];
+  if(/\bsugar.?free\b|\bsf\b|no sugar|unsweet|splenda|stevia|skinny/.test(l))v.sf=true;
+  if(/half (sweet|the syrup|pumps)|less sweet|light (syrup|sweet)/.test(l))v.lessSweet=true;
+  if(/no whip|without whip|hold the whip/.test(l))v.noWhip=true;
+  if(/\bdecaf\b/.test(l))v.decaf='decaf';else if(/half.?caff?/.test(l))v.decaf='half caf';
+  if(/no ice/.test(l))v.ice='no ice';
+  /* format: how it's made and handed over */
+  if(/\biced\b|over ice|on ice/.test(l)||/\bcold\b(?! foam| brew)/.test(l)||(d&&/cold brew|refresher/.test(d[1])&&!v.temp))v.temp='iced';
+  if(/\b(hot|warm|steamed)\b/.test(l))v.temp=/extra hot/.test(l)?'extra hot':'hot';
+  if(/frap|blended/.test(l))v.temp='blended';
+  if(/light ice|easy ice/.test(l))v.ice='light ice';if(/extra ice/.test(l))v.ice='extra ice';
+  const fm=l.match(new RegExp('((?:'+FLAVORS+'|chocolate|matcha|sweet cream)\\s+)?(?:cream\\s+)?cold foam'));if(fm)v.foam=((fm[1]||'').trim()+' cold foam').trim();
+  if(/extra foam|foamy/.test(l)&&!v.foam)v.foam='extra foam';
+  const pm=[...l.matchAll(new RegExp('(\\d+|one|two|three|four|five|six)\\s*pumps?\\s*(?:of\\s*)?((?:sf|sugar.?free)\\s*)?('+FLAVORS+')?','g'))];
+  if(pm.length)v.pumps=pm.map(m=>num(m[1])+' pump'+(num(m[1])>1?'s':'')+(m[2]?' sf':'')+(m[3]?' '+m[3]:'')).join(', ');
+  else{const fl=l.match(new RegExp('\\b('+FLAVORS+')\\b(?!\\s*(cold foam|drizzle|milk|cream))'));if(fl&&!v.flavor&&!(d&&d[1].includes(fl[1])))v.flavor=fl[1];}
+  const sh=l.match(/(extra|double|triple|quad|\d|one|two|three|four) (espresso )?shots?|extra shot|blonde|ristretto/);if(sh)v.shots=sh[0];
+  if(/protein/.test(l))v.protein=true;
+  const dz=l.match(new RegExp('('+FLAVORS+'|chocolate)? ?drizzle'));if(dz)v.drizzle=((dz[1]||'')+' drizzle').trim();
+  if(/\bwhip\b/.test(l)&&!/no whip|without whip|hold the whip/.test(l))v.whip=true;
+  const nm=l.match(/name(?: on (?:the |my )?cup)?(?: is| should say| says)?\s*[:=]?\s*([a-z]+)/)||l.match(/for ([a-z]+) on the cup/);if(nm)v.name=nm[1];
+  return v;}
+const has={goal:v=>!!v.drink,context:v=>!!(v.size||v.togo||v.who),limits:v=>!!(v.milk||v.sf||v.noWhip||v.decaf||v.lessSweet||v.ice==='no ice'),format:v=>!!(v.temp||v.foam||v.pumps||v.shots||v.protein||v.drizzle||v.whip||v.name||v.flavor||(v.ice&&v.ice!=='no ice'))};
+const order=v=>[v.size,v.temp,v.decaf,v.milk&&v.milk[0]+' milk',v.flavor,v.drink&&v.drink.name,v.shots,v.pumps,v.sf&&!/sf/.test(v.pumps||'')&&'sugar free',v.lessSweet&&'less sweet',v.foam&&'with '+v.foam,v.protein&&'protein topper',v.drizzle,v.whip&&'whip',v.noWhip&&'no whip',v.ice,v.togo&&'to go',v.name&&'name on the cup: '+v.name].filter(Boolean).join(' · ');
+const vague=t=>/^(whatever|idk|i don'?t know|nothing|none|no|nah|anything|nope|n\/a|skip)\.?$/i.test(t.trim());
 E.term={title:'order mode · your barista',previewLabel:'preview · what the barista hands you',device:'cup',
-  startNote:'order like you usually would. the preview shows what you actually get.',
+  startNote:'order the way you really would. the preview shows what you actually get.',
   parts:[{k:'goal',short:'goal',c:'#ff6fa3',why:'what you actually want.'},
          {k:'context',short:'context',c:'#e6b92e',why:"who it's for and what's going on."},
          {k:'limits',short:'limits',c:'#2fc4c8',why:'what to avoid or swap.'},
          {k:'format',short:'format',c:'#4fbf6a',why:'exactly how you want it handed back.'}],
+  lit:v=>Object.keys(has).filter(k=>has[k](v)),
+  skipSay:(names,v,last)=>'you already gave me your '+(names.length>1?names.slice(0,-1).join(', ')+' and '+names[names.length-1]:names[0])+'.'+(last?" that's a full prompt. you've been doing this at the counter for years.":''),
   steps:[
-    {part:'goal',ai:"hey. what can i get you?",chips:['a coffee','a chai latte'],
-     save:(t,v)=>{v.goal=goal(t);},note:v=>/drip/.test(v.goal.name)?"you asked for coffee. you got coffee. it isn't wrong. it just isn't yours.":"a goal helps. but it's still the default version."},
+    {part:'goal',ai:"hey. what can i get you? order it exactly how you'd say it at the counter.",chips:['a coffee','venti iced oat milk chai with 2 pumps sf vanilla and banana cold foam'],
+     check:t=>vague(t)?'give me something to make. even "a coffee" works.':true,
+     save:(t,v)=>{absorb(t,v);if(!v.drink)v.drink={name:t.replace(/^(i'?ll have |can i (get|have) |i want |a |an )+/i,'').replace(/[.!]$/,'').slice(0,40)||'drip coffee',c:'#4b2e1d'};},
+     note:v=>(v.drink.name==='drip coffee'&&!has.context(v)&&!has.limits(v)&&!has.format(v))?"you asked for coffee. you got coffee. it isn't wrong. it just isn't yours.":'every highlighted line on the ticket came from your words.'},
     {part:'context',ai:"who's it for, and what's the day looking like?",chips:["it's for me. long drive ahead.","it's for my boss. big meeting at 9."],
-     save:(t,v)=>{v.ctx=context(t);},note:v=>v.ctx.size==='venti'?'context changed the size. it knows the day is long.':'context changed the size to fit the moment.'},
-    {part:'limits',ai:'anything i should swap or avoid?',chips:['soy milk. sugar free. no whip.','oat milk. decaf.'],
-     check:t=>{const l=limits(t);return (l.milk||l.sf||l.nowhip||l.decaf)?true:'give me one swap or one avoid. like: soy milk, or sugar free.';},
-     save:(t,v)=>{v.lim=limits(t);},note:'limits changed the milk. nothing you said no to made it in.'},
-    {part:'format',ai:'how exactly do you want it?',chips:['hot. banana cold foam. protein topper. 3 pumps sf vanilla.','iced. light ice. name on the cup: simi.'],
-     save:(t,v)=>{v.fmt=format(t);},note:"now it's exactly your order. every highlighted piece came from you."}],
+     skip:v=>has.context(v),check:t=>vague(t)?"tell me a little. who's it for, or how big a day is it?":true,
+     save:(t,v)=>{absorb(t,v);if(!has.context(v))v.size='grande';v.ctxText=t;},note:'context set the size and how you get it.'},
+    {part:'limits',ai:'anything i should swap or avoid? milk, sugar, caffeine, whip.',chips:['oat milk. sugar free. no whip.','almond milk. decaf.'],
+     skip:v=>has.limits(v),check:t=>vague(t)?"say it even if it's small. like: oat milk, or sugar free.":true,
+     save:(t,v)=>{absorb(t,v);if(!has.limits(v))v.limitNote=t;},note:'limits changed what went in. nothing you said no to made it.'},
+    {part:'format',ai:'how exactly do you want it? hot or iced, foam, pumps, toppings, name on the cup.',chips:['iced. banana cold foam. protein topper. 3 pumps sf vanilla.','hot. extra shot. name on the cup: simi.'],
+     skip:v=>has.format(v),check:t=>vague(t)?'pick at least one: hot or iced, a syrup, a foam, or your name on the cup.':true,
+     save:(t,v)=>{absorb(t,v);if(!has.format(v))v.formatNote=t;},note:"now it's exactly your order."}],
   render(v,{hl,esc}){
-    const g=v.goal,c=v.ctx||{},l=v.lim||{},f=v.fmt||{};
+    const g=v.drink;
     if(!g)return `<div class="cupm"><div class="cupwrap s-grande"><div class="cup empty"><span class="lid"></span><div class="liq" style="--liq:#e9e6e1"></div></div></div><div class="ticket"><b>order</b><p>waiting for your order.</p></div></div>`;
-    const size=c.size||'grande',liq=l.milk?`color-mix(in srgb,${g.c} 62%,${MILK[l.milk]||'#f3eadb'})`:g.c;
-    const foam=f.foam?`<div class="foam" style="--foam:${/banana/.test(f.foam)?'#f7e7a4':/vanilla/.test(f.foam)?'#f8f0dc':'#f6efe6'}"></div>`:'';
-    const top=f.topper?'<div class="topper"></div>':'';
-    const ice=f.iced?`<div class="ice">${'<i></i>'.repeat(f.light?2:4)}</div>`:'';
-    const steam=(f.hot||(!f.iced&&v.fmt))?'<div class="steam"><i></i><i></i><i></i></div>':'';
-    const name=f.name?`<span class="name">${hl('format',f.name)}</span>`:c.who&&v.ctx?`<span class="name">${esc(c.who==='me'?'':c.who)}</span>`:'';
-    const lines=[];
-    lines.push(`<li>${hl('goal',g.name)}</li>`);
-    lines.push(`<li>${v.ctx?hl('context',size):'grande'}${v.ctx&&c.togo?' · '+hl('context','to go'):''}</li>`);
-    lines.push(`<li>${v.lim&&l.milk?hl('limits',l.milk+' milk'):'2% milk, the default'}</li>`);
-    if(v.lim&&(l.sf||l.nowhip||l.decaf))lines.push(`<li>${hl('limits',[l.sf&&'sugar free',l.nowhip&&'no whip',l.decaf&&'decaf'].filter(Boolean).join(' · '))}</li>`);
-    if(v.fmt)lines.push(`<li>${hl('format',[f.iced?'iced':f.hot?'hot':'',f.foam,f.topper,f.pumps,f.light&&'light ice'].filter(Boolean).join(' · ')||'as described')}</li>`);
-    else lines.push(`<li>${g.name==='drip coffee'?'black. whatever is in the pot.':'standard recipe.'}</li>`);
-    return `<div class="cupm"><div class="cupwrap s-${size}">${steam}<div class="cup${f.iced?' clear':''}"><span class="lid"></span><div class="liq" style="--liq:${liq}">${ice}${foam}${top}</div>${name}</div></div>
-      <div class="ticket"><b>order ticket</b><ul>${lines.join('')}</ul></div></div>`;},
-  prompt:v=>{const o=orderLine(v)||'a coffee';const c=v.ctx?v.ctx.raw.replace(/\.$/,''):'';
-    return `remember this about me for future chats.\nmy usual order: ${o}.\nwhen i say "the usual", that's what i mean.${c?`\ncontext: ${c}.`:''}\nbefore you help me with anything, use what you already know about me. if something important is missing, ask me once and remember the answer.`;},
-  done:{title:'goal, context, limits, format.',say:"\"a coffee\" gets you whatever's in the pot. the four parts get you exactly your order. same with ai. vague in, generic out.",
+    const sizeKey=/venti|trenta|20|24|30/.test(v.size||'')?'venti':/tall|short|8|12/.test(v.size||'')?'tall':'grande';
+    const liq=v.milk?`color-mix(in srgb,${g.c} 60%,${v.milk[1]})`:g.c;
+    const fk=v.foam&&Object.keys(FOAM).find(k=>v.foam.includes(k));
+    const foam=v.foam?`<div class="foam" style="--foam:${fk?FOAM[fk]:'#f6efe6'}"></div>`:'';
+    const whip=v.whip?'<div class="foam" style="--foam:#fffaf2;height:22px;border-radius:40% 40% 0 0"></div>':'';
+    const top=v.protein?'<div class="topper"></div>':'';
+    const dz=v.drizzle?'<div class="topper" style="background:repeating-linear-gradient(110deg,transparent 0 6px,#b0783f 6px 8px)"></div>':'';
+    const iced=v.temp==='iced'||v.temp==='blended';
+    const ice=iced&&v.ice!=='no ice'?`<div class="ice">${'<i></i>'.repeat(v.ice==='light ice'?2:v.ice==='extra ice'?6:4)}</div>`:'';
+    const steam=(v.temp==='hot'||v.temp==='extra hot')?'<div class="steam"><i></i><i></i><i></i></div>':'';
+    const name=v.name?`<span class="name">${hl('format',v.name)}</span>`:'';
+    const L=[`<li>${hl('goal',g.name)}</li>`];
+    L.push(`<li>${has.context(v)?hl('context',[v.size,v.togo&&'to go',v.who&&'for '+v.who].filter(Boolean).join(' · ')):'grande, the default'}</li>`);
+    L.push(`<li>${has.limits(v)?hl('limits',[v.milk&&v.milk[0]+' milk',v.decaf,v.sf&&'sugar free',v.lessSweet&&'less sweet',v.noWhip&&'no whip',v.ice==='no ice'&&'no ice'].filter(Boolean).join(' · ')):'2% milk, the default'}</li>`);
+    const F=[v.temp,v.shots,v.flavor,v.pumps,v.foam,v.protein&&'protein topper',v.drizzle,v.whip&&'whip',v.ice&&v.ice!=='no ice'&&v.ice,v.name&&'name: '+v.name].filter(Boolean);
+    L.push(`<li>${F.length?hl('format',F.join(' · ')):(g.name==='drip coffee'?'black. whatever is in the pot.':'standard recipe.')}</li>`);
+    [v.limitNote,v.formatNote].filter(Boolean).forEach(n=>L.push(`<li>note: ${esc(n)}</li>`));
+    return `<div class="cupm"><div class="cupwrap s-${sizeKey}">${steam}<div class="cup${iced?' clear':''}"><span class="lid"></span><div class="liq" style="--liq:${liq}">${ice}${whip}${foam}${dz}${top}</div>${name}</div></div>
+      <div class="ticket"><b>order ticket</b><ul>${L.join('')}</ul></div></div>`;},
+  prompt:v=>`remember this about me for future chats.\nmy usual order: ${order(v)||'a coffee'}.\nwhen i say "the usual", that's what i mean.${v.ctxText?`\ncontext: ${v.ctxText.replace(/\.$/,'')}.`:''}\nbefore you help me with anything, use what you already know about me. if something important is missing, ask me once and remember the answer.`,
+  done:{title:'goal, context, limits, format.',say:"\"a coffee\" gets you whatever's in the pot. your real order gets you exactly what you want. same with ai. vague in, generic out.",
     rule:'works on any prompt: say the goal, give context, set limits, describe the format.'}};
 E.take={label:'your remember-me note',hint:'it opens a new chat with your note filled in. press send. next time, just say "the usual."',
-  example:'remember this about me for future chats.\nmy usual order: venti hot soy milk chai latte with banana cold foam protein topper 3 pumps sf vanilla.\nwhen i say "the usual", that\'s what i mean.\ncontext: it\'s for me. long drive ahead.\nbefore you help me with anything, use what you already know about me. if something important is missing, ask me once and remember the answer.'};
+  example:'remember this about me for future chats.\nmy usual order: venti · iced · oat milk · chai latte · 2 pumps sf vanilla · with banana cold foam.\nwhen i say "the usual", that\'s what i mean.\nbefore you help me with anything, use what you already know about me. if something important is missing, ask me once and remember the answer.'};
 })(window.EDITION);
