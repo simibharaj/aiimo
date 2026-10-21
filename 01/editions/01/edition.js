@@ -208,10 +208,12 @@ E.term={open:true,title:'the counter',previewLabel:'preview · what you get hand
     L.push(`<li>${F.length?hl('format',F.join(' · ')):(g.name==='drip coffee'?'black. whatever is in the pot.':'the standard recipe.')}</li>`);
     if(v.extras&&v.extras.length)L.push(`<li>${hl('format',v.extras.join(' · '))}</li>`);
     return `<div class="cupm"><div class="cupwrap s-${sizeKey} k-${k}">${steam}${vessel}</div><div class="ticket"><b>order ticket</b><ul>${L.join('')}</ul></div></div>`;},
-  prompt:v=>`remember this about me for future chats.\nmy usual order: ${items(v).join(', ')||'a coffee'}.\nwhen i say "the usual", that's what i mean.\nbefore you help me with anything, use what you already know about me. if something important is missing, ask me once and remember the answer.`,
+  prompt:v=>`i want to make this drink at home: ${items(v).filter(x=>!/^name: |^to go$|^for here$/.test(x)).join(', ')}.\ngoal: a recipe that tastes like the version i'd order out.\ncontext: i'm making it in my own kitchen with normal tools.\nlimits: no special equipment, and ready in 10 minutes or less.\nformat: a short ingredient list, then numbered steps.`,
   done:{title:'goal, context, limits, format.',say:"a short order gets you the default. your real order gets you exactly what you want, and you can keep changing it until it's right. talking to ai works the same way.",
     rule:'works for anything you ask ai: say what you want, give the details, then keep fixing it.'}};
-E.take={label:'your remember-me note',hint:'tap "open in claude" or "open in chatgpt." it opens a new chat with your note already typed in. press send. next time, just say "the usual."',
-  example:'remember this about me for future chats.\nmy usual order: large, iced, oat milk, chai latte, 2 pumps sf vanilla, banana cold foam.\nwhen i say "the usual", that\'s what i mean.\nbefore you help me with anything, use what you already know about me. if something important is missing, ask me once and remember the answer.'};
+E.take={label:'your request to ai',mine:'made from your drink in bite 4',
+  empty:'order a drink in bite 4 first. your request shows up here as soon as you do.',emptyButton:'go to bite 4',
+  hint:'tap a button. claude or chatgpt opens with this already typed in. press send and you get a recipe for your exact drink. notice the four parts: goal, context, limits, format.'};
+E.ui.b5={h2:'now get ai to *make it for you.*',say:'your drink from bite 4 just became a real request to ai, written the same way you ordered: what you want, what is true about you, what to avoid, how you want it back.',hint:'try it with anything. a dinner plan, a text to your landlord, a gift. same four parts.'};
 E.ui.b4={h2:'order exactly what you want. *it works on ai too.*',say:"this is practice for talking to ai, using something you already know how to do: ordering a drink."};
 })(window.EDITION);
