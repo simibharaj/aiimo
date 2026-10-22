@@ -740,3 +740,106 @@ pre.t5{color:#16161b}
 .bento .sticker{background:color-mix(in srgb,var(--accent) 20%,#fff)}
 #b6 .copy{gap:16px}
 @media (max-width:860px){.bento{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.bento .sub,.bento .share{grid-column:span 1}.bento strong{font-size:17px}.bento .tile{padding:16px}}
+
+/* ===== CLEAR CRYSTAL GLASS (apple liquid glass references) =====
+   stage: light grid with crisp color behind. glass: fully transparent, bright rims, lifted shadow, rainbow caustic. */
+#lab .tgrid,.take5{background:#eef0f4;
+  background-image:linear-gradient(rgba(18,18,22,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(18,18,22,.06) 1px,transparent 1px);background-size:26px 26px}
+#lab .tgrid::before,.take5::before{filter:none;inset:0;
+  background:
+   linear-gradient(90deg,#3b82f6,#a855f7 35%,#ec4899 60%,#facc15 100%) 8% 9%/46% 14px no-repeat,
+   radial-gradient(circle at 88% 30%,#34d399 0 34px,transparent 35px),
+   radial-gradient(circle at 12% 72%,#818cf8 0 46px,transparent 47px),
+   linear-gradient(90deg,#60a5fa,#2563eb) 70% 94%/30% 14px no-repeat;
+  border-radius:inherit}
+.term,#lab .tpv{
+  background:rgba(255,255,255,.06);
+  -webkit-backdrop-filter:blur(.6px) saturate(1.15) contrast(1.02);backdrop-filter:blur(.6px) saturate(1.15) contrast(1.02);
+  border:1.5px solid rgba(255,255,255,.95);
+  box-shadow:
+    inset 0 1.5px 0 rgba(255,255,255,1),
+    inset 0 -1.5px 0 rgba(18,18,22,.07),
+    inset 8px 8px 16px -10px rgba(255,255,255,.95),
+    inset -10px -12px 22px -14px rgba(18,18,22,.16),
+    0 2px 3px rgba(18,18,22,.06),
+    0 26px 34px -22px rgba(18,18,22,.30)}
+.term::before{background:linear-gradient(135deg,#fff,rgba(255,255,255,.2) 40%,rgba(255,255,255,.2) 70%,#fff);opacity:1}
+/* rainbow caustic light under the glass */
+.term::after,#lab .tpv::after{inset:auto 8% -2px 8%;height:10px;border-radius:50%;z-index:0;
+  background:linear-gradient(90deg,rgba(96,165,250,0),rgba(96,165,250,.45),rgba(236,72,153,.4),rgba(250,204,21,.45),rgba(52,211,153,.4),rgba(52,211,153,0));filter:blur(4px)}
+.term-top{color:#16161b}
+/* clear glass pills */
+.sugs button,.rail li:not(.on),.term-reset{background:rgba(255,255,255,.08);-webkit-backdrop-filter:blur(.5px) saturate(1.2);backdrop-filter:blur(.5px) saturate(1.2);
+  border:1.5px solid rgba(255,255,255,.98);color:#16161b;
+  box-shadow:inset 0 1.5px 0 #fff,inset -4px -6px 10px -6px rgba(18,18,22,.18),inset 4px 4px 8px -6px #fff,0 12px 16px -12px rgba(18,18,22,.4)}
+/* gel pills: lavender and mint, glowing inside */
+.sugs button:first-child{color:#2e2470;border-color:rgba(255,255,255,.95);
+  background:radial-gradient(70% 60% at 50% 85%,rgba(236,140,255,.75),transparent 70%),linear-gradient(180deg,rgba(214,206,255,.85),rgba(178,162,250,.8));
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.95),inset 0 -6px 12px rgba(150,110,240,.35),0 14px 18px -12px rgba(120,90,230,.6),0 22px 18px -16px rgba(255,170,120,.45)}
+.sugs button:nth-child(2){color:#14452f;
+  background:radial-gradient(70% 60% at 50% 85%,rgba(120,240,170,.75),transparent 70%),linear-gradient(180deg,rgba(214,250,214,.9),rgba(160,232,170,.8));
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.95),inset 0 -6px 12px rgba(60,180,100,.3),0 14px 18px -12px rgba(60,170,100,.55),0 22px 18px -16px rgba(250,204,21,.4)}
+.rail li.on{background:radial-gradient(70% 60% at 50% 85%,rgba(255,255,255,.5),transparent 70%),color-mix(in srgb,var(--c) 75%,rgba(255,255,255,.4));border:1.5px solid rgba(255,255,255,.9);
+  box-shadow:inset 0 1.5px 0 rgba(255,255,255,.9),0 10px 14px -10px color-mix(in srgb,var(--c) 70%,#000)}
+/* input: clear glass pill, blue glass send button */
+.tin{background:rgba(255,255,255,.55);-webkit-backdrop-filter:blur(.6px);backdrop-filter:blur(.6px);border:1.5px solid #fff;
+  box-shadow:inset 0 1.5px 0 #fff,inset -4px -6px 12px -8px rgba(18,18,22,.15),0 14px 20px -14px rgba(18,18,22,.4)}
+.tin button{background:radial-gradient(70% 60% at 50% 80%,rgba(147,197,253,.9),transparent 70%),linear-gradient(180deg,#60a5fa,#2563eb);
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.7),0 10px 16px -8px rgba(37,99,235,.7)}
+.ln.ai span{color:#111116}.ln.you span{color:#3730a3}.ln.sys span{color:#047857}
+
+/* ===== PHONES: one fixed-height card. preview on top, chat below. nothing overlaps. ===== */
+@media (max-width:860px){
+  #lab .tgrid{display:flex;flex-direction:column;gap:10px;height:min(780px,calc(100svh - 64px));padding:10px}
+  #lab .tpv{position:relative!important;top:auto!important;order:1;flex:0 0 42%;min-height:0;display:flex;flex-direction:column;background:rgba(255,255,255,.35)}
+  #lab .tpv .pv-top{flex:none}
+  #lab .tpv .tscreen{flex:1;min-height:0;margin:0 8px 8px!important}
+  #lab .tpv .tscreen.browser{zoom:1!important;height:auto;width:auto;max-width:none;border-radius:14px}
+  #lab .tpv .tscreen.cup{zoom:.7!important}
+  #lab .tpv .tscreen.post{zoom:.62!important;overflow:hidden}
+  #lab .term{order:2;flex:1 1 auto;min-height:0}
+  #lab .term .log{flex:1 1 auto;min-height:0!important;max-height:none!important;height:auto}
+  #lab .term-top{padding:10px 14px 6px;font-size:15px}
+  #lab .term-reset{width:32px;height:32px}
+  #lab .sugs{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding-bottom:8px}#lab .sugs::-webkit-scrollbar{display:none}
+  #lab .sugs button{flex:none;min-height:38px}
+  /* website preview: compact type so the whole page reads at phone size */
+  .tscreen.browser .bw{font-size:11px}
+  .bw-chrome{padding:6px 8px;gap:8px}.bw-dots i{width:7px;height:7px}.bw-url{font-size:10px;padding:3px 8px}
+  .pg{gap:8px;padding-bottom:10px}
+  .pg nav{padding:8px 10px;gap:8px}.pg nav>b{font-size:11px}.pg .links{display:none}
+  .pg .hero{padding:4px 10px;gap:8px;grid-template-columns:1.4fr 1fr}
+  .pg h4{font-size:17px}.pg.big h4{font-size:21px}.pg.bold h4{font-size:19px}
+  .pg .cta{padding:6px 10px;font-size:10px}.pg .cta.sm{padding:4px 8px;font-size:9px}
+  .pg .hero-art,.pg .ph-art{border-radius:12px;padding:4px}
+  .pg .blk{margin:0 10px;padding:8px;border-radius:12px}
+  .pg h5{font-size:12px;margin-bottom:4px}
+  .pg .gal{gap:5px}.pg figure{padding:4px;border-radius:9px}.pg figcaption{font-size:9px}
+  .pg .rev p,.pg .rev small{font-size:10px}.pg .tiles div{padding:8px;border-radius:10px}
+  .pg footer{padding:6px 10px 0;font-size:9px}
+}
+/* nothing colored behind the text: the grid alone shows the glass is clear */
+#lab .tgrid::before,.take5::before{background:none}
+#lab .term>*:not(.log){flex:none}
+
+/* ===== bite 6: one clear-glass end card on the grid stage ===== */
+.endcard{display:flex;flex-direction:column;gap:12px;padding:14px;border-radius:32px;background:#eef0f4;
+  background-image:linear-gradient(rgba(18,18,22,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(18,18,22,.06) 1px,transparent 1px);background-size:26px 26px}
+.endcard .glass{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:6px;padding:22px;border-radius:26px;text-decoration:none;color:#111116;
+  background:rgba(255,255,255,.08);-webkit-backdrop-filter:blur(.6px) saturate(1.15);backdrop-filter:blur(.6px) saturate(1.15);border:1.5px solid rgba(255,255,255,.95);
+  box-shadow:inset 0 1.5px 0 #fff,inset 0 -1.5px 0 rgba(18,18,22,.07),inset 8px 8px 16px -10px rgba(255,255,255,.95),inset -10px -12px 22px -14px rgba(18,18,22,.16),0 2px 3px rgba(18,18,22,.06),0 26px 34px -22px rgba(18,18,22,.3)}
+.endcard .eyebrow{font:600 12px var(--sans);color:#6b6b76}
+.endcard strong{font:600 clamp(26px,3vw,34px)/1.08 var(--sans);letter-spacing:-.035em}
+.endcard .by{font-size:14px;color:#6b6b76;margin-bottom:10px}
+.endcard .cta2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.endcard .soc4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.gel{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:52px;padding:0 18px;border-radius:99px;font:600 15px var(--sans);text-decoration:none;cursor:pointer;color:#111116;border:1.5px solid rgba(255,255,255,.98);white-space:nowrap}
+.gel i{font-style:normal}
+.gel.clear{background:rgba(255,255,255,.1);-webkit-backdrop-filter:blur(.5px) saturate(1.2);backdrop-filter:blur(.5px) saturate(1.2);
+  box-shadow:inset 0 1.5px 0 #fff,inset -4px -6px 10px -6px rgba(18,18,22,.18),inset 4px 4px 8px -6px #fff,0 12px 16px -12px rgba(18,18,22,.4)}
+.gel.lav{color:#2e2470;background:radial-gradient(70% 60% at 50% 85%,rgba(236,140,255,.75),transparent 70%),linear-gradient(180deg,rgba(214,206,255,.9),rgba(178,162,250,.85));
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.95),inset 0 -6px 12px rgba(150,110,240,.35),0 14px 18px -12px rgba(120,90,230,.6),0 22px 18px -16px rgba(255,170,120,.45)}
+.endcard .glass .gel{align-self:flex-start}
+.gel:hover{transform:translateY(-1px)}
+@media (max-width:860px){.endcard{padding:10px;gap:10px;border-radius:26px}.endcard .soc4{grid-template-columns:1fr 1fr;gap:10px}.endcard .cta2{gap:10px}.gel{min-height:48px;font-size:14px;padding:0 12px}.endcard .glass{padding:18px}}
+#lab .rail{padding-bottom:8px;position:relative;z-index:3}#lab .term .log{padding-top:6px}
