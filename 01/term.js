@@ -13,8 +13,8 @@ function mount(root,ctx,T){
     <div class="tpv" aria-live="polite"><div class="pv-top"><span>${esc(T.previewLabel||'preview')}</span><b>${parts.map(p=>`<i data-k="${p.k}" style="--c:${p.c}" title="${esc(p.short)}"></i>`).join('')}</b></div>
       <div class="tscreen ${esc(T.device||'')}"><div class="tview"></div></div><p class="tnote"></p></div>
     <div class="term" role="region" aria-label="terminal">
-      <div class="term-top"><span class="lights"><i></i><i></i><i></i></span><span>${esc(T.title)}</span><button type="button" class="term-reset">start over</button></div>
-      <ol class="rail">${parts.map((p,i)=>`<li data-k="${p.k}" style="--c:${p.c}"><span>${i+1}</span>${esc(p.short)}</li>`).join('')}</ol>
+      <div class="term-top"><span class="lights"><i></i><i></i><i></i></span><span>${esc(T.title)}${T.progress?'<small class="tprog"></small>':''}</span><button type="button" class="term-reset">start over</button></div>
+      <ol class="rail"${T.noRail?' hidden':''}>${parts.map((p,i)=>`<li data-k="${p.k}" style="--c:${p.c}"><span>${i+1}</span>${esc(p.short)}</li>`).join('')}</ol>
       <div class="log" aria-live="polite"></div>
       <div class="sugs" aria-label="suggestions"></div>
       <form class="tin" autocomplete="off"><span aria-hidden="true">›</span><input type="text" aria-label="type to the ai" placeholder="type here, or tap a suggestion"><button type="submit" aria-label="send">↵</button></form>
@@ -29,13 +29,14 @@ function mount(root,ctx,T){
     if(ctx.reduce){sp.textContent=text;return;}
     setTimeout(()=>{if(id!==typing){sp.textContent=text;return;}let n=0;sp.textContent='';const step=()=>{if(id!==typing){sp.textContent=text;return;}n=Math.min(text.length,n+3);sp.textContent=text.slice(0,n);log.scrollTop=log.scrollHeight;if(n<text.length)setTimeout(step,12);};step();},380+Math.min(500,text.length*3));}
   function paint(flash){view.innerHTML=T.render(vals,{hl,esc,step,done});
+    if(T.progress){const pr=root.querySelector('.tprog');if(pr)pr.textContent=T.progress(vals)||'';}
     /* scroll the preview to whatever was just added, so the change is always visible */
     const nw=view.querySelector('.new');if(nw)view.scrollTop=Math.max(0,nw.offsetTop-24);
     root.querySelectorAll('.pv-top i').forEach(i=>i.classList.toggle('on',lit.has(i.dataset.k)));
     root.querySelectorAll('.rail li').forEach(li=>{li.classList.toggle('on',lit.has(li.dataset.k));li.classList.toggle('now',!done&&!!T.steps&&!!T.steps[step]&&T.steps[step].part===li.dataset.k);});
     if(flash&&!ctx.reduce){view.classList.remove('flash');void view.offsetWidth;view.classList.add('flash');}}
   /* open mode: a real back-and-forth. every message updates the result; the reader decides when it's done. */
-  function chips(){sugs.innerHTML=(val(T.chips,vals)||[]).map(c=>`<button type="button">${esc(c)}</button>`).join('');}
+  function chips(){sugs.innerHTML=(val(T.chips,vals)||[]).map(c=>typeof c==='string'?`<button type="button">${esc(c)}</button>`:`<button type="button" class="${esc(c.kind||'')}" data-text="${esc(c.text)}">${esc(c.label)}</button>`).join('');}
   function openSubmit(text){text=text.trim();if(!text||done)return;say('you',esc(text));input.value='';
     if(T.isDone&&T.isDone(text,vals)&&vals.started){const r=T.finishSay?T.finishSay(vals):'';if(r)say('ai',esc(r));finish();return;}
     const res=T.update(text,vals)||{};if(!first&&vals.started)first=JSON.parse(JSON.stringify(vals));
@@ -74,7 +75,7 @@ function mount(root,ctx,T){
   /* on phones: after you send, the keyboard drops and the card scrolls into view, so you see the change */
   const phone=()=>matchMedia('(max-width:860px)').matches;
   $('.tin').addEventListener('submit',e=>{e.preventDefault();go(input.value);if(phone()){input.blur();const g=root.querySelector('.tgrid');g&&g.scrollIntoView({block:'start',behavior:ctx.reduce?'auto':'smooth'});}});
-  sugs.addEventListener('click',e=>{const b=e.target.closest('button');if(b)go(b.textContent);});
+  sugs.addEventListener('click',e=>{const b=e.target.closest('button');if(b)go(b.dataset.text||b.textContent);});
   $('.term-reset').addEventListener('click',reset);
   $('.tdone').addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b)return;
     if(b.dataset.a==='ba'){const ba=root.querySelector('.ba');ba.hidden=!ba.hidden;b.textContent=ba.hidden?'see before and after':'hide before and after';}
