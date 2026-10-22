@@ -37,8 +37,8 @@ window.EDITION={
      take:"you don't need to pick a side. you need to be specific. that's bite 4.",
      sources:[{label:'rich hickey · linkedin',href:'https://www.linkedin.com/pulse/ai-tool-rich-hickey-kjl8e'},{label:'huahai · reply',href:'https://yyhh.org/blog/2026/10/ai-is-a-tool/'},{label:'vibe coding weekly',href:'https://vibecodingweekly.substack.com/p/vibe-coding-weekly-53'}]},
     {type:'aside',
-     paragraphs:['silicon valley wants ai that sounds human. i want ai that remembers the exact coffee order.'],
-     essay:{label:'read the essay: i trained a human. then i wrote the playbook for an ai.',href:'https://aiimo.substack.com/p/i-trained-a-human-then-i-wrote-the'},
+     paragraphs:['prompt engineering is just onboarding with worse documentation.'],
+     essay:{title:'i trained a human. then i wrote the playbook for an ai.',label:'read the essay: i trained a human. then i wrote the playbook for an ai.',href:'https://aiimo.substack.com/p/i-trained-a-human-then-i-wrote-the'},
      sig:'simi'},
     {type:'signoff',
      lede:'i build with ai every day and tell you exactly what i think of it. brilliant gets called brilliant. overhyped gets called out.',
@@ -213,4 +213,4 @@ E.ui.b4={h2:'order exactly what you want. *it works on ai too.*',say:"practice t
   steps:["type your drink in the black box below, the way you'd say it out loud.","press enter. watch it get made.",'change anything. type "that\'s it" when it\'s right.']};
 })(window.EDITION);
 /* your-move lines (engine shows them in a box in each bite) */
-(function(E){E.ui.b1.move='flip both cards. then see what i think.';E.ui.b3.move='tap each side. then see what i think.';})(window.EDITION);
+(function(E){E.ui.b1.move='tap each card to flip it.';E.ui.b3.move='tap each side.';})(window.EDITION);

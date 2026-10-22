@@ -276,3 +276,70 @@ pre.t5{margin:0;padding:16px 18px 20px;white-space:pre-wrap;font:400 14.5px/1.6 
 .flip .f,.flip .b{position:relative;inset:auto;grid-area:1/1;min-height:150px;gap:14px}
 @media (min-width:861px){.flip .f,.flip .b{min-height:210px}}
 .poll.guess{grid-template-columns:repeat(3,1fr)}
+
+/* ---- polish pass: softer, cuter, easier to read ---- */
+.sticker,.flip small{align-self:flex-start;display:inline-flex;align-items:center;gap:6px;width:max-content;max-width:100%;padding:5px 12px;border-radius:99px;background:color-mix(in srgb,var(--accent) 22%,#fff);color:color-mix(in srgb,var(--accent) 42%,#17171c);font:600 12.5px/1.2 var(--sans);letter-spacing:0}
+.move>b.sticker{font:600 12.5px/1.2 var(--sans);letter-spacing:0;background:#fff;color:color-mix(in srgb,var(--accent) 42%,#17171c)}
+.move{border-radius:22px;padding:14px 16px 16px;gap:8px}
+.move>span{font-size:17.5px}
+.move.done>b.sticker{color:#5d5d66}
+.bite .say{font-size:19px;line-height:1.55;color:#2a2a30}
+.copy>.hint{font:500 13.5px/1.45 var(--sans);color:var(--muted)}
+.src a{font-size:14px}
+/* flip cards: tinted front, both sides labeled, a little tilt */
+.flip .f,.flip .b{border-radius:28px;padding:20px;gap:12px}
+.flip .f{background:linear-gradient(160deg,color-mix(in srgb,var(--accent) 18%,#fff),#fff 72%);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--accent) 45%,transparent),var(--shadow)}
+.flip .b{background:#fff;justify-content:flex-start;box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--accent) 50%,transparent),var(--shadow)}
+.flip .b .fliptag{margin-top:auto}
+.flip strong{font-size:26px;line-height:1.08}
+.flip .b p{font-size:18.5px;line-height:1.45;font-weight:500;color:var(--ink)}
+.cards .flip:nth-child(1){transform:rotate(-1.2deg)}.cards .flip:nth-child(2){transform:rotate(1deg)}
+.cards .flip:active{transform:none}
+/* takes, polls, chips */
+.take{border-radius:28px;padding:20px 22px;gap:10px;background:color-mix(in srgb,var(--accent) 9%,rgba(255,255,255,.85))}
+.take p{font-size:21px;line-height:1.35}
+.poll button{border-radius:24px;font-size:18px;background:color-mix(in srgb,var(--accent) 12%,#fff)}
+.poll button[aria-pressed=true]{background:var(--ink);color:#fff}
+.scen button{min-height:46px;padding:8px 18px;font-size:16px;background:color-mix(in srgb,var(--accent) 12%,#fff)}
+.scen button[aria-pressed=true]{background:var(--ink);color:#fff}
+/* bite 6: calm and clear */
+#b6 .copy{gap:16px}
+.essaycard{gap:10px;padding:22px;border-radius:28px;background:linear-gradient(150deg,#f1efff,#fff 55%,#ecfafa);box-shadow:inset 0 0 0 1.5px rgba(143,155,255,.5),var(--shadow);transition:transform .2s}
+.essaycard:hover{transform:translateY(-2px)}
+.essaycard strong{font:600 clamp(24px,2.6vw,30px)/1.15 var(--sans);letter-spacing:-.03em}
+.essaycard .by{font-size:14px;color:var(--muted)}
+.essaycard .go{align-self:flex-start;margin-top:4px;min-height:46px;font-size:15px}
+.findme{gap:10px;padding:0;background:none;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none}
+.fm-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.findme .fm-grid a{display:flex;flex-direction:column;gap:2px;min-height:0;padding:14px 16px;border-top:0;border-radius:22px;background:#fff;box-shadow:inset 0 0 0 1px rgba(18,18,22,.1),0 10px 24px -18px rgba(18,18,22,.35);text-decoration:none;color:var(--ink)}
+.findme .fm-grid a b{font:600 16px var(--sans)}
+.findme .fm-grid a span{font:500 13.5px var(--sans);color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media (max-width:860px){.bite .say{font-size:18px}.flip strong{font-size:24px}.take p{font-size:20px}}
+@media (prefers-reduced-motion:reduce){.essaycard:hover{transform:none}}
+/* the your-move box just states the move. no done states. */
+.move.done{background:color-mix(in srgb,var(--accent) 13%,#fff);box-shadow:inset 4px 0 0 var(--accent)}
+.move.done>b::after,.move.done>b.sticker::after{content:none}
+
+/* ---- clear glass terminals (bite 4 and bite 5) ---- */
+.term{position:relative;background:linear-gradient(160deg,rgba(255,255,255,.66),rgba(255,255,255,.28));color:var(--ink);-webkit-backdrop-filter:blur(22px) saturate(1.5);backdrop-filter:blur(22px) saturate(1.5);box-shadow:inset 0 1px 0 rgba(255,255,255,.95),0 30px 60px -32px rgba(18,18,22,.32),0 2px 10px -4px rgba(18,18,22,.08);overflow:hidden}
+.term::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1.5px;background:var(--edge,linear-gradient(135deg,#ffd1e3,#fff4c2,#c8f4f2,#e3dcff));-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none;z-index:2}
+.term-top{border-bottom:1px solid rgba(18,18,22,.07);color:#6b6b76}
+.term-reset{color:#6b6b76}
+.rail li{background:rgba(255,255,255,.7);color:#5d5d66;box-shadow:inset 0 0 0 1px rgba(18,18,22,.08)}
+.rail li span{background:rgba(18,18,22,.07);color:#2a2a30}
+.rail li.now{color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--c)}
+.rail li.on{color:#141418;background:var(--c);box-shadow:none}
+.ln b{color:#8a8a95}
+.ln.ai span{color:#1d1d22}
+.ln.you span{color:#1c7a50}
+.sugs button{border:1px solid rgba(18,18,22,.12);background:rgba(255,255,255,.78);color:var(--ink)}
+.sugs button:hover{background:#fff}
+.tin{background:rgba(255,255,255,.82);box-shadow:inset 0 0 0 1px rgba(18,18,22,.1),0 6px 16px -10px rgba(18,18,22,.25)}
+.tin input{color:var(--ink)}
+.tin input::placeholder{color:#8a8a95}
+.tin button{background:var(--ink);color:#fff}
+.take5 .term-top>span:last-child{color:#1c7a50}
+pre.t5{color:#1d1d22}
+.essaycard>.go{color:#fff;font-size:15px}
+.flip .f{justify-content:center}
+.flip .f small{position:absolute;top:20px;left:20px}
