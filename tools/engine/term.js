@@ -22,8 +22,15 @@ function mount(root,ctx,T){
     <div class="tdone" hidden></div>`;
   const $=s=>root.querySelector(s),log=$('.log'),input=$('.tin input'),view=$('.tview'),note=$('.tnote'),sugs=$('.sugs');
 
-  function say(who,html){const d=document.createElement('div');d.className='ln '+who;d.innerHTML=`<b>${who==='ai'?'ai ›':'you ›'}</b><span>${html}</span>`;log.append(d);log.scrollTop=log.scrollHeight;}
+  function say(who,html){const d=document.createElement('div');d.className='ln '+who;d.innerHTML=`<b>${who==='ai'?'ai ›':who==='sys'?'':'you ›'}</b><span>${html}</span>`;log.append(d);log.scrollTop=log.scrollHeight;return d;}
+  /* feels like a real terminal: a thinking pause, then the reply types itself out */
+  let typing=0;
+  function sayTyped(text){const id=++typing;const d=say('ai','<i class="dots"><i></i><i></i><i></i></i>');const sp=d.querySelector('span');
+    if(ctx.reduce){sp.textContent=text;return;}
+    setTimeout(()=>{if(id!==typing){sp.textContent=text;return;}let n=0;sp.textContent='';const step=()=>{if(id!==typing){sp.textContent=text;return;}n=Math.min(text.length,n+3);sp.textContent=text.slice(0,n);log.scrollTop=log.scrollHeight;if(n<text.length)setTimeout(step,12);};step();},380+Math.min(500,text.length*3));}
   function paint(flash){view.innerHTML=T.render(vals,{hl,esc,step,done});
+    /* scroll the preview to whatever was just added, so the change is always visible */
+    const nw=view.querySelector('.new');if(nw)view.scrollTop=Math.max(0,nw.offsetTop-24);
     root.querySelectorAll('.pv-top i').forEach(i=>i.classList.toggle('on',lit.has(i.dataset.k)));
     root.querySelectorAll('.rail li').forEach(li=>{li.classList.toggle('on',lit.has(li.dataset.k));li.classList.toggle('now',!done&&!!T.steps&&!!T.steps[step]&&T.steps[step].part===li.dataset.k);});
     if(flash&&!ctx.reduce){view.classList.remove('flash');void view.offsetWidth;view.classList.add('flash');}}
@@ -33,7 +40,8 @@ function mount(root,ctx,T){
     if(T.isDone&&T.isDone(text,vals)&&vals.started){const r=T.finishSay?T.finishSay(vals):'';if(r)say('ai',esc(r));finish();return;}
     const res=T.update(text,vals)||{};if(!first&&vals.started)first=JSON.parse(JSON.stringify(vals));
     lit=new Set(T.lit(vals));note.textContent=res.note||'';paint(true);ctx.tone&&ctx.tone(res.changed?620:330,.4,.05);
-    if(res.reply)setTimeout(()=>say('ai',esc(res.reply)),ctx.reduce?0:200);chips();
+    if(res.changed&&res.note)say('sys','✓ '+esc(res.note));
+    if(res.reply)sayTyped(res.reply);chips();
     /* bite 5 follows along live, so the note there always matches the drink here */
     if(vals.started){const p=T.prompt(vals);try{ctx.store&&ctx.store(ctx.key+'-p2',p);}catch(_){}window.dispatchEvent(new CustomEvent('aiimo:prompt',{detail:p}));}}
   function ask(){if(T.open){say('ai',esc(val(T.ai,vals)));chips();return;}const s=T.steps[step];say('ai',esc(val(s.ai,vals)));sugs.innerHTML=(val(s.chips,vals)||[]).map(c=>`<button type="button">${esc(c)}</button>`).join('');}

@@ -7,7 +7,8 @@ the source of truth for building an edition of "ai, in my opinion". scheduled bu
 - `engine/bites.js`, `engine/term.js`, `engine/lab.js`, `engine/builder.js`: engine. don't edit per edition.
 - `bites.css` = `cat engine/base.css engine/extra.css > bites.css`
 - `engine/assets/glass-1.jpg` to `glass-6.jpg`: bite numerals. add `glass-0N.jpg` (cover numeral) per edition.
-- `engine/example-edition-01.js` (drink counter) and `engine/example-edition-03.js` (instagram playbook): working open-mode terminals to copy from.
+- `engine/example-edition-01.js` (drink counter), `engine/example-edition-02.js` (website builder in a browser window) and `engine/example-edition-03.js` (instagram playbook): working open-mode terminals to copy from.
+- `engine/clipart.js`: cute flat cartoon drawings made in code (`AiimoArt.draw(key)`, `AiimoArt.find(text)`). when a reader asks for a picture, draw it with this. never use photos.
 
 ## bite 4 standard (every edition)
 - `E.term.open = true`. the reader types anything, any time. every message updates the preview through `update(text, vals)` which returns `{reply, changed, note}`. edits after the first answer must work ("make it bold", "no emojis", "add oat milk").
@@ -25,7 +26,10 @@ the source of truth for building an edition of "ai, in my opinion". scheduled bu
 - every bite ends with a **next** button. the cover explains the pattern in one line.
 - interactive things must look tappable: flip cards carry a dark "tap to flip" pill and a "flip back" pill.
 - bite 6: headline is simi's verbatim essay subtitle only. then one your-move box, one essay card ("this week's essay", title, read the essay), subscribe and share buttons, and a "find me" grid of four pills (platform + handle). nothing else.
-- terminals in bites 4 and 5 are clear glass (light frosted glass, dark text), not black.
+- terminals in bites 4 and 5 are CLEAR liquid glass, not frosted and not black: see-through panels (blur 2px max) on a lit stage with crisp colored shapes behind, thick bright rims, a diagonal sheen, glossy periwinkle and mint pills, a white input pill with a round send button.
+- the terminal feels real: thinking dots, replies type themselves out, and every change logs a green ✓ line. anything the reader types lands in the preview, in their words if nothing else matches.
+- website previews are a full browser window (address bar, nav, hero, sections, footer), never a phone or watch frame.
+- yellow is a bright golden #ffb30f.
 - labels are rounded stickers in the bite color, not tiny gray mono text. body text 18-19px.
 
 ## cover (substack thumbnail, social preview, og:image)

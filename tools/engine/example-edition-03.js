@@ -43,7 +43,7 @@ window.EDITION={
   lab:{
     parts:[
       {k:'role',short:'the job',c:'#ff6fa3',title:'give it the job.',why:'who it is, who it serves, what is happening. a new hire needs a title before a task.'},
-      {k:'example',short:'an example',c:'#e6b92e',title:'show it good.',why:'paste one example you love. it copies a shape better than it follows a description.'},
+      {k:'example',short:'an example',c:'#ffb30f',title:'show it good.',why:'paste one example you love. it copies a shape better than it follows a description.'},
       {k:'rules',short:'the rules',c:'#2fc4c8',title:'write the rules.',why:"the dos and don'ts you'd tell a new hire on day one."},
       {k:'check',short:'a check',c:'#4fbf6a',title:'make it check its work.',why:'tell it what to check before it hands anything back. the review is part of the job.'}
     ],
@@ -116,7 +116,8 @@ function ruleEdits(t,r){t=t.toLowerCase();const before=JSON.stringify(r);
   if(/(hashtags? (are|is) (fine|ok|okay)|use hashtags|add hashtags|allow hashtags)/.test(t))delete r.nohash;
   if(/(emojis? (are|is) (fine|ok|okay)|use emojis|add emojis|allow emojis)/.test(t))delete r.noemoji;
   if(/(capitals? (are|is) (fine|ok)|normal case|use capitals|not lowercase)/.test(t))delete r.lower;
-  if(/(any length|no word limit|longer is fine)/.test(t))delete r.max;
+  if(/(any length|no word limit|longer is fine|make it longer)/.test(t))delete r.max;
+  if(/\bshorter\b/.test(t))r.max=r.max?Math.max(5,r.max-5):12;
   return JSON.stringify(r)!==before;}
 const EMO=/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{2728}\u{1F56F}]️?/gu;
 function caption(v){const n=v.noun||'our new drop';
@@ -133,28 +134,28 @@ function caption(v){const n=v.noun||'our new drop';
   return c;}
 const ORDER=['example','rules','check'];
 const nextQ=v=>ORDER.find(k=>k==='rules'?!(v.rules&&Object.keys(v.rules).length):!v[k]);
-const ruleText=r=>[r.lower&&'all lowercase',r.nohash&&'no hashtags',r.noemoji&&'no emojis',r.noex&&'no exclamation points',r.max&&'under '+r.max+' words'].filter(Boolean).join('. ')+(Object.keys(r).length?'.':'');
+const ruleText=r=>[r.lower&&'all lowercase',r.nohash&&'no hashtags',r.noemoji&&'no emojis',r.noex&&'no exclamation points',r.max&&'under '+r.max+' words',...(r.custom||[])].filter(Boolean).map(x=>x.replace(/[.!]+$/,'')).join('. ')+(Object.keys(r).length?'.':'');
 const checkText=t=>t.replace(/^(?:always check|check|make sure|before you hand it back)(?: that)?[:,]?\s*/i,'');
 const ASK={example:'got it. show me one caption you love. paste it, or tap one.',
   rules:'now the rules. what should i always or never do?',
   check:'last one. what should i check before i hand it back?'};
-const NOTE={job:'a job title helps. without an example, it writes like every brand on earth.',
+const NOTE={photo:v=>v.photo?'drew a '+(v.photoKey||(window.AiimoArt&&window.AiimoArt.find(v.job||''))||'picture')+' into the post.':'took the picture out.',job:'a job title helps. without an example, it writes like every brand on earth.',
   example:'it copied the shape of your example. shorter, calmer, more like you.',
   rules:v=>{const n=Object.keys(v.rules||{}).length;return n?'it follows '+n+' rule'+(n>1?'s':'')+'. every post, every time.':'no rules right now. it goes back to its habits.';},
   check:"now it reviews its own work before you see it. that's the playbook."};
-const after='change anything: add a rule like "no emojis", drop one like "hashtags are fine", or say "new example: ___". type "that\'s it" when it\'s right.';
+const after='change anything. try "add a photo", "no emojis" or "make it shorter". type "that\'s it" when it\'s right.';
 E.term={open:true,title:'new hire · instagram captions',previewLabel:'preview · what your ai posts',device:'post',
   placeholder:'type here',startNote:'your post shows up here.',
   ai:"hi, i'm your new hire. what's my job? one or two lines.",
   parts:[{k:'role',short:'the job',c:'#ff6fa3',why:'who it is, who it serves.'},
-         {k:'example',short:'an example',c:'#e6b92e',why:'one you love. it copies the shape.'},
+         {k:'example',short:'an example',c:'#ffb30f',why:'one you love. it copies the shape.'},
          {k:'rules',short:'the rules',c:'#2fc4c8',why:"your always and never. it follows them every time."},
          {k:'check',short:'a check',c:'#4fbf6a',why:'what it checks before you see anything.'}],
   chips:v=>{if(!v.job)return['you write instagram captions for my candle shop, luna candle co.','you write instagram captions for my dog walking business, walk this way.'];
     if(v.q==='example')return [/dog/.test(v.noun)?'the walk is the best part of their day. ours too.':'made for slow sundays. small batch, poured by hand. link in bio.'];
     if(v.q==='rules')return['all lowercase. no hashtags. no emojis. no exclamation points.','no hashtags. under 15 words.'];
     if(v.q==='check')return['check it sounds like me, not a brand, and that every rule was followed.'];
-    return['no emojis','hashtags are fine',"that's it"];},
+    return['add a picture','add a picture of a cat','make it shorter',"that's it"];},
   lit:v=>[v.job&&'role',v.example&&'example',v.rules&&Object.keys(v.rules).length&&'rules',v.check&&'check'].filter(Boolean),
   isDone:(t,v)=>DONE.test(t.trim())&&!!v.job,
   finishSay:()=>"done. your playbook is waiting in bite 5.",
@@ -162,7 +163,10 @@ E.term={open:true,title:'new hire · instagram captions',previewLabel:'preview �
     if(!v.job){v.started=true;v.job=s;v.brand=brandOf(s);v.noun=nounOf(s);v.q=nextQ(v);
       const thin=s.split(/\s+/).length<4;
       return {changed:true,reply:(thin?"i'll start with that. more detail gets you a better hire: who i write for, what they sell. ":'')+ASK.example,note:NOTE.job};}
-    const got=[];
+    const got=[];v.last=null;
+    /* "add a photo" puts a product photo in the post; "remove the photo" takes it out */
+    const AA=window.AiimoArt,want=AA&&AA.wanted(s);
+    if(/\b(photo|pic|picture|image|drawing)\b/i.test(s)||(want&&/\b(add|put|draw|show|use)\b/i.test(s))){v.photo=!/\b(remove|delete|no|without|take out)\b/i.test(s);if(want)v.photoKey=want;got.push('photo');}
     /* explicit edits work at any point */
     let m=s.match(/^(?:new job|the job is|your job is)[:\s]+(.+)/i)||(/^(?:you'?re my|you are my|you write)\b/i.test(s)?[s,s]:null);
     if(m){v.job=clean(m[1]);v.brand=brandOf(v.job);v.noun=nounOf(v.job);got.push('job');}
@@ -175,11 +179,12 @@ E.term={open:true,title:'new hire · instagram captions',previewLabel:'preview �
     if(v.q&&!got.includes(v.q)&&!got.length){
       if(v.q==='example'){v.example=clean(s);got.push('example');}
       else if(v.q==='check'){v.check=checkText(s);got.push('check');}
-      else if(v.q==='rules')return {changed:false,reply:'give me at least one i can follow every time. like: no hashtags, or all lowercase.',note:''};}
-    if(!got.length)return {changed:false,reply:"i didn't catch a change. "+after,note:''};
+      else if(v.q==='rules'){const r=Object.assign({},v.rules||{});r.custom=(r.custom||[]).concat(clean(s));v.rules=r;v.ruletext=ruleText(r);got.push('rules');}}
+    /* anything else becomes a rule in their words, so it always lands somewhere */
+    if(!got.length){const r=Object.assign({},v.rules||{});r.custom=(r.custom||[]).concat(clean(s));v.rules=r;v.ruletext=ruleText(r);got.push('rules');}
     const last=got[got.length-1],n=NOTE[last];
     v.q=nextQ(v);
-    const reply=v.q?(last==='rules'?'noted. ':'got it. ')+ASK[v.q].replace(/^got it\. /,''):(got.includes('check')&&!v.toldDone?"that's a real playbook. ":'updated. ')+after;
+    const reply=v.q?(last==='rules'?'noted. ':'got it. ')+ASK[v.q].replace(/^got it\. /,''):(got.includes('check')&&!v.toldDone?"that's a real playbook. ":((typeof n==='function'?n(v):n)||'updated.')+' ')+after;
     if(!v.q)v.toldDone=true;
     return {changed:true,reply,note:typeof n==='function'?n(v):n};},
   render(v,{hl,esc}){
@@ -188,9 +193,9 @@ E.term={open:true,title:'new hire · instagram captions',previewLabel:'preview �
     const hasR=v.rules&&Object.keys(v.rules).length;
     const part=hasR?'rules':v.example?'example':v.job?'role':null;
     const r=v.rules||{},words=c.split(/\s+/).filter(Boolean).length;
-    const checks=v.check?[`✓ ${words} words`,r.nohash&&'✓ no hashtags',r.noemoji&&'✓ no emojis',r.lower&&'✓ lowercase',/sound|voice|like me/i.test(v.check)&&'✓ sounds like you'].filter(Boolean):[];
+    const checks=v.check?[`✓ ${words} words`,r.nohash&&'✓ no hashtags',r.noemoji&&'✓ no emojis',r.lower&&'✓ lowercase',/sound|voice|like me/i.test(v.check)&&'✓ sounds like you',...(r.custom||[]).map(x=>'✓ '+x)].filter(Boolean):(r.custom||[]).map(x=>'· '+x);
     return `<div class="post-m"><header><i></i><span>${part?hl('role',handle):esc(handle)}</span></header>
-      <div class="sq"><strong>${esc(v.brand||'your brand')}</strong>${checks.length?`<div class="checks">${checks.map(x=>`<span>${esc(x)}</span>`).join('')}</div>`:''}</div>
+      <div class="sq${v.photo?' photo':''}">${v.photo&&window.AiimoArt?`<span class="prodart">${window.AiimoArt.draw(v.photoKey||window.AiimoArt.find(v.job||'')||'sparkle',{a:'#ff9cc4',t:'#ffd9a8'})}</span>`:''}<strong>${esc(v.brand||'your brand')}</strong>${checks.length?`<div class="checks">${checks.map(x=>`<span>${esc(x)}</span>`).join('')}</div>`:''}</div>
       <div class="acts"><i></i><i></i><i></i></div><p class="cap"><b>${esc(handle)}</b>${part?hl(part,c):esc(c)}</p></div>`;},
   prompt:v=>['playbook: instagram captions','','the job: '+(v.job||''),v.example?'\nwhat good looks like:\n'+v.example:'',v.ruletext&&Object.keys(v.rules||{}).length?'\nthe rules: '+v.ruletext:'',v.check?'\nbefore you give me anything, check: '+v.check:'','','if anything is unclear, ask me before you guess.','','first task: write 3 captions for this week.'].filter((x,i,a)=>x!==''||a[i-1]!=='').join('\n'),
   done:{title:'write the playbook once.',say:"you wouldn't hand a new hire one line and walk away. give ai the job, an example, the rules and a check. then reuse it every time.",
