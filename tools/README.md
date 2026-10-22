@@ -20,11 +20,13 @@ the source of truth for building an edition of "ai, in my opinion". scheduled bu
 
 ## direction standard (every bite, every edition)
 - every bite has one **your move** box (`.move`) that says exactly what to tap, in plain words. set `ui.b1.move`, `ui.b2.move` (defaults to the poll question + "tap one."), `ui.b3.move`, `ui.b5.move`, `ui.b6.move` when the default doesn't fit.
-- the box updates as they go ("one more card to flip.") and turns to done when finished.
+- the box only states the move. no countdowns, no "done" states, no "my take is below".
 - simi's take ("in my opinion") unlocks only after the move in bites 1, 2 and 3. a bite 3 meter is a guess first, then the reveal.
 - every bite ends with a **next** button. the cover explains the pattern in one line.
 - interactive things must look tappable: flip cards carry a dark "tap to flip" pill and a "flip back" pill.
-- bite 6 has three labeled blocks: the essay card ("the essay behind this edition", title, read the essay), the subscribe card, and "find me" with platform and handle on each row.
+- bite 6: headline is simi's verbatim essay subtitle only. then one your-move box, one essay card ("this week's essay", title, read the essay), subscribe and share buttons, and a "find me" grid of four pills (platform + handle). nothing else.
+- terminals in bites 4 and 5 are clear glass (light frosted glass, dark text), not black.
+- labels are rounded stickers in the bite color, not tiny gray mono text. body text 18-19px.
 
 ## cover (substack thumbnail, social preview, og:image)
 ```

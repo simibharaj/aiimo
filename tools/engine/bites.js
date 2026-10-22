@@ -12,18 +12,18 @@ const copy=(text,btn,label)=>{const done=t=>{btn.textContent=t;setTimeout(()=>bt
 const S=Object.fromEntries(E.sections.map(s=>[s.type,s]));
 const T=S.teardown,N=S.number,Q=S.quote,A=S.aside,O=S.signoff;
 const src=list=>list&&list.length?`<div class="src reveal">${list.map(s=>`<a href="${esc(s.href)}" target="_blank" rel="noopener">${esc(s.label)} ↗</a>`).join('')}</div>`:'';
-const take=(t,label)=>`<div class="take reveal"><small>${esc(label||'in my opinion')}</small><p>${esc(t)}</p></div>`;
+const take=(t,label)=>`<div class="take reveal"><span class="sticker">${esc(label||'in my opinion')}</span><p>${esc(t)}</p></div>`;
 const obj=(n,alt)=>`<div class="obj"><img src="assets/glass-${n}.jpg" alt="${esc(alt)}" width="512" height="512" loading="lazy"></div>`;
 const KEY='aiimo-'+E.number;
 /* the one pattern every bite repeats: a "your move" box says exactly what to tap, my take unlocks after, then a next button */
-const move=(t,id)=>`<div class="move reveal"${id?` id="${id}"`:''}><b>your move</b><span>${esc(t)}</span></div>`;
+const move=(t,id)=>`<div class="move reveal"${id?` id="${id}"`:''}><b class="sticker">your move</b><span>${esc(t)}</span></div>`;
 const nextb=(to,label)=>`<button class="nextb reveal" type="button" data-to="${to}">${esc(label)} <i aria-hidden="true">↓</i></button>`;
 const gate=(id,inner)=>`<div class="gate" id="${id}" hidden>${inner}</div>`;
 
 const R=Q.reception,guesses=R?(R.guesses||[Math.max(1,R.value-20),R.value,Math.min(99,R.value+20)]):[];
 const b3inner=R?`${move(U.b3.move||'guess the number first. tap one.','m3')}<div class="poll guess reveal" id="guess">${guesses.map(g=>`<button type="button" data-g="${g}">${g}%</button>`).join('')}</div>
   <div class="meter reveal" id="meterBox" hidden><span class="num" id="meterNum">0%</span><div class="track"><b id="meterBar"></b></div><span class="hint">${esc(R.label)} · ${esc(R.note)}</span></div>`
-  :Q.chips?`${move(U.b3.move||'tap each one. then see what i think.','m3')}<div class="scen reveal" id="chips3">${Q.chips.map((c,i)=>`<button type="button" data-i="${i}" aria-pressed="false">${esc(c.label)}</button>`).join('')}</div><p class="say reveal" id="chipText" hidden></p>`:'';
+  :Q.chips?`${move(U.b3.move||'tap each one.','m3')}<div class="scen reveal" id="chips3">${Q.chips.map((c,i)=>`<button type="button" data-i="${i}" aria-pressed="false">${esc(c.label)}</button>`).join('')}</div><p class="say reveal" id="chipText" hidden></p>`:'';
 
 const html=`
 <section class="bite cover" id="cover" style="--accent:var(--pink)">
@@ -38,8 +38,8 @@ ${(E.open||[]).length?`<section class="opennow" id="open" aria-label="open now">
 
 <section class="bite" id="b1" style="--accent:var(--pink)">${obj(1,'a pink glass number one')}
   <div class="copy"><span class="tag reveal">bite 1 · ${esc(U.b1.tag)}</span><h2 class="reveal">${em(U.b1.h2)}</h2>
-  ${move(U.b1.move||U.b1.say||'flip both cards. then see what i think.','m1')}
-  <div class="cards reveal">${U.b1.cards.map(c=>`<button class="flip" type="button" aria-label="${esc(c.title)}. tap to flip"><div class="f"><small>${esc(c.small)}</small><strong>${esc(c.title)}</strong><span class="fliptag"><i aria-hidden="true">↻</i> tap to flip</span></div><div class="b"><p>${esc(c.back)}</p><span class="fliptag back"><i aria-hidden="true">↻</i> flip back</span></div></button>`).join('')}</div>
+  ${move(U.b1.move||U.b1.say||'tap each card to flip it.','m1')}
+  <div class="cards reveal">${U.b1.cards.map(c=>`<button class="flip" type="button" aria-label="${esc(c.title)}. tap to flip"><div class="f"><small>${esc(c.small)}</small><strong>${esc(c.title)}</strong><span class="fliptag"><i aria-hidden="true">↻</i> tap to flip</span></div><div class="b"><small>${esc(c.small)}</small><p>${esc(c.back)}</p><span class="fliptag back"><i aria-hidden="true">↻</i> flip back</span></div></button>`).join('')}</div>
   ${gate('g1',take(T.take)+src(T.sources))}${nextb('b2','next: bite 2')}</div>
 </section>
 
@@ -61,7 +61,7 @@ ${(E.open||[]).length?`<section class="opennow" id="open" aria-label="open now">
 
 <section class="bite lab" id="b4" style="--accent:var(--mint)">
   <div class="lab-head">${obj(4,'a mint glass number four')}<div class="copy"><span class="tag reveal">bite 4 · the skill</span><h2 class="reveal">${em(U.b4.h2)}</h2>
-  <p class="say reveal">${esc(U.b4.say)}</p>${U.b4.steps?`<div class="move reveal"><b>your move</b><ol class="steps3">${U.b4.steps.map(x=>`<li>${esc(x)}</li>`).join('')}</ol></div>`:''}</div></div>
+  <p class="say reveal">${esc(U.b4.say)}</p>${U.b4.steps?`<div class="move reveal"><b class="sticker">your move</b><ol class="steps3">${U.b4.steps.map(x=>`<li>${esc(x)}</li>`).join('')}</ol></div>`:''}</div></div>
   <div id="lab" class="reveal"></div>${nextb('b5','next: bite 5')}
 </section>
 
@@ -76,11 +76,10 @@ ${(E.open||[]).length?`<section class="opennow" id="open" aria-label="open now">
 <section class="bite" id="b6" style="--accent:var(--holo)">${obj(6,'a clear iridescent glass number six')}
   <div class="copy"><span class="tag reveal">bite 6 · simi, unprompted</span><h2 class="reveal">${esc(A.paragraphs[0])}</h2>
   ${A.paragraphs.slice(1).map(p=>`<p class="say reveal">${esc(p)}</p>`).join('')}
-  ${A.essay?`<a class="essaycard reveal" href="${esc(A.essay.href)}" target="_blank" rel="noopener"><small>the essay behind this edition</small><strong>${esc(A.essay.title||A.essay.label.replace(/^read the essay:\s*/i,''))}</strong><span>by simi bharaj · on substack</span><b class="go">read the essay <i aria-hidden="true">↗</i></b></a>`:''}
-  <div class="subcard reveal"><small>that's my opinion</small><p>${esc(O.lede)}</p>
-    ${move((U.b6&&U.b6.move)||'tap get the next edition. a new one lands every tuesday.','m6')}
-    <div class="row"><a class="go" href="${esc(O.subscribe.href)}" target="_blank" rel="noopener">${esc(O.subscribe.label)}</a><a class="go light2" href="${esc(O.dm.href)}" target="_blank" rel="noopener">${esc(O.dm.label)}</a><button class="go light2" type="button" id="share">share this edition</button></div></div>
-  <div class="findme reveal"><small>find me</small>${Object.entries(O.card.links).map(([k,h])=>{const handle={instagram:'@'+h.replace(/\/$/,'').split('/').pop(),linkedin:'in/'+h.replace(/\/$/,'').split('/').pop(),github:h.replace(/\/$/,'').split('/').pop(),substack:h.replace(/^https?:\/\//,'').replace(/\/$/,'')}[k]||'';return `<a href="${esc(h)}" target="_blank" rel="noopener"><b>${esc(k)}</b><span>${esc(handle)}</span><i aria-hidden="true">↗</i></a>`;}).join('')}</div>
+  ${move((U.b6&&U.b6.move)||"read the essay. then subscribe so next tuesday's edition finds you.",'m6')}
+  ${A.essay?`<a class="essaycard reveal" href="${esc(A.essay.href)}" target="_blank" rel="noopener"><span class="sticker">this week's essay</span><strong>${esc(A.essay.title||A.essay.label.replace(/^read the essay:\s*/i,''))}</strong><span class="by">by simi bharaj · on substack</span><span class="go">read the essay <i aria-hidden="true">↗</i></span></a>`:''}
+  <div class="row reveal"><a class="go" href="${esc(O.subscribe.href)}" target="_blank" rel="noopener">${esc(O.subscribe.label)}</a><button class="go light2" type="button" id="share">share this edition</button></div>
+  <div class="findme reveal"><span class="sticker">find me</span><div class="fm-grid">${Object.entries(O.card.links).map(([k,h])=>{const t=h.replace(/\/$/,'').split('/').pop();const handle={instagram:'@'+t,linkedin:'simi bharaj',github:t,substack:h.replace(/^https?:\/\//,'').replace(/\/$/,'')}[k]||'';return `<a href="${esc(h)}" target="_blank" rel="noopener"><b>${esc(k)}</b><span>${esc(handle)}</span></a>`;}).join('')}</div></div>
   <p class="hint reveal">${esc(O.closing)}</p></div>
 </section>`;
 $('#bites').innerHTML=html;
@@ -100,20 +99,17 @@ const unlock=id=>{const g=$('#'+id);if(g&&g.hidden){g.hidden=false;}};
 $$('.nextb').forEach(b=>b.addEventListener('click',()=>{const t=$('#'+b.dataset.to);t&&t.scrollIntoView({behavior:reduce?'auto':'smooth'});}));
 const flips=$$('.flip'),flipped=new Set();
 flips.forEach((f,i)=>f.addEventListener('click',()=>{f.classList.toggle('on');flipped.add(i);$('#b1').classList.add('touched');tone(660,.4,.05);
-  const left=flips.length-flipped.size;
-  if(left>0)setMove('m1',left===1?'one more card to flip.':left+' more cards to flip.');else{setMove('m1','done. my take is below.',true);}
   unlock('g1');}));
-const poll=$('#poll');function vote(v){poll.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===v));$('#pollTake').hidden=false;setMove('m2','voted. my take is below.',true);}
+const poll=$('#poll');function vote(v){poll.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===v));$('#pollTake').hidden=false;}
 poll.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;store(KEY+'-vote',b.dataset.v);vote(b.dataset.v);tone(784,.5,.05);});
 const saved=store(KEY+'-vote');if(saved)vote(saved);
 const gs=$('#guess');if(gs)gs.addEventListener('click',e=>{const b=e.target.closest('button');if(!b||metered)return;const v=R.value,gv=+b.dataset.g;
   gs.querySelectorAll('button').forEach(x=>{x.classList.add(+x.dataset.g===v?'right':'wrong');x.disabled=true;});b.setAttribute('aria-pressed','true');
-  $('#meterBox').hidden=false;meter();setMove('m3',(gv===v?'you got it. ':'it\'s '+v+'%. ')+'my take is below.',true);unlock('g3');tone(784,.5,.05);});
+  $('#meterBox').hidden=false;meter();unlock('g3');tone(784,.5,.05);});
 let metered=false;function meter(){if(metered||!Q.reception)return;metered=true;const v=Q.reception.value;$('#meterBar').style.width=v+'%';if(reduce){$('#meterNum').textContent=v+'%';return;}let t0=null;const step=t=>{t0=t0||t;const k=Math.min(1,(t-t0)/1400);$('#meterNum').textContent=Math.round(v*k*(2-k))+'%';if(k<1)requestAnimationFrame(step);};requestAnimationFrame(step);}
 const c3=$('#chips3');if(c3)c3.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;c3.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));b.classList.add('seen');
   const t=$('#chipText');t.hidden=false;t.textContent=Q.chips[+b.dataset.i].text;tone(600,.4,.05);
-  const left=Q.chips.length-c3.querySelectorAll('.seen').length;
-  setMove('m3',left?(left===1?'one more to tap.':left+' more to tap.'):'that\'s all of them. my take is below.',!left);unlock('g3');});
+  unlock('g3');});
 
 /* bite 4 the lab, bite 5 the tool */
 const sheet=$('#sheet');let studio=null;
