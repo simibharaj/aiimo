@@ -151,7 +151,7 @@ E.term={open:true,title:'the counter',previewLabel:'preview · what you get hand
   startNote:'your drink will show up here.',
   ai:"hi! what can i get you? type any drink, exactly how you'd order it.",
   parts:[{k:'goal',short:'goal',c:'#ff6fa3',why:'what you actually want.'},
-         {k:'context',short:'context',c:'#e6b92e',why:"who it's for and what's going on."},
+         {k:'context',short:'context',c:'#ffb30f',why:"who it's for and what's going on."},
          {k:'limits',short:'limits',c:'#2fc4c8',why:'what to avoid or swap.'},
          {k:'format',short:'format',c:'#4fbf6a',why:'exactly how you want it made.'}],
   lit:v=>Object.keys(has).filter(k=>has[k](v)),

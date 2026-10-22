@@ -76,10 +76,13 @@ ${(E.open||[]).length?`<section class="opennow" id="open" aria-label="open now">
 <section class="bite" id="b6" style="--accent:var(--holo)">${obj(6,'a clear iridescent glass number six')}
   <div class="copy"><span class="tag reveal">bite 6 · simi, unprompted</span><h2 class="reveal">${esc(A.paragraphs[0])}</h2>
   ${A.paragraphs.slice(1).map(p=>`<p class="say reveal">${esc(p)}</p>`).join('')}
-  ${move((U.b6&&U.b6.move)||"read the essay. then subscribe so next tuesday's edition finds you.",'m6')}
-  ${A.essay?`<a class="essaycard reveal" href="${esc(A.essay.href)}" target="_blank" rel="noopener"><span class="sticker">this week's essay</span><strong>${esc(A.essay.title||A.essay.label.replace(/^read the essay:\s*/i,''))}</strong><span class="by">by simi bharaj · on substack</span><span class="go">read the essay <i aria-hidden="true">↗</i></span></a>`:''}
-  <div class="row reveal"><a class="go" href="${esc(O.subscribe.href)}" target="_blank" rel="noopener">${esc(O.subscribe.label)}</a><button class="go light2" type="button" id="share">share this edition</button></div>
-  <div class="findme reveal"><span class="sticker">find me</span><div class="fm-grid">${Object.entries(O.card.links).map(([k,h])=>{const t=h.replace(/\/$/,'').split('/').pop();const handle={instagram:'@'+t,linkedin:'simi bharaj',github:t,substack:h.replace(/^https?:\/\//,'').replace(/\/$/,'')}[k]||'';return `<a href="${esc(h)}" target="_blank" rel="noopener"><b>${esc(k)}</b><span>${esc(handle)}</span></a>`;}).join('')}</div></div>
+  <div class="bento reveal">
+    ${move((U.b6&&U.b6.move)||"read the essay. then subscribe so next tuesday's edition finds you.",'m6')}
+    ${A.essay?`<a class="tile essay" href="${esc(A.essay.href)}" target="_blank" rel="noopener"><span class="sticker">this week's essay</span><strong>${esc(A.essay.title||A.essay.label.replace(/^read the essay:\s*/i,''))}</strong><span class="by">by simi bharaj · on substack</span><span class="pill dark">read the essay ↗</span></a>`:''}
+    <a class="tile sub" href="${esc(O.subscribe.href)}" target="_blank" rel="noopener"><span class="sticker">every tuesday</span><strong>${esc(O.subscribe.label)}</strong><span class="pill dark">subscribe ↗</span></a>
+    <button class="tile share" type="button" id="share"><span class="sticker">send it on</span><strong>share this edition</strong><span class="pill">copy link</span></button>
+    ${Object.entries(O.card.links).map(([k,h])=>{const t=h.replace(/\/$/,'').split('/').pop();const handle={instagram:'@'+t,linkedin:'simi bharaj',github:t,substack:'aiimo'}[k]||'';return `<a class="tile soc" href="${esc(h)}" target="_blank" rel="noopener"><b>${esc(k)}</b><span>${esc(handle)}</span></a>`;}).join('')}
+  </div>
   <p class="hint reveal">${esc(O.closing)}</p></div>
 </section>`;
 $('#bites').innerHTML=html;
@@ -125,7 +128,7 @@ if(E.tool&&E.tool.kind==='builder')window.AiimoBuilder.mount($('#tool'),{copy,re
 else if($('#openPlanner')){$('#openPlanner').addEventListener('click',openPlanner);$('#closeSheet').addEventListener('click',closePlanner);addEventListener('keydown',e=>{if(e.key==='Escape'&&sheet.classList.contains('open'))closePlanner();});}
 
 /* bite 6 share */
-$('#share').addEventListener('click',e=>copy('ai, in my opinion · edition '+E.number+'. food for thought, in bites. '+location.href.split('#')[0],e.currentTarget,'share this edition'));
+$('#share').addEventListener('click',e=>{const el=e.currentTarget.querySelector('.pill')||e.currentTarget;copy('ai, in my opinion · edition '+E.number+'. food for thought, in bites. '+location.href.split('#')[0],el,'copy link');});
 
 /* sound: optional soft pad plus small chimes */
 let ac=null,g=null,on=false;
