@@ -34,6 +34,12 @@ the source of truth for building an edition of "ai, in my opinion". scheduled bu
 - yellow is a bright golden #ffb30f.
 - labels are rounded stickers in the bite color, not tiny gray mono text. body text 18-19px.
 
+## the interview pattern (edition 02 is the reference)
+- a vague first ask builds a generic draft on purpose. then an "interview me" button.
+- the ai asks a few questions one at a time; the header shows "question 2 of 4" (`T.progress`, `T.noRail`).
+- every question has one "✦ autofill a detailed answer" chip (`{label,text,kind:'fill'}`). autofill answers are rich, so autofill builds a polished result.
+- short answers build a thin result on purpose, with visible dashed gaps ("nothing here. you didn't say what makes you different."). that's the lesson: detail buys quality.
+
 ## cover (substack thumbnail, social preview, og:image)
 ```
 npm i playwright @fontsource/geist-sans @fontsource/geist-mono

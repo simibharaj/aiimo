@@ -104,149 +104,138 @@ window.EDITION={
       return [v.task||'[what you need help with]',v.matters?'what matters to me: '+v.matters:'',"i don't know exactly what i'm asking yet.",'before you answer, ask me '+n+' questions, one at a time. wait for my answer each time.','when you have enough, '+(v.end||'tell me what you understood, then give me one recommendation.')].filter(Boolean).join('\n');}}
 };
 
-/* bite 4: the terminal. type a messy idea, tell it to interview you, watch a real site take shape.
-   open mode: type anything, any time. every message updates the site. the reader decides when it's done. */
+/* bite 4: a real interview. a vague ask gets a generic draft. then the ai interviews you, one question at a time,
+   and the site gets better with every detail. autofill gives a detailed answer, so autofill builds a polished site.
+   short answers build a thin site on purpose: the empty spots show what detail buys you. */
 (function(E){
 const COLORS={sage:'#8fae8b',cream:'#f5efe3',pink:'#f08db5',blush:'#f6c9d6',blue:'#4f7fe0',navy:'#1f2a44',green:'#3f9d6a',gold:'#c9a86a',black:'#111114',white:'#ffffff',red:'#e5484d',orange:'#ff8a3d',peach:'#ffb48f',lavender:'#b9a7f0',purple:'#8a6cd8',yellow:'#f2cb4d',teal:'#2fa4a8',brown:'#7a5a44',beige:'#e9dcc6',grey:'#9a9aa2',gray:'#9a9aa2'};
 const BGS={cream:1,white:1,black:1,navy:1,blush:1,beige:1};
-const THEMES={soft:{bg:'#f6f1ea',fg:'#3b3833',ac:'#8fae8b'},bold:{bg:'#121214',fg:'#ffffff',ac:'#ff5a36'},luxe:{bg:'#0f0f10',fg:'#f1e7d6',ac:'#c9a86a'}};
-const VIBE=/\b(bold|loud|bright|fun|punchy|energetic|luxe|lux|luxury|fancy|elegant|premium|dark|moody|rich|soft|calm|clean|minimal|gentle|cozy|warm|airy|light)\b/i;
-const COLOR_RE=new RegExp('\\b('+Object.keys(COLORS).join('|')+')\\b','i');
-const DONE=/^(that'?s it|that is it|done|perfect|looks good|love it|i'?m done|finished|all good|good)\b/i;
-const clean=(t,re)=>t.replace(re||/^$/,'').replace(/^[\s"'“]+|[\s."'”!]+$/g,'').trim();
-function vibe(t){t=t.toLowerCase();let key=/bold|loud|bright|fun|punch|energ/.test(t)?'bold':/luxe|lux|fancy|elegant|premium|dark|moody|rich/.test(t)?'luxe':/soft|calm|clean|minimal|gentle|cozy|warm|light|airy/.test(t)?'soft':null;
+const THEMES={soft:{bg:'#f6f1ea',fg:'#3b3833',ac:'#8fae8b'},bold:{bg:'#121214',fg:'#ffffff',ac:'#ff5a36'},luxe:{bg:'#0f0f10',fg:'#f1e7d6',ac:'#c9a86a'},warm:{bg:'#fbf3ea',fg:'#3d2f27',ac:'#d9895b'},bright:{bg:'#fff8ef',fg:'#2b2b33',ac:'#ff8a3d'}};
+const DONE=/^(that'?s it|that is it|done|i'?m done|perfect|looks good|love it|finished|all good)\b/i;
+const clean=(t,re)=>String(t||'').replace(re||/^$/,'').replace(/^[\s"'“]+|[\s."'”!]+$/g,'').trim();
+const words=t=>String(t||'').trim().split(/\s+/).filter(Boolean).length;
+function vibe(t){t=t.toLowerCase();let key=/bold|loud|bright|fun|punch|energ|friendly/.test(t)?(/friendly|fun/.test(t)?'bright':'bold'):/luxe|lux|fancy|elegant|premium|dark|moody|rich/.test(t)?'luxe':/warm|cozy/.test(t)?'warm':/soft|calm|clean|minimal|gentle|light|airy/.test(t)?'soft':null;
   const th=Object.assign({},THEMES[key||'soft']);const found=Object.keys(COLORS).filter(c=>new RegExp('\\b'+c+'\\b').test(t));
   found.forEach(c=>{if(BGS[c]){th.bg=COLORS[c];th.fg=(c==='black'||c==='navy')?'#f4f1ea':'#2f2c28';}else th.ac=COLORS[c];});
   const cols=found.length>1?found.slice(0,-1).join(', ')+' and '+found[found.length-1]:found.join('');
   return {key:key||(found.length?'custom':'soft'),th,label:[key,cols].filter(Boolean).join(', ')||t};}
-function noun(what){const m=what.match(/(?:for|about)\s+(?:my|our|a|an|the)?\s*([^.,!]+)/i);return clean(m?m[1]:what.replace(/^(?:i want |i need |make |build |help me make )?(?:me )?(?:a |an )?(?:website|site|page|landing page)?/i,''))||'your thing';}
-const dog=v=>/dog|pet|walk/i.test(v.what||'');
-const ORDER=['name','who','vibe'];
-const nextQ=v=>ORDER.find(k=>!v[k]);
-const answered=v=>ORDER.filter(k=>v[k]).length;
-const qn=v=>`question ${(v.qn||0)+1} of ${v.qt||3}: `;
-const ASK={name:v=>qn(v)+'what is it called?',
-  who:v=>qn(v)+`who is ${v.name||'it'} for?`,
-  vibe:v=>qn(v)+'what should it feel like? soft, bold or luxe? or name a couple of colors.'};
-const NOTE={hero:v=>'drew '+v.heroArt+' as the main picture.',size:v=>v.big?'bigger headline.':'smaller headline.',gallery:v=>v.lastPic?'drew a '+v.lastPic+' and added it to the gallery.':'added a gallery of drawings for your '+(v.noun||'site')+'.',reviews:'added a reviews section. real reviews go there.',prices:'added a prices section.',contact:'added a contact section.',about:'added an about section.',removed:'removed it.',extra:'added what you asked for, in your words.',button:'new button text.',name:'your name went straight onto the page.',who:'now the headline talks to someone specific.',vibe:v=>'it took your words literally: '+v.vibe.label+'.'};
-/* explicit edits work at any point: "call it x", "make it bold", "black and gold", "it's for x", "the button should say x" */
-function edits(t,v,useVibe){const got=[];
-  if(/\b(font|text|headline|title|words|letters)\b/i.test(t)&&/\b(bigger|larger|huge|smaller|tiny)\b/i.test(t)){v.big=/bigger|larger|huge/i.test(t);got.push('size');}
-  let m=t.match(/(?:call(?:ed)? it|name(?:d)? it|rename it(?: to)?|change the name to|the name is|it'?s called|name:)\s+["“]?([^."”!,]+)/i);
-  if(m){v.name=clean(m[1]);got.push('name');}
-  m=t.match(/(?:button|cta)[^:]*?(?:say|read|says|reads|to|:)\s*["'“]?([^."'”!]+)/i);
-  if(m){v.cta=clean(m[1]);got.push('button');}
-  m=t.match(/(?:it'?s for|made for|for people who|audience is|aimed at|target is)\s+([^.!]+)/i);
-  if(m){v.who=clean(m[0].replace(/^(?:it'?s for|made for|audience is|aimed at|target is)\s+/i,''));got.push('who');}
-  if(useVibe!==false&&(VIBE.test(t)||COLOR_RE.test(t))){const nv=vibe(t);if(v.vibe&&!VIBE.test(t)){nv.key=v.vibe.key==='custom'?'custom':v.vibe.key;nv.th=Object.assign({},v.vibe.th);t.toLowerCase().match(new RegExp(COLOR_RE.source,'gi')).forEach(c=>{c=c.toLowerCase();if(BGS[c]){nv.th.bg=COLORS[c];nv.th.fg=(c==='black'||c==='navy')?'#f4f1ea':'#2f2c28';}else nv.th.ac=COLORS[c];});nv.label=(v.vibe.key!=='custom'?v.vibe.key+', ':'')+nv.label;}
-    v.vibe=nv;got.push('vibe');}
+function noun(what){const m=what.match(/(?:for|about)\s+(?:my|our|a|an|the)?\s*([^.,!]+)/i);return clean(m?m[1]:what.replace(/^(?:i want |i need |make |build |help me make )?(?:me )?(?:a |an )?(?:website|site|page|landing page)?\s*/i,''))||'your business';}
+const kind=v=>/dog|pet|walk|puppy/i.test(v.what||'')?'dog':/candle|wax/i.test(v.what||'')?'candle':'any';
+/* the autofill answers: detailed on purpose */
+const FILL={
+  candle:{start:'a website for my candle business',q1:'luna candle co. hand-poured soy candles, made in small batches in tampa.',q2:'people who host dinner parties and want their home to smell like a slow sunday.',q3:'every scent is named after a tampa neighborhood, and each candle burns for 60 hours.',q4:'warm and calm. sage and cream. the button should say shop the collection.'},
+  dog:{start:'a page for my dog walking side hustle',q1:'walk this way. private dog walks and puppy check-ins around downtown tampa.',q2:'busy owners who work long days and want someone their dog actually loves.',q3:'solo walks only, a photo after every visit, and the same walker every time.',q4:'bright and friendly. orange and cream. the button should say book a walk.'},
+  any:{q1:v=>`golden hour studio. small-batch ${v.noun} made by hand in tampa.`,q2:()=>'locals who care where things come from and like knowing the maker.',q3:()=>'everything is made to order, and we answer every message ourselves.',q4:()=>'warm and soft. peach and cream. the button should say get in touch.'}};
+const fill=(v,q)=>{const f=FILL[kind(v)][q];return typeof f==='function'?f(v):f;};
+const Q={q1:"question 1 of 4. what's it called, and what exactly do you sell?",
+  q2:v=>`question 2 of 4. who is ${v.name||'it'} for? describe your favorite customer.`,
+  q3:"question 3 of 4. what makes yours different from everyone else's?",
+  q4:"question 4 of 4. how should it feel, and what's the one thing a visitor should do?"};
+const ORDER=['q1','q2','q3','q4'];
+const THIN="a short answer makes a short site. add a detail anytime, or keep going.";
+function readQ(q,t,v){t=clean(t);
+  if(q==='q1'){const m=t.match(/^([^.,:;!]{1,40})[.,:;!]\s*(.+)$/);if(m&&words(m[1])<=5){v.name=clean(m[1]);v.product=clean(m[2]);}else if(words(t)<=4){v.name=t;v.product=null;}else{v.name=t.split(/\s+/).slice(0,3).join(' ');v.product=t;}}
+  if(q==='q2')v.who=clean(t,/^(?:it'?s |its |mostly |mainly )?(?:for )?/i);
+  if(q==='q3')v.diff=t;
+  if(q==='q4'){v.vibe=vibe(t);const m=t.match(/(?:button|cta)[^:]*?(?:say|read|says|reads|be|:)\s*["'“]?([^."'”!]+)/i)||t.match(/(?:visitors?|people|they)\s+should\s+([^.!]+)/i);v.cta=m?clean(m[1]):(kind(v)==='dog'?'book a walk':kind(v)==='candle'?'shop now':'get in touch');}
+  v.thin=v.thin||{};v.thin[q]=words(t)<5;}
+/* edits after it's built (or any time): "call it x", "make it bold", "black and gold", "the button should say x", "add pictures of a cake", "add reviews" */
+const SEC=[['reviews',/\b(review|reviews|testimonial|testimonials)\b/i],['prices',/\b(price|prices|pricing|menu)\b/i],['contact',/\b(contact|email|phone|address|location|hours|map)\b/i],['faq',/\b(faq|questions)\b/i]];
+function edits(t,v){const got=[];const AA=window.AiimoArt;const rm=/\b(remove|delete|no more|take out|get rid of|without)\b/i.test(t);
+  let m=t.match(/(?:call(?:ed)? it|name(?:d)? it|rename it(?: to)?|change the name to|the name is)\s+["“]?([^."”!,]+)/i);if(m){v.name=clean(m[1]);got.push('renamed it to '+v.name+'.');}
+  m=t.match(/(?:button|cta)[^:]*?(?:say|read|says|reads|to|:)\s*["'“]?([^."'”!]+)/i);if(m){v.cta=clean(m[1]);got.push('the button now says '+v.cta+'.');}
+  if(/\b(bold|loud|bright|fun|luxe|fancy|elegant|dark|moody|soft|calm|minimal|warm|cozy)\b/i.test(t)||new RegExp('\\b('+Object.keys(COLORS).join('|')+')\\b','i').test(t)){v.vibe=vibe(t);got.push('new look: '+v.vibe.label+'.');}
+  const isPic=/\b(pic|pics|picture|pictures|photo|photos|image|images|gallery|drawing|drawings)\b/i.test(t);
+  const asked=AA&&(AA.wanted(t)||(/\b(add|put|draw|show|include)\b/i.test(t)&&!SEC.some(([,re])=>re.test(t))?AA.find(t.replace(/\b(pictures?|photos?|images?|gallery|pics?|drawings?)\b/ig,'')):null));
+  if(rm&&isPic){v.pics=[];v.gallery=false;got.push('took the pictures out.');}
+  else if(asked&&/\b(main|hero|top|header|big)\b/i.test(t)){v.heroArt=asked;got.push('drew a '+asked+' as the main picture.');}
+  else if(asked||isPic){v.gallery=true;if(asked)v.pics=[asked,...(v.pics||[])];got.push(asked?'drew a '+asked+' into the gallery.':'added a gallery of drawings.');}
+  SEC.forEach(([k,re])=>{if(re.test(t)){v.sec=v.sec||{};if(rm){delete v.sec[k];got.push('removed the '+k+'.');}else{v.sec[k]=1;got.push('added a '+k+' section.');}}});
+  if(/\b(font|text|headline|title|words)\b/i.test(t)&&/\b(bigger|larger|huge|smaller)\b/i.test(t)){v.big=/bigger|larger|huge/i.test(t);got.push(v.big?'bigger headline.':'smaller headline.');}
   return got;}
-function answer(t,v,q){
-  if(q==='name')v.name=clean(t,/^(?:it'?s |its )?(?:called |named )?(?:the name is )?/i)||t;
-  if(q==='who')v.who=clean(t,/^(?:it'?s |its |mostly |mainly )?(?:for )?/i)||t;
-  if(q==='vibe')v.vibe=vibe(t);}
-/* sections you can ask for at any point: "add pictures", "add reviews", "remove the prices" */
-const ADD=[['gallery',/\b(pic|pics|picture|pictures|photo|photos|image|images|gallery)\b/i],['reviews',/\b(review|reviews|testimonial|testimonials)\b/i],
-  ['prices',/\b(price|prices|pricing|menu|rates?)\b/i],['contact',/\b(contact|email|phone|address|location|hours|map)\b/i],['about',/\b(about|our story|story|bio)\b/i]];
-const IMP=/\b(add|put|show|include|need|want|give|make|change|remove|delete|take out|get rid of|more|less|bigger|smaller|use)\b/i;
-const ART=()=>window.AiimoArt;
-function pics(t,v){const AA=ART();if(!AA)return [];const rm=/\b(remove|delete|no more|take out|get rid of|without)\b/i.test(t);
-  const asked=AA.wanted(t)||(/\b(add|put|draw|show|include|want|need|make|change|swap|use|turn|set)\b/i.test(t)&&!ADD.slice(1).some(([,re])=>re.test(t))?AA.find(t.replace(/\b(pictures?|photos?|images?|gallery|pics?)\b/ig,'')):null);
-  const isPic=ADD[0][1].test(t);
-  if(rm&&isPic){if(v.sec&&v.sec.gallery){delete v.sec.gallery;v.pics=[];return ['removed'];}return [];}
-  if(asked&&/\b(main|hero|top|header|first|big)\b/i.test(t)){v.heroArt=asked;v.last='hero';return ['hero'];}
-  if(asked||isPic){v.sec=v.sec||{};if(!v.sec.gallery)v.sec.gallery=(v.secN=(v.secN||0)+1);if(asked)v.pics=(v.pics||[]).concat(asked);v.last='gallery';v.lastPic=asked||null;return ['gallery'];}
-  return [];}
-function adds(t,v){const got=pics(t,v);if(got.length)return got;const rm=/\b(remove|delete|no more|take out|get rid of|without)\b/i.test(t);
-  for(const [k,re] of ADD)if(re.test(t)){v.sec=v.sec||{};if(rm){if(v.sec[k]){delete v.sec[k];got.push('removed');}}else{if(!v.sec[k])v.sec[k]=(v.secN=(v.secN||0)+1);v.last=k;got.push(k);}}
-  return got;}
-const BUILD=/\b(build it|build|go ahead|let'?s go|do it|ship it|i'?m ready|ready)\b|^go\b/i;
-const after="change anything. try \"add pictures\", \"make it bold\" or \"the button should say ___\". type \"that's it\" when it's right.";
-E.term={open:true,title:'the interview · build a website',previewLabel:'preview · the site it builds',device:'browser',
+const after='change anything: try "add a picture of a cake", "make it bold" or "add reviews". type "that\'s it" when it\'s right.';
+E.term={open:true,noRail:true,title:'the interview · build a website',previewLabel:'preview · your site',device:'browser',
   placeholder:'type here',startNote:'your site shows up here.',
   ai:"what do you want to build? say it messy. half an idea is fine.",
   parts:[{k:'ask',short:'ask messy',c:'#ff6fa3',why:'say it half formed. no perfect prompt needed.'},
-         {k:'interview',short:'make it ask',c:'#ffb30f',why:'tell it to ask you questions first.'},
-         {k:'answer',short:'answer',c:'#2fc4c8',why:'short, honest answers. this is your real context.'},
-         {k:'go',short:'then go',c:'#4fbf6a',why:'tell it when to build. it commits to your answers.'}],
-  chips:v=>{if(!v.started)return['a website for my candle business','a page for my dog walking side hustle'];
-    if(!v.interview&&!v.go)return['ask me 3 questions first, one at a time'];
-    if(v.q==='name')return dog(v)?['walk this way','tampa tails']:['luna candle co.','slow burn studio'];
-    if(v.q==='who')return dog(v)?['busy dog owners downtown','people who travel for work']:['people who host dinner parties','anyone who wants a slow sunday'];
-    if(v.q==='vibe')return['soft. sage and cream','bold. black and orange','luxe. black and gold'];
-    if(!v.go)return[dog(v)?'build it. the button should say book a walk.':'build it. the button should say book a tasting.'];
-    return['add pictures','add a picture of a cake','make it bold. black and orange','add reviews',"that's it"];},
-  lit:v=>[v.what&&'ask',v.interview&&'interview',(v.name||v.who||v.vibe)&&'answer',v.go&&'go'].filter(Boolean),
-  isDone:(t,v)=>DONE.test(t.trim())&&!!v.go,
+         {k:'interview',short:'make it ask',c:'#ffb30f',why:'tell it to interview you before it builds.'},
+         {k:'answer',short:'answer with detail',c:'#2fc4c8',why:'every detail you give ends up on the page.'},
+         {k:'go',short:'then go',c:'#4fbf6a',why:'it builds once it has enough. then you fix what you want.'}],
+  progress:v=>!v.stage?'':v.stage==='draft'?'first draft':v.stage==='built'?'built from your answers':'question '+(ORDER.indexOf(v.stage)+1)+' of 4',
+  chips:v=>{const k=kind(v);
+    if(!v.stage)return[{label:'✦ autofill',text:FILL.candle.start,kind:'fill'},{label:'dog walking idea',text:FILL.dog.start}];
+    if(v.stage==='draft')return[{label:'interview me',text:'interview me',kind:'fill'}];
+    if(v.stage!=='built')return[{label:'✦ autofill a detailed answer',text:fill(v,v.stage),kind:'fill'},{label:'skip',text:'skip'}];
+    return[{label:'add a picture of a cake',text:'add a picture of a cake',kind:'fill'},{label:'make it bold',text:'make it bold. black and orange'},{label:'add reviews',text:'add reviews'},{label:"that's it",text:"that's it"}];},
+  lit:()=>[],
+  isDone:(t,v)=>DONE.test(t.trim())&&v.stage==='built',
   finishSay:()=>"done. your opening message is waiting in bite 5.",
-  update(t,v){
-    if(!v.started){v.started=true;v.what=clean(t);v.noun=noun(t);edits(t.replace(/^.*?\b(for|about)\b[^.]*/i,''),v,true);
-      return {changed:true,reply:"here's my guess. it's generic because i had to guess. want it to be yours? tell me to ask you questions first.",note:"a vague ask gets a template. it isn't wrong. it just isn't yours."};}
-    if(!v.interview&&!v.go&&/\b(ask|question|questions|interview|quiz)\b/i.test(t)){v.interview=true;v.q=nextQ(v);v.qn=0;v.qt=ORDER.filter(k=>!v[k]).length;
-      return {changed:false,reply:"love that. i'll stop guessing. "+(v.q?ASK[v.q](v):"actually, you've told me enough. tell me to build it."),note:"nothing changed yet. that's the point. it stopped guessing."};}
-    const wantsBuild=!v.go&&BUILD.test(t);
-    const shortBuild=wantsBuild&&t.trim().split(/\s+/).length<6;
-    /* while a question is open, a plain answer goes to that question. "call it x" style edits still work. */
-    v.last=null;
-    const got=edits(t,v,!v.q);
-    if(!/button|cta/i.test(t)&&(!v.q||IMP.test(t)))got.push(...adds(t,v));
-    if(v.q&&!got.length&&!shortBuild){answer(t,v,v.q);got.push(v.q);v.qn=(v.qn||0)+1;}
-    if(wantsBuild){v.go=true;v.q=null;if(!v.cta)v.cta=dog(v)?'book a walk':'get in touch';
-      return {changed:true,reply:"built. every highlighted piece came from you. "+after,note:'now it commits. every highlighted piece came from you.'};}
-    if(!got.length){
-      if(!v.interview&&!v.go&&!IMP.test(t))return {changed:false,reply:"i can keep guessing, or you can tell me to ask you questions first. try: ask me 3 questions first.",note:''};
-      /* anything else still lands on the page, in their words */
-      v.extra=(v.extra||[]).concat(clean(t));v.sec=v.sec||{};v.sec['x'+v.extra.length]=(v.secN=(v.secN||0)+1);v.last='x'+v.extra.length;got.push('extra');}
-    const last=got[got.length-1];const n=NOTE[last];
-    const said=typeof n==='function'?n(v):(n||'updated.');
-    if(v.go)return {changed:true,reply:said+' '+after,note:said};
-    v.q=v.interview?nextQ(v):null;
-    const reply=v.q?'got it. '+ASK[v.q](v):v.interview?"that's enough for me. tell me to build it, and add anything i missed.":"updated. want it to be yours? tell me to ask you questions first.";
-    return {changed:true,reply,note:typeof n==='function'?n(v):(n||'')};},
+  update(t,v){const s=t.trim();
+    if(!v.stage){v.started=true;v.stage='draft';v.what=clean(s);v.noun=noun(s);
+      return {changed:true,note:'built a first draft from one vague line.',reply:"here's a first draft. it's generic because i had to guess everything. good ai asks before it builds. tap \"interview me\" and i'll ask you 4 quick questions."};}
+    if(v.stage==='draft'){
+      if(/\b(interview|ask|question|questions|yes|yeah|sure|ok|okay|go)\b/i.test(s)){v.stage='q1';return {changed:false,note:'',reply:"good call. i'll stop guessing. "+Q.q1};}
+      const got=edits(s,v);
+      return {changed:!!got.length,note:got.join(' '),reply:(got.length?'changed it. ':'')+'it still has to guess the rest. tap "interview me" and it gets specific.'};}
+    if(ORDER.includes(v.stage)){
+      const q=v.stage;
+      if(/^(skip|next|pass|idk|i don'?t know)\.?$/i.test(s)){v.thin=v.thin||{};v.thin[q]=true;}
+      else readQ(q,s,v);
+      const i=ORDER.indexOf(q),nx=ORDER[i+1];
+      const thin=v.thin&&v.thin[q];
+      const notes={q1:v.product?'put '+v.name+' and what you sell at the top.':'put your name on it. no product line yet, so the headline stays vague.',q2:v.who?'the page now speaks to '+v.who+'.':'no customer yet, so it talks to "everyone."',q3:v.diff?'added a "why '+(v.name||'us')+'" section in your words.':'the "why us" section is empty. that space is what detail fills.',q4:v.vibe?'new look: '+v.vibe.label+'. button: '+v.cta+'.':'kept the default look.'};
+      if(nx){v.stage=nx;const ask=typeof Q[nx]==='function'?Q[nx](v):Q[nx];return {changed:true,note:notes[q],reply:(thin?THIN+' ':'got it. ')+ask};}
+      v.stage='built';v.gallery=true;
+      const thinN=ORDER.filter(k=>v.thin&&v.thin[k]).length;
+      return {changed:true,note:notes[q]+' built the full site.',reply:(thinN?`built it. ${thinN} of your answers were short, and you can see the gaps. `:"that's everything i need. here's your site, built from your answers. ")+after};}
+    /* built: edits */
+    const got=edits(s,v);
+    if(!got.length){v.extra=(v.extra||[]).concat(clean(s));got.push('added that to the page, in your words.');}
+    return {changed:true,note:got.join(' '),reply:'done. '+after};},
   render(v,{hl,esc}){
     const AA=window.AiimoArt;
-    const th=v.vibe?v.vibe.th:{bg:'#f5f5f7',fg:'#3a3a40',ac:'#a9a9b3'},st=`--bg:${th.bg};--fg:${th.fg};--ac:${th.ac}`;
-    const P={a:th.ac,t:th.ac};
-    const base=(AA&&AA.find((v.what||'')+' '+(v.noun||'')))||'sparkle';
-    const art=k=>AA?AA.draw(k,P):'';
+    const th=v.vibe?v.vibe.th:{bg:'#f4f4f6',fg:'#4a4a52',ac:'#a9a9b3'},st=`--bg:${th.bg};--fg:${th.fg};--ac:${th.ac}`;
+    const base=(AA&&AA.find((v.what||'')+' '+(v.product||'')+' '+(v.noun||'')))||'sparkle';
+    const art=k=>AA?AA.draw(k,{a:th.ac,t:th.ac}):'';
     const url=(v.name?v.name.toLowerCase().replace(/[^a-z0-9]+/g,''):'your-site')+'.com';
     const chrome=`<div class="bw-chrome"><span class="bw-dots"><i></i><i></i><i></i></span><span class="bw-url">${esc(url)}</span></div>`;
-    if(!v.what)return `<div class="bw">${chrome}<div class="pg generic"><nav><b>logo</b><span class="links"><i></i><i></i><i></i></span></nav><section class="hero"><div><h4>your site goes here.</h4><p>type an idea and watch it get built.</p></div><div class="ph-art"></div></section></div></div>`;
-    const generic=!v.name&&!v.vibe;
+    if(!v.stage)return `<div class="bw">${chrome}<div class="pg generic empty"><div class="empty-msg"><div class="ph-art"></div><h4>your site goes here.</h4><p>type an idea, or tap autofill.</p></div></div></div>`;
+    const gap=t=>`<span class="gapnote">${esc(t)}</span>`;
     const name=v.name?hl('answer',v.name):'logo';
-    const h=v.who&&v.name?`${hl('answer',v.name)}. made for ${hl('answer',v.who)}.`:v.name?`welcome to ${hl('answer',v.name)}.`:v.who?`made for ${hl('answer',v.who)}.`:'welcome to our website.';
-    const p=v.name||v.who?`${hl('ask',v.noun)}${v.who?', for the ones who notice the details.':', made with care.'}`:`we offer high quality ${hl('ask',v.noun)} for everyone. your satisfaction is our priority.`;
+    const eyebrow=v.name?`<small class="eyebrow">${hl('answer',v.name)}</small>`:'';
+    const h=v.product?hl('answer',v.product):v.name?`welcome to ${hl('answer',v.name)}.`:'welcome to our website.';
+    const sub=v.who?`made for ${hl('answer',v.who)}.`:v.stage==='draft'?`we offer high quality ${esc(v.noun)} for everyone. your satisfaction is our priority.`:gap('who is this for? nobody said.');
     const cta=v.cta?hl('go',v.cta):'learn more';
-    const links=['shop','about',v.sec&&v.sec.reviews?'reviews':'faq','contact'];
-    const heroArt=generic?'<div class="ph-art"></div>':`<div class="hero-art${v.last==='hero'?' new':''}">${art(v.heroArt||base)}</div>`;
-    const picks=[...new Set([...(v.pics||[]),...((AA&&AA.set(base))||[])])].slice(0,Math.max(4,(v.pics||[]).length));
-    const SEC={
-      gallery:()=>`<h5>gallery</h5><div class="gal">${picks.map(k=>`<figure>${art(k)}<figcaption>${esc(k==='icecream'?'ice cream':k)}</figcaption></figure>`).join('')}</div>`,
-      reviews:()=>`<h5>what people say</h5><div class="rev">${[1,2].map(()=>`<div><span class="stars">★★★★★</span><p>a real review from a customer goes here.</p><small>a happy customer</small></div>`).join('')}</div>`,
-      prices:()=>`<h5>prices</h5><div class="price">${[v.noun||'the classic','gift set','custom order'].map(x=>`<p><span>${esc(x)}</span><b>$ —</b></p>`).join('')}</div>`,
-      contact:()=>`<h5>say hi</h5><div class="contact"><div>${art('pin')}<span>visit</span></div><div>${art('chat')}<span>message</span></div><div>${art('calendar')}<span>${esc(v.cta||'book')}</span></div></div>`,
-      about:()=>`<h5>about ${esc(v.name||'us')}</h5><div class="about">${art(base)}<p>${v.who?'made for '+esc(v.who)+'. ':''}the story behind ${esc(v.name||'it')} goes here.</p></div>`};
-    const secs=Object.entries(v.sec||{}).sort((a,b)=>a[1]-b[1]).map(([k])=>{const body=k[0]==='x'?`<h5>you asked for</h5><p class="ask">${hl('go',v.extra[+k.slice(1)-1])}</p>`:SEC[k]();return `<section class="blk ${k[0]==='x'?'extra':k}${v.last===k?' new':''}">${body}</section>`;}).join('');
-    const tiles=v.go?`<section class="blk tiles"><div><small>who it's for</small><b>${hl('answer',v.who||'you')}</b></div><div><small>${esc(v.cta)}</small><b>takes 30 seconds</b></div></section>`:'';
+    const heroArt=(v.name||v.stage==='built')?`<div class="hero-art">${art(v.heroArt||base)}</div>`:'<div class="ph-art"></div>';
+    const blocks=[];
+    if(v.stage!=='draft'&&ORDER.indexOf(v.stage)>2||v.stage==='built')blocks.push(`<section class="blk why"><h5>why ${esc(v.name||'us')}</h5>${v.diff?`<p>${hl('answer',v.diff)}</p>`:gap('nothing here. you didn\'t say what makes you different.')}</section>`);
+    if(v.stage==='built'){
+      if(v.gallery!==false){const picks=[...new Set([...(v.pics||[]),...((AA&&AA.set(base))||[])])].slice(0,Math.max(3,(v.pics||[]).length));
+        blocks.push(`<section class="blk"><h5>${v.product?'what we make':'gallery'}</h5><div class="gal">${picks.map(k=>`<figure>${art(k)}<figcaption>${esc(k==='icecream'?'ice cream':k)}</figcaption></figure>`).join('')}</div></section>`);}
+      const S=v.sec||{};
+      if(S.reviews)blocks.push(`<section class="blk"><h5>what people say</h5><div class="rev">${[1,2].map(()=>`<div><span class="stars">★★★★★</span><p>a real review from a customer goes here.</p></div>`).join('')}</div></section>`);
+      if(S.prices)blocks.push(`<section class="blk"><h5>prices</h5><div class="price">${[v.noun||'the classic','gift set','custom order'].map(x=>`<p><span>${esc(x)}</span><b>$ —</b></p>`).join('')}</div></section>`);
+      if(S.faq)blocks.push(`<section class="blk"><h5>questions</h5><p>your most asked questions go here.</p></section>`);
+      if(S.contact)blocks.push(`<section class="blk"><h5>say hi</h5><div class="contact"><div>${art('pin')}<span>visit</span></div><div>${art('chat')}<span>message</span></div><div>${art('calendar')}<span>${esc(v.cta||'book')}</span></div></div></section>`);
+      (v.extra||[]).forEach(x=>blocks.push(`<section class="blk"><h5>you asked for</h5><p>${hl('go',x)}</p></section>`));
+      blocks.push(`<section class="band"><b>${v.who?'for '+esc(v.who):'ready when you are'}</b><span class="cta">${cta}</span></section>`);}
     return `<div class="bw">${chrome}<div class="pg ${v.vibe?v.vibe.key:'generic'}${v.big?' big':''}" style="${st}">
-      <nav><b>${name}</b><span class="links">${links.map(l=>`<span>${l}</span>`).join('')}</span><span class="cta sm">${cta}</span></nav>
-      <section class="hero"><div><h4>${h}</h4><p>${p}</p><span class="cta">${cta}</span></div>${heroArt}</section>
-      ${tiles}${secs}
-      <footer>© ${esc(v.name||'your site')} · ${v.go?'built from your answers':'draft'}</footer></div></div>`;},
-  prompt:v=>{const known=[v.name&&`it's called ${v.name}`,v.who&&`it's for ${v.who}`,v.vibe&&`it should feel ${v.vibe.label}`,v.cta&&`the main button says ${v.cta}`,
-      v.sec&&Object.keys(v.sec).filter(k=>k[0]!=='x').length&&`include ${Object.keys(v.sec).filter(k=>k[0]!=='x').map(k=>({gallery:'a photo gallery',reviews:'reviews',prices:'prices',contact:'contact info',about:'an about section'}[k])).join(', ')}`,
-      v.extra&&v.extra.length&&`also: ${v.extra.join('; ')}`].filter(Boolean);
-    return [`${v.what||'i want to build a website'}.`,"i don't know exactly what i want yet.",known.length?`what i know so far: ${known.join('. ')}.`:'',
-      known.length?"before you build anything, ask me what's still missing, one question at a time. wait for my answer each time.":'before you build anything, ask me 3 questions, one at a time. wait for my answer each time.',
-      'when you have enough, build it as a single page i can open and share.'].filter(Boolean).join('\n');},
-  done:{title:'let it interview you.',say:"you didn't write a perfect prompt. you answered three questions. that's how you get something that's actually yours.",
-    rule:'works anywhere: before you answer, ask me 3 questions, one at a time.'}};
-E.take={label:'your opening message',mine:'made from your idea in bite 4',
-  empty:'type an idea in bite 4 first. your opening message shows up here as soon as you do.',emptyButton:'go to bite 4',
+      <nav><b>${name}</b><span class="links"><span>shop</span><span>about</span><span>contact</span></span><span class="cta sm">${cta}</span></nav>
+      <section class="hero"><div>${eyebrow}<h4>${h}</h4><p>${sub}</p><span class="cta">${cta}</span></div>${heroArt}</section>
+      ${blocks.join('')}
+      <footer>© ${esc(v.name||'your site')}</footer></div></div>`;},
+  prompt:v=>{const known=[v.name&&`it's called ${v.name}`,v.product&&`we sell ${v.product.replace(/\.$/,'')}`,v.who&&`it's for ${v.who.replace(/\.$/,'')}`,v.diff&&`what makes us different: ${v.diff.replace(/\.$/,'')}`,v.vibe&&`it should feel ${v.vibe.label}`,v.cta&&`the main button says ${v.cta}`].filter(Boolean);
+    return [`i want to build ${(v.what||'a website').replace(/\.$/,'')}.`,known.length?`here's what i know so far: ${known.join('. ')}.`:"i don't know exactly what i want yet.",
+      'before you build anything, interview me. ask one question at a time and wait for my answer. ask about anything still missing.',
+      'when you have enough, build it as a single page i can open and share.'].join('\n');},
+  done:{title:'let it interview you.',say:"you didn't write a perfect prompt. you answered four questions. every detail you gave ended up on the page, and every gap showed.",
+    rule:'works anywhere: before you answer, interview me. one question at a time.'}};
+E.take={label:'your opening message',mine:'made from your answers in bite 4',
+  empty:'start bite 4 first. your opening message shows up here as soon as you do.',emptyButton:'go to bite 4',
   hint:'tap a button. claude or chatgpt opens with this already typed in. press send, answer its questions, and it builds the real page.'};
-E.ui.b4={h2:"build a website without a perfect prompt. *let it interview you.*",say:"practice getting what you want when you don't know what to ask yet.",
-  steps:['type what you want to build in the black box below. messy is fine.','type "ask me questions first." then answer each one.','type "build it." change anything after. type "that\'s it" when it\'s right.']};
-E.ui.b5={h2:'now build *the real one.*',say:'your idea from bite 4 just became an opening message for a real ai. it changes as you type up there.',hint:"same skill, any task: a plan, a decision, a hard message. let it ask first."};
+E.ui.b4={h2:"build a website without a perfect prompt. *let it interview you.*",say:"practice the move that fixes vague ai: let it interview you.",
+  steps:['type what you want to build in the box below, or tap autofill.','tap "interview me." answer each question, or tap autofill.','watch your site get built. change anything, then type "that\'s it."']};
+E.ui.b5={h2:'now build *the real one.*',say:'your answers from bite 4 just became an opening message for a real ai. it changes as you type up there.',hint:"same skill, any task: a plan, a decision, a hard message. let it interview you first."};
 })(window.EDITION);
 /* your-move lines (engine shows them in a box in each bite) */
 (function(E){E.ui.b1.move='tap each card to flip it.';E.ui.b3.move='tap each one to see what they built.';})(window.EDITION);
