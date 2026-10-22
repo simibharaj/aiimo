@@ -71,7 +71,9 @@ function mount(root,ctx,T){
   function reset(){vals={};step=0;lit=new Set();done=false;first=null;log.innerHTML='';note.textContent=T.startNote||'';$('.tdone').hidden=true;paint(false);ask();}
   const go=t=>T.open?openSubmit(t):submit(t);
   if(T.placeholder)input.placeholder=T.placeholder;
-  $('.tin').addEventListener('submit',e=>{e.preventDefault();go(input.value);});
+  /* on phones: after you send, the keyboard drops and the card scrolls into view, so you see the change */
+  const phone=()=>matchMedia('(max-width:860px)').matches;
+  $('.tin').addEventListener('submit',e=>{e.preventDefault();go(input.value);if(phone()){input.blur();const g=root.querySelector('.tgrid');g&&g.scrollIntoView({block:'start',behavior:ctx.reduce?'auto':'smooth'});}});
   sugs.addEventListener('click',e=>{const b=e.target.closest('button');if(b)go(b.textContent);});
   $('.term-reset').addEventListener('click',reset);
   $('.tdone').addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b)return;
