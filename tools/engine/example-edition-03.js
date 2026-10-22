@@ -203,3 +203,5 @@ E.ui.b4={h2:'train it like a new hire. *write the playbook.*',say:'practice trai
   steps:["type its job in the black box below, like you'd brief a new hire.",'answer what it asks: an example you love, your rules, what to check.','change anything. type "that\'s it" when it\'s right.']};
 E.ui.b5={h2:'put your playbook *to work.*',say:'your playbook from bite 4, ready for a real ai. it changes as you type up there.',hint:'same shape works for emails, updates and replies. write it once, fix it when it misses.'};
 })(window.EDITION);
+/* your-move lines (engine shows them in a box in each bite) */
+(function(E){E.ui.b3.move='guess the number first. tap one.';})(window.EDITION);

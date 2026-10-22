@@ -212,3 +212,5 @@ E.ui.b5={h2:'now get ai to *make it for you.*',say:'your drink from bite 4 just 
 E.ui.b4={h2:'order exactly what you want. *it works on ai too.*',say:"practice talking to ai with something you already know how to do: ordering a drink.",
   steps:["type your drink in the black box below, the way you'd say it out loud.","press enter. watch it get made.",'change anything. type "that\'s it" when it\'s right.']};
 })(window.EDITION);
+/* your-move lines (engine shows them in a box in each bite) */
+(function(E){E.ui.b1.move='flip both cards. then see what i think.';E.ui.b3.move='tap each side. then see what i think.';})(window.EDITION);

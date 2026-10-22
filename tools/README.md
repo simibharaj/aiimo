@@ -18,6 +18,14 @@ the source of truth for building an edition of "ai, in my opinion". scheduled bu
 - phone first: test at 390x844 with isMobile. the pinned preview is compact and solid, the rail fits on one line, inputs are 16px.
 - sound is off by default. the button reads "turn sound on".
 
+## direction standard (every bite, every edition)
+- every bite has one **your move** box (`.move`) that says exactly what to tap, in plain words. set `ui.b1.move`, `ui.b2.move` (defaults to the poll question + "tap one."), `ui.b3.move`, `ui.b5.move`, `ui.b6.move` when the default doesn't fit.
+- the box updates as they go ("one more card to flip.") and turns to done when finished.
+- simi's take ("in my opinion") unlocks only after the move in bites 1, 2 and 3. a bite 3 meter is a guess first, then the reveal.
+- every bite ends with a **next** button. the cover explains the pattern in one line.
+- interactive things must look tappable: flip cards carry a dark "tap to flip" pill and a "flip back" pill.
+- bite 6 has three labeled blocks: the essay card ("the essay behind this edition", title, read the essay), the subscribe card, and "find me" with platform and handle on each row.
+
 ## cover (substack thumbnail, social preview, og:image)
 ```
 npm i playwright @fontsource/geist-sans @fontsource/geist-mono
