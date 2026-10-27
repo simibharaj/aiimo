@@ -1,0 +1,767 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>ai, in my opinion · edition 02</title>
+<meta name="description" content="microsoft says its ai out-diagnoses doctors. i ran the test myself. plus anthropic's ipo filing, and my new essay.">
+<meta name="theme-color" content="#fbfbfd">
+<meta property="og:title" content="ai, in my opinion · edition 02">
+<meta property="og:description" content="microsoft says its ai out-diagnoses doctors. i ran the test myself.">
+<meta property="og:image" content="https://simibharaj.github.io/aiimo/02/assets/cover.jpg">
+<meta property="og:url" content="https://simibharaj.github.io/aiimo/02/">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="assets/glass-0N.jpg">
+<style>:root{padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}[hidden]{display:none!important}</style>
+</head>
+<body>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap">
+<style>
+/* layout: one long ride. a fixed canvas tunnel streams toward you as you scroll; stations pin a sign that flies in from the light, then the bite rides past on clear glass. light only, by brand. */
+:root{
+  --bg:#fbfbfd; --ink:#16161c; --muted:#5f5f6e; --line:rgba(30,30,60,.12);
+  --pink:#ff6fa3; --butter:#ffb30f; --aqua:#2fc4c8; --mint:#4fbf6a; --peach:#ff8a5c; --holo:#8f9bff;
+  --pink-ink:#d92f73; --butter-ink:#b97900; --aqua-ink:#0f8e93; --mint-ink:#2a8c44; --peach-ink:#d9541f; --holo-ink:#5562d9;
+  --glass:rgba(255,255,255,.80); --rim:rgba(255,255,255,.98);
+  --sans:"Geist","Helvetica Neue",Arial,sans-serif; --mono:"Geist Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+  --acc:var(--pink); --acc-ink:var(--pink-ink);
+  color-scheme:light;
+}
+html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 17px/1.55 var(--sans);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--bg)}
+*{box-sizing:border-box}
+button{font:inherit;color:inherit}
+a{color:inherit}
+:focus-visible{outline:2.5px solid var(--acc-ink);outline-offset:3px;border-radius:10px}
+#tunnel{position:fixed;inset:0;width:100%;height:100%;z-index:0;display:block}
+main{position:relative;z-index:1;overflow-x:clip}
+.wrap{max-width:680px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+[data-acc=pink]{--acc:var(--pink);--acc-ink:var(--pink-ink)}[data-acc=butter]{--acc:var(--butter);--acc-ink:var(--butter-ink)}
+[data-acc=aqua]{--acc:var(--aqua);--acc-ink:var(--aqua-ink)}[data-acc=mint]{--acc:var(--mint);--acc-ink:var(--mint-ink)}
+[data-acc=peach]{--acc:var(--peach);--acc-ink:var(--peach-ink)}[data-acc=holo]{--acc:var(--holo);--acc-ink:var(--holo-ink)}
+em{font-style:normal;color:var(--acc-ink)}
+.mono{font-family:var(--mono)}
+
+/* hud: the train's dashboard */
+.hud{position:fixed;z-index:20;top:env(safe-area-inset-top,0px);left:0;right:0;padding:10px max(16px,env(safe-area-inset-right,0px)) 0 max(16px,env(safe-area-inset-left,0px));pointer-events:none}
+.hud-in{max-width:980px;margin:0 auto;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:8px 18px;padding:9px 12px 9px 14px;border-radius:18px;
+  background:rgba(255,255,255,.72);box-shadow:inset 0 0 0 1px var(--rim),inset 0 0 0 1.5px var(--line),0 14px 30px -22px rgba(40,30,90,.45);pointer-events:auto}
+.brand{font:600 14px var(--sans);letter-spacing:-.02em;white-space:nowrap;text-decoration:none}
+.brand span{color:var(--muted);font-weight:500}
+.route{position:relative;height:30px;min-width:0}
+.route .track{position:absolute;left:6px;right:6px;top:14px;height:2px;border-radius:2px;background:var(--line)}
+.route .done{position:absolute;left:6px;top:14px;height:2px;border-radius:2px;background:var(--ink);width:0}
+.route .st{position:absolute;top:9px;width:12px;height:12px;margin-left:-6px;border-radius:50%;background:#fff;box-shadow:inset 0 0 0 2px var(--c,var(--muted));transition:transform .3s}
+.route .st.on{background:var(--c);transform:scale(1.15)}
+.route .train{position:absolute;top:4px;margin-left:-13px;width:26px;height:22px;transition:left .15s linear}
+.route .train svg{display:block;width:26px;height:22px}
+.dash{display:flex;align-items:center;gap:10px}
+.speed{font:600 13px var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap;min-width:70px;text-align:right}
+.speed small{font-weight:500;color:var(--muted)}
+.snd{border:0;border-radius:99px;padding:7px 12px;background:#fff;box-shadow:inset 0 0 0 1px var(--line);font:500 12px var(--mono);cursor:pointer;white-space:nowrap}
+.snd[aria-pressed=true]{background:var(--ink);color:#fff}
+.next{grid-column:1/-1;display:none;font:500 11px var(--mono);color:var(--muted);letter-spacing:.02em}
+.next b{color:var(--ink);font-weight:600}
+
+/* platform */
+.platform{min-height:100svh;padding-top:96px;padding-bottom:48px;display:flex;flex-direction:column;justify-content:center}
+.platform .wrap{width:100%;min-width:0;display:flex;flex-direction:column;align-items:center;text-align:center;gap:14px}
+.now{display:inline-flex;align-items:center;gap:8px;font:600 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink);padding:6px 11px;border-radius:99px;background:#fff;box-shadow:inset 0 0 0 1px var(--line)}
+.now i{width:7px;height:7px;border-radius:50%;background:var(--mint);box-shadow:0 0 0 0 rgba(79,191,106,.6);animation:ping 1.6s infinite}
+@keyframes ping{70%{box-shadow:0 0 0 8px rgba(79,191,106,0)}100%{box-shadow:0 0 0 0 rgba(79,191,106,0)}}
+.hero02{width:min(380px,74vw);aspect-ratio:3/2;margin:4px 0 -6px;filter:drop-shadow(0 24px 30px rgba(120,100,200,.18))}
+.hero02 img{width:100%;height:100%;object-fit:contain;animation:float 6s ease-in-out infinite}
+@keyframes float{50%{transform:translateY(-8px)}}
+h1{margin:0;font-weight:600;font-size:clamp(42px,9.5vw,92px);line-height:.95;letter-spacing:-.06em;text-wrap:balance}
+.lede{margin:0;max-width:30em;font-size:clamp(17px,2.2vw,20px);line-height:1.45;color:#3a3a46;text-wrap:balance}
+.lede b{color:var(--ink)}
+.board-btn{display:inline-flex;align-items:center;gap:10px;margin-top:4px;padding:15px 24px;border:0;border-radius:99px;background:var(--ink);color:#fff;font:600 16px var(--sans);cursor:pointer;text-decoration:none;box-shadow:0 18px 30px -16px rgba(22,22,28,.55)}
+.board-btn i{font-style:normal;transition:transform .3s}.board-btn:hover i{transform:translateY(3px)}
+.departures{width:100%;min-width:0;max-width:100%;margin-top:16px;border-radius:20px;overflow:hidden;text-align:left;background:rgba(255,255,255,.84);box-shadow:inset 0 0 0 1px var(--rim),inset 0 0 0 1.5px var(--line),0 30px 60px -40px rgba(40,30,90,.45)}
+.dep-head{display:flex;justify-content:space-between;gap:12px;padding:12px 16px 10px;font:600 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--line)}
+.dep-row{display:grid;grid-template-columns:52px 1fr auto;gap:12px;align-items:center;padding:10px 16px;border-bottom:1px solid var(--line);font-size:15px}
+.dep-row:last-of-type{border-bottom:0}
+.dep-row .t{font:600 13px var(--mono);font-variant-numeric:tabular-nums}
+.dep-row .d{min-width:0;font-weight:500}
+.dep-row .d small{display:block;color:var(--muted);font-weight:400;font-size:13px}
+.dep-row .ln{width:30px;height:22px;border-radius:7px;display:grid;place-items:center;font:600 12px var(--mono);color:#fff;background:var(--c)}
+.ticker{overflow:hidden;white-space:nowrap;border-top:1px solid var(--line);background:rgba(255,255,255,.6);font:500 12.5px var(--mono);color:#3a3a46;padding:9px 0}
+.ticker span{display:inline-block;padding-left:100%;animation:tick 38s linear infinite}
+.ticker b{color:var(--ink)}
+@keyframes tick{to{transform:translateX(-100%)}}
+
+/* a stop: the sign flies in from the light at the end of the tunnel */
+.arrive{position:relative;height:175svh}
+.arrive .stage{position:sticky;top:0;height:100svh;display:grid;place-items:center;padding:92px max(16px,env(safe-area-inset-right,0px)) 24px max(16px,env(safe-area-inset-left,0px));perspective:900px}
+.sign{--a:0;--sc:.08;--op:0;width:min(560px,100%);border-radius:26px;overflow:hidden;transform:scale(var(--sc));opacity:var(--op);will-change:transform,opacity;
+  background:linear-gradient(160deg,rgba(255,255,255,.94),rgba(255,255,255,.80));box-shadow:inset 0 0 0 1px var(--rim),inset 0 0 0 1.5px var(--line),0 40px 80px -46px rgba(40,30,90,.55)}
+.sign .stripe{height:10px;background:var(--acc)}
+.sign .body{display:grid;grid-template-columns:auto 1fr;gap:6px 18px;align-items:center;padding:20px 22px 22px}
+.sign .num{grid-row:span 3;width:clamp(84px,22vw,124px);aspect-ratio:1}
+.sign .num img{width:100%;height:100%;object-fit:contain}
+.sign .k{font:600 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--acc-ink)}
+.sign h2{margin:0;font-weight:600;font-size:clamp(38px,8.6vw,64px);line-height:.95;letter-spacing:-.05em;text-wrap:balance}
+.sign .sub{font-size:15px;color:var(--muted)}
+.sign .foot{display:flex;justify-content:space-between;gap:12px;padding:10px 22px;border-top:1px solid var(--line);font:500 11px var(--mono);color:var(--muted);letter-spacing:.04em}
+.sign .foot b{color:var(--ink)}
+
+/* the cars: everything that rides past */
+.cars{display:flex;flex-direction:column;gap:18px;padding-bottom:120px}
+.car{border-radius:24px;padding:22px;background:var(--glass);box-shadow:inset 0 0 0 1px var(--rim),inset 0 0 0 1.5px var(--line),inset 0 22px 30px -26px #fff,0 30px 60px -44px rgba(40,30,90,.5);will-change:transform,opacity;transform-origin:50% 0}
+.car.bare{background:none;box-shadow:none;padding:0}
+.k2{display:inline-flex;align-items:center;gap:8px;font:600 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--acc-ink)}
+.k2::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--acc)}
+.car .big,.big{margin:10px 0 0;color:var(--ink);font-weight:600;font-size:clamp(34px,8vw,58px);line-height:1;letter-spacing:-.05em;text-wrap:balance}
+.big.q::before{content:"\201C"}.big.q::after{content:"\201D"}
+h3{margin:8px 0 0;font-weight:600;font-size:clamp(24px,5.4vw,32px);line-height:1.08;letter-spacing:-.035em;text-wrap:balance}
+.car p{margin:10px 0 0;font-size:17px;line-height:1.55;color:#2c2c36}
+.car p.small{font-size:14px;color:var(--muted)}
+.who{display:flex;align-items:center;gap:12px;margin-top:14px}
+.who .av{flex:none;width:42px;height:42px;border-radius:14px;display:grid;place-items:center;font:600 15px var(--mono);color:#fff;background:var(--acc)}
+.who b{display:block;font-weight:600}.who span{display:block;font-size:14px;color:var(--muted)}
+.said{margin:12px 0 0;padding-left:14px;border-left:3px solid var(--acc);font-size:18px;line-height:1.45}
+.said small{display:block;margin-top:4px;font:500 12px var(--mono);color:var(--muted)}
+.src{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.src a{font:500 12px var(--mono);color:var(--muted);text-decoration:none;padding:6px 10px;border-radius:99px;background:rgba(255,255,255,.75);box-shadow:inset 0 0 0 1px var(--line)}
+.src a:hover{color:var(--ink)}
+.catch{display:flex;gap:12px;align-items:flex-start}
+.catch .tag{flex:none;font:600 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;padding:6px 9px;border-radius:8px;background:var(--ink);color:#fff}
+
+/* your move: the one instruction on each car */
+.move{display:flex;align-items:center;gap:10px;font:600 15px var(--sans)}
+.move b{flex:none;font:600 10.5px var(--mono);letter-spacing:.1em;text-transform:uppercase;padding:6px 9px;border-radius:99px;background:var(--acc);color:#fff}
+
+/* deck: swipe through the 26,000 words */
+.deck{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px 2px 8px;margin:14px -2px 0;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.deck::-webkit-scrollbar{display:none}
+.slide{flex:0 0 86%;scroll-snap-align:start;border-radius:20px;padding:18px;background:#fff;box-shadow:inset 0 0 0 1px var(--line);min-width:0}
+.slide .n{font:600 12px var(--mono);color:var(--acc-ink)}
+.slide h4{margin:6px 0 0;font-size:21px;line-height:1.15;letter-spacing:-.03em;font-weight:600;text-wrap:balance}
+.slide p{margin:8px 0 0;font-size:16px;color:#33333e}
+.slide blockquote{margin:10px 0 0;padding-left:12px;border-left:3px solid var(--acc);font-size:15.5px;color:#33333e}
+.deck-ctl{display:flex;align-items:center;justify-content:space-between;margin-top:10px}
+.dots{display:flex;gap:6px}.dots i{width:7px;height:7px;border-radius:50%;background:var(--line);transition:all .25s}.dots i.on{width:20px;border-radius:9px;background:var(--acc)}
+.pill{border:0;border-radius:99px;padding:11px 16px;background:#fff;box-shadow:inset 0 0 0 1.5px var(--ink);font:600 14px var(--sans);cursor:pointer}
+.pill.dark{background:var(--ink);color:#fff;box-shadow:none}
+
+/* choices */
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.choices.three{grid-template-columns:1fr}
+.choice{border:0;text-align:left;border-radius:16px;padding:14px 14px;min-height:56px;background:#fff;box-shadow:inset 0 0 0 1.5px var(--line);font:500 15.5px/1.3 var(--sans);cursor:pointer;transition:transform .15s,box-shadow .2s,background .2s}
+.choice:active{transform:scale(.98)}
+.choice[aria-pressed=true]{box-shadow:inset 0 0 0 2px var(--acc);background:color-mix(in srgb,var(--acc) 10%,#fff)}
+.choice.right{box-shadow:inset 0 0 0 2px var(--mint);background:#eefbf1}
+.choice.wrong{opacity:.55}
+.answer{margin-top:12px;padding:14px 16px;border-radius:16px;background:color-mix(in srgb,var(--acc) 12%,#fff);font-size:16px}
+
+/* my take */
+.take h3{font-size:clamp(30px,7.4vw,46px);line-height:1.02;letter-spacing:-.045em}
+.sig{margin-top:14px;font:500 13px var(--mono);color:var(--muted)}
+
+/* your turn: the summary that argues back */
+.switches{display:flex;flex-direction:column;gap:10px;margin-top:14px}
+.sw{display:flex;align-items:center;justify-content:space-between;gap:14px;width:100%;border:0;border-radius:16px;padding:13px 14px;background:#fff;box-shadow:inset 0 0 0 1.5px var(--line);font:500 15.5px/1.3 var(--sans);text-align:left;cursor:pointer}
+.sw .tg{flex:none;width:46px;height:28px;border-radius:99px;background:#e6e6ee;position:relative;transition:background .2s}
+.sw .tg::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.18);transition:transform .25s cubic-bezier(.3,1.4,.5,1)}
+.sw[aria-pressed=true]{box-shadow:inset 0 0 0 2px var(--acc)}
+.sw[aria-pressed=true] .tg{background:var(--acc)}
+.sw[aria-pressed=true] .tg::after{transform:translateX(18px)}
+.out{margin-top:14px;border-radius:18px;background:#fff;box-shadow:inset 0 0 0 1px var(--line);overflow:hidden}
+.out .bar{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--line);font:600 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.out .bar i{width:8px;height:8px;border-radius:50%;background:var(--acc)}
+.out ul{list-style:none;margin:0;padding:12px 14px 14px;display:flex;flex-direction:column;gap:8px}
+.out li{font-size:15.5px;line-height:1.45;padding-left:16px;position:relative}
+.out li::before{content:"";position:absolute;left:2px;top:.62em;width:6px;height:6px;border-radius:50%;background:#c9c9d6}
+.out li.x{padding:10px 12px 10px 14px;border-radius:12px;background:color-mix(in srgb,var(--acc) 12%,#fff)}
+.out li.x::before{display:none}
+.out li.x b{font:600 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--acc-ink);display:block;margin-bottom:2px}
+.out li.new{animation:pop .5s cubic-bezier(.3,1.4,.5,1)}
+@keyframes pop{from{transform:translateY(8px) scale(.97);opacity:0}}
+.ticket{margin-top:14px;border-radius:18px;background:#fff;box-shadow:inset 0 0 0 1.5px var(--ink);overflow:hidden}
+.ticket .top{display:flex;justify-content:space-between;gap:10px;padding:10px 14px;border-bottom:1.5px dashed rgba(22,22,28,.3);font:600 11px var(--mono);letter-spacing:.08em;text-transform:uppercase}
+.ticket pre{margin:0;padding:14px;white-space:pre-wrap;word-break:break-word;font:500 14px/1.55 var(--mono);color:#24242e}
+.ticket pre mark{background:color-mix(in srgb,var(--acc) 22%,transparent);color:inherit;border-radius:4px;padding:0 2px}
+.go{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+.go a,.go button{flex:1 1 calc(50% - 5px);white-space:nowrap;display:inline-flex;justify-content:center;align-items:center;gap:8px;min-height:48px;border:0;border-radius:99px;padding:0 18px;font:600 15px var(--sans);text-decoration:none;cursor:pointer}
+.go button{flex-basis:100%}
+.go .a1{background:var(--ink);color:#fff}
+.go .a2{background:#fff;box-shadow:inset 0 0 0 1.5px var(--ink)}
+.rule{margin-top:14px;font-size:15px;color:var(--muted)}
+.rule b{color:var(--ink)}
+
+/* end of the line */
+.essay{display:block;text-decoration:none;border-radius:24px;padding:22px;background:var(--glass);box-shadow:inset 0 0 0 1px var(--rim),inset 0 0 0 1.5px var(--line),0 30px 60px -44px rgba(40,30,90,.5)}
+.essay strong{display:block;margin-top:6px;font-weight:600;font-size:clamp(28px,6.4vw,40px);line-height:1.02;letter-spacing:-.045em}
+.essay .sub2{display:block;margin-top:8px;color:#33333e}
+.essay .by{display:block;margin-top:6px;font:500 12px var(--mono);color:var(--muted)}
+.essay .read{display:inline-flex;margin-top:14px;padding:11px 16px;border-radius:99px;background:var(--ink);color:#fff;font:600 14px var(--sans)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid2 a,.grid2 button{display:flex;justify-content:center;align-items:center;min-height:50px;border:0;border-radius:16px;background:rgba(255,255,255,.85);box-shadow:inset 0 0 0 1px var(--rim),inset 0 0 0 1.5px var(--line);font:600 15px var(--sans);text-decoration:none;cursor:pointer}
+.grid2 .sub-btn{grid-column:1/-1;background:var(--ink);color:#fff;box-shadow:none;min-height:56px;font-size:16px}
+.open{border-left:0}
+.open .row{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+.open .row a{display:inline-flex;align-items:center;min-height:44px;padding:0 16px;border-radius:99px;font:600 14px var(--sans);text-decoration:none;background:#fff;box-shadow:inset 0 0 0 1.5px var(--ink)}
+.open .row a.dark{background:var(--ink);color:#fff;box-shadow:none}
+.fin{text-align:center;padding:30px 0 70px;display:flex;flex-direction:column;align-items:center;gap:12px}
+.fin p{margin:0;color:var(--muted);font:500 13px var(--mono)}
+
+@media (min-width:760px){
+  .slide{flex-basis:62%}
+  .choices.three{grid-template-columns:repeat(3,1fr)}
+  .car{padding:28px}
+}
+@media (max-width:640px){
+  .hud-in{grid-template-columns:1fr auto;padding:8px 10px 9px 12px;gap:6px 10px;border-radius:16px}
+  .route{grid-column:1/-1;grid-row:2;height:24px}
+  .route .track,.route .done{top:11px}.route .st{top:6px}.route .train{top:1px}
+  .speed{min-width:0;font-size:12px}
+  .platform{padding-top:118px}
+  .arrive .stage{padding-top:118px}
+  .dep-row{grid-template-columns:44px 1fr auto;padding:9px 14px;font-size:14px}
+  .choices{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .hero02 img,.now i,.ticker span{animation:none}
+  .ticker span{padding-left:16px;white-space:normal}
+  .ticker{white-space:normal}
+  .arrive{height:auto}.arrive .stage{position:relative;height:auto;min-height:60svh}
+  .sign{--sc:1!important;--op:1!important}
+}
+
+.runrows{display:flex;flex-direction:column;gap:10px;margin-top:14px}
+.runrow{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:center}
+.runrow .n{font:600 11px var(--mono);padding:6px 9px;border-radius:9px;background:var(--ink);color:#fff;white-space:nowrap}
+.car .runrow p{margin:0}
+.hits{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+.hit{border-radius:14px;padding:10px 12px;background:#eefbf1;box-shadow:inset 0 0 0 1.5px rgba(79,191,106,.45);font-size:15px;line-height:1.35}
+.hit.miss{background:#fff1f5;box-shadow:inset 0 0 0 1.5px rgba(255,111,163,.5)}
+.hit b{display:block;font:600 10.5px var(--mono);text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px;color:#2a8c44}
+.hit.miss b{color:#d92f73}
+.slot-inline .slot{margin-top:4px}
+.dashprev{position:relative;margin-top:14px;border-radius:20px;overflow:hidden;height:880px;background:#eceff5;box-shadow:inset 0 0 0 1px var(--rim),0 24px 50px -36px rgba(40,30,90,.5)}
+.dashprev iframe{position:absolute;inset:0;width:100%;height:100%;border:0;pointer-events:none}
+.dashtap{position:absolute;inset:0;border:0;background:transparent;display:flex;align-items:flex-end;justify-content:center;padding:16px;cursor:pointer}
+.dashtap span{display:inline-flex;align-items:center;min-height:46px;padding:0 20px;border-radius:99px;background:var(--ink);color:#fff;font:600 15px var(--sans);box-shadow:0 14px 30px -14px rgba(22,22,28,.6)}
+.dashfull{position:fixed;inset:0;z-index:60;display:flex;flex-direction:column;background:#eceff5}
+.dashfull .bar2{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:calc(10px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) 10px max(16px,env(safe-area-inset-left,0px));background:#fff;box-shadow:0 1px 0 var(--line);font:600 14px var(--sans)}
+.dashfull .bar2 span{color:var(--muted);font:500 12px var(--mono)}
+.dashfull iframe{flex:1;width:100%;border:0}
+.ask{margin:10px 0 0;padding:12px 14px;border-radius:14px;background:#fff;box-shadow:inset 0 0 0 1px var(--line);font-size:16px}
+.aians{margin-top:12px;border-radius:16px;background:#fff;box-shadow:inset 0 0 0 1.5px var(--ink);overflow:hidden}
+.aihead{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--line);font:600 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aihead i{width:8px;height:8px;border-radius:50%;background:var(--acc)}
+.aians ul{list-style:none;margin:0;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.aians li{font-size:15.5px;line-height:1.45;padding-left:16px;position:relative}
+.aians li::before{content:"";position:absolute;left:2px;top:.62em;width:6px;height:6px;border-radius:50%;background:#c9c9d6}
+.aians li.new{background:color-mix(in srgb,var(--acc) 14%,#fff);border-radius:10px;padding:8px 10px 8px 16px;animation:pop .5s cubic-bezier(.3,1.4,.5,1)}
+.aians li.new::before{left:5px;top:1.05em}
+.checks2{display:flex;flex-wrap:wrap;gap:6px;padding:0 14px 14px}
+.checks2 span{font:600 11.5px var(--mono);padding:6px 9px;border-radius:99px;background:#eefbf1;color:#23793b;box-shadow:inset 0 0 0 1px rgba(79,191,106,.45)}
+.grade{display:flex;flex-direction:column;gap:10px;margin-top:14px}
+.grow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 10px 10px 14px;border-radius:16px;background:#fff;box-shadow:inset 0 0 0 1.5px var(--line);font-size:15.5px;font-weight:500}
+.grow>span{min-width:0}
+.gbtns{display:flex;gap:6px;flex:none}
+.gbtns button{border:0;border-radius:99px;padding:9px 12px;background:#f3f3f7;font:600 13px var(--sans);cursor:pointer}
+.gbtns button[aria-pressed=true]{background:var(--ink);color:#fff}
+.grow.right{box-shadow:inset 0 0 0 2px var(--mint)}
+.grow.wrong{box-shadow:inset 0 0 0 2px var(--pink)}
+.grow.isgot>span::after{content:"  · got it";color:#2a8c44;font:600 12px var(--mono)}
+.grow.ismissed>span::after{content:"  · missed";color:#d92f73;font:600 12px var(--mono)}
+.fixit{margin-top:12px}
+.sign h2.long{font-size:clamp(25px,5.6vw,38px);line-height:1.04;letter-spacing:-.04em}
+.sub3{margin:6px 0 0;font-size:16px;color:var(--muted)}
+.chat{display:flex;flex-direction:column;gap:8px;margin-top:14px;padding:14px;border-radius:18px;background:#f6f6fa;box-shadow:inset 0 0 0 1px var(--line)}
+.bub{max-width:86%;padding:10px 13px;border-radius:18px;font-size:15.5px;line-height:1.42}
+.bub.me{align-self:flex-end;background:var(--ink);color:#fff;border-bottom-right-radius:6px}
+.bub.ai{align-self:flex-start;background:#fff;box-shadow:inset 0 0 0 1px var(--line);border-bottom-left-radius:6px}
+.bub.warn{background:#fff1f5;box-shadow:inset 0 0 0 2px var(--pink)}
+.bub.new{animation:pop .45s cubic-bezier(.3,1.4,.5,1)}
+.bub.typing{display:flex;gap:4px;padding:12px 14px}
+.bub.typing i{width:6px;height:6px;border-radius:50%;background:#9a9aa8;animation:blink 1s infinite}
+.bub.typing i:nth-child(2){animation-delay:.15s}.bub.typing i:nth-child(3){animation-delay:.3s}
+@keyframes blink{50%{opacity:.25}}
+#receipt[disabled]{opacity:.5}
+/* content slots and swap zones. add #draft to the link to see them. */
+.slot{display:none}
+.slot.has,.draft .slot{display:block}
+.slotwrap{padding-bottom:40px}
+.slotwrap:not(:has(.slot.has)){display:none}
+.draft .slotwrap{display:flex}
+.slot .media{border-radius:20px;overflow:hidden;background:#fff;box-shadow:inset 0 0 0 1px var(--line);margin:12px auto 0}
+.slot .media.v{aspect-ratio:9/16;max-width:min(340px,100%)}
+.slot .media.h{aspect-ratio:16/9;max-width:100%}
+.slot .media.sq{aspect-ratio:1;max-width:min(420px,100%)}
+.slot video,.slot .media img{display:block;width:100%;height:100%;object-fit:cover}
+.slot .empty{display:grid;place-items:center;text-align:center;gap:6px;padding:20px;margin:12px auto 0;max-width:min(300px,100%);aspect-ratio:9/16;border:2px dashed rgba(30,30,60,.28);border-radius:20px;font:500 13px/1.5 var(--mono);color:var(--muted)}
+.slot .empty b{color:var(--ink);font-size:14px}
+.slot .scap{margin-top:12px;font-size:16px;color:#2c2c36;text-align:center}
+.slot .linkcard{display:flex;flex-direction:column;align-items:center;gap:10px;margin-top:12px;text-decoration:none}
+.slot .linkcard img{width:min(300px,100%);aspect-ratio:9/16;object-fit:cover;border-radius:20px;box-shadow:inset 0 0 0 1px var(--line)}
+.slot .linkcard span{display:inline-flex;min-height:46px;align-items:center;padding:0 18px;border-radius:99px;background:var(--ink);color:#fff;font:600 15px var(--sans)}
+.swapbadge{display:block;width:max-content;max-width:100%;margin:0 0 12px;padding:6px 10px;border-radius:10px;font:600 10.5px/1.35 var(--mono);letter-spacing:.04em;text-transform:uppercase}
+.swapbadge.ok{background:#e6f8ec;color:#1f6f35}.swapbadge.warn{background:#fff1cc;color:#7a5000}.swapbadge.old{background:#ffe1e1;color:#9a2020}.swapbadge.you{background:#ece8ff;color:#4436b0}
+.draftbar{position:fixed;z-index:25;left:0;right:0;bottom:0;padding:10px max(16px,env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));background:#fff;box-shadow:0 -1px 0 var(--line),0 -14px 30px -20px rgba(40,30,90,.4);font:500 12px/1.45 var(--mono);color:var(--ink)}
+.draftbar b{font-weight:600}
+</style>
+
+<canvas id="tunnel" aria-hidden="true"></canvas>
+
+<header class="hud">
+  <div class="hud-in">
+    <a class="brand" href="#platform">ai, in my opinion <span>· 02</span></a>
+    <div class="route" id="route" aria-label="your ride, 5 stops">
+      <div class="track"></div><div class="done" id="done"></div>
+      <div class="train" id="train" aria-hidden="true"><svg viewBox="0 0 26 22"><path d="M2 15c0-6 5-11 13-11h3c3 0 6 3 6 6v5z" fill="#fff" stroke="#16161c" stroke-width="1.6" stroke-linejoin="round"/><path d="M15 6.5h3.5c1.8 0 3.3 1.3 3.6 3H15z" fill="#8fd8f0"/><rect x="2" y="15" width="22" height="2.6" rx="1.3" fill="#ff6fa3"/><circle cx="8" cy="19.5" r="1.6" fill="#16161c"/><circle cx="18" cy="19.5" r="1.6" fill="#16161c"/></svg></div>
+    </div>
+    <div class="dash"><span class="speed" id="speed">0 <small>km/h</small></span><button class="snd" id="snd" type="button" aria-pressed="false">sound off</button></div>
+    <div class="next" id="nextline">next stop: <b>the claim</b></div>
+  </div>
+</header>
+
+<main>
+<!-- ============ the platform ============ -->
+<section class="platform" id="platform" data-acc="pink">
+  <div class="wrap">
+    <span class="now"><i></i>now boarding · edition 02</span>
+    <div class="hero02"><img src="assets/float-0N.webp" alt="the number 02 in clear glass" width="1200" height="800" fetchpriority="high"></div>
+    <h1>ai, in my opinion</h1>
+    <p class="lede">microsoft says its ai diagnoses hard cases <b>more than twice as well as doctors.</b> i ran the test myself. plus anthropic's ipo filing, and my new essay.</p>
+    <a class="board-btn" href="#s1">board the ride <i aria-hidden="true">↓</i></a>
+    <div class="departures" role="table" aria-label="this ride's stops">
+      <div class="dep-head" role="row"><span>departures · tue oct 27</span><span>4 min ride</span></div>
+      <div class="dep-row" role="row" style="--c:var(--pink)"><span class="t">0:20</span><span class="d">microsoft says its ai out-diagnoses doctors<small>i ran the test</small></span><span class="ln">1</span></div>
+      <div class="dep-row" role="row" style="--c:var(--butter)"><span class="t">1:40</span><span class="d">anthropic files to go public<small>ticker: ANT</small></span><span class="ln">2</span></div>
+      <div class="dep-row" role="row" style="--c:var(--aqua)"><span class="t">2:00</span><span class="d">ai was supposed to replace sales reps<small>the leaders are hiring more</small></span><span class="ln">3</span></div>
+      <div class="dep-row" role="row" style="--c:var(--mint)"><span class="t">2:30</span><span class="d">my essay: if you've never done the job…<small>out this week</small></span><span class="ln">4</span></div>
+      <div class="dep-row" role="row" style="--c:var(--peach)"><span class="t">3:20</span><span class="d">"done" isn't proof<small>ask for the receipt</small></span><span class="ln">5</span></div>
+      <div class="ticker" aria-label="also this week"><span><b>also this week</b> · china's ai stock index fell about 40% in under four months · <b>open now</b>: anthropic conceptual reasoning fellows, apply by oct 28</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="wrap cars slotwrap" aria-label="from simi"><div class="car slot" data-slot="intro" data-what="intro video"><span class="k2">your conductor speaking</span><div class="slot-body"></div></div></section>
+
+<!-- ============ stop 1: lead story ============ -->
+<section class="stop" id="s1" data-acc="pink" data-name="the ai doctor">
+  <div class="arrive"><div class="stage"><div class="sign" role="img" aria-label="microsoft says its ai out-diagnoses doctors. i ran the test.">
+    <div class="stripe"></div>
+    <div class="body"><div class="num"><img src="assets/float-1.webp" alt="" width="512" height="512"></div><span class="k">stop 1 · now arriving</span><h2 class="long">microsoft says its ai out-diagnoses doctors.</h2><span class="sub">i ran the test.</span></div>
+    <div class="foot"><span>line 02 · <b>pink</b></span><span>next: anthropic's ipo</span></div>
+  </div></div></div>
+  <div class="wrap cars">
+    <div class="car">
+      <span class="k2">who said it</span>
+      <div class="who"><span class="av">ms</span><div><b>mustafa suleyman</b><span>ceo of microsoft ai</span></div></div>
+      <p class="big">ai that beats doctors on <em>hard cases.</em></p>
+      <p>microsoft's diagnosis study came out in science on oct 22. its ai got 83% of complex cases right. the doctors it was compared with got 36%. the goal suleyman is chasing: "medical superintelligence."</p>
+      <p class="said">"we're just true believers."<small>mustafa suleyman, to techcrunch</small></p>
+    </div>
+    <div class="car">
+      <div class="move"><b>your move</b><span>before the receipts: how often do you think the doctors got these cases right?</span></div>
+      <div class="choices" id="vgame">
+        <button class="choice" type="button" data-ok="0">12%</button>
+        <button class="choice" type="button" data-ok="1">36%</button>
+        <button class="choice" type="button" data-ok="0">58%</button>
+        <button class="choice" type="button" data-ok="0">75%</button>
+      </div>
+      <p class="answer" id="vans" hidden></p>
+      <div class="src"><a href="https://techcrunch.com/2026/10/22/microsofts-mustafa-suleyman-says-its-ai-outperforms-doctors-on-hard-cases-as-he-chases-medical-superintelligence/" target="_blank" rel="noopener">techcrunch, oct 22 ↗</a></div>
+    </div>
+  
+    <div class="car slot" data-slot="tutorial" data-what="screen recording"><span class="k2">watch me run it</span><div class="slot-body"></div></div>
+    <div class="car" id="runcar">
+      <span class="k2">what i did</span>
+      <h3>i ran the test behind the headline. <em>one patient.</em></h3>
+      <p>the benchmark is called sdbench. i gave gpt-5 one synthetic case: a 58-year-old woman with six weeks of fever and three weeks of growing confusion. a made-up patient, built for testing.</p>
+      <div class="runrows">
+        <div class="runrow"><b class="n">turn 1</b><p>it asked 30 questions. all at once.</p></div>
+        <div class="runrow"><b class="n">turn 2</b><p>it ordered 22 tests. all at once.</p></div>
+        <div class="runrow"><b class="n">turn 3</b><p>its answer: a rare lymphoma growing inside small blood vessels, reaching the brain.</p></div>
+      </div>
+    </div>
+    <div class="car">
+      <span class="k2">the grade</span>
+      <p class="big"><em>4</em> out of 5.</p>
+      <div class="hits">
+        <div class="hit"><b>got it</b>the lymphoma</div>
+        <div class="hit"><b>got it</b>the brain</div>
+        <div class="hit miss"><b>missed</b>it was in the skin too</div>
+        <div class="hit miss"><b>missed</b>an immune reaction attacking her blood cells</div>
+      </div>
+      <div class="catch" style="margin-top:16px"><span class="tag">catch</span><p style="margin:0">its own questions turned up a bone marrow biopsy done during the stay. it never asked for the result.</p></div>
+    </div>
+    <div class="car" id="dashcar">
+      <span class="k2">my dashboard</span>
+      <h3>every question. every test. <em>on one body.</em></h3>
+      <p>this is the live dashboard, not a picture. tap it to turn the body, zoom in and open any question or test the ai ordered.</p>
+      <div class="dashprev" id="dashprev"><iframe src="one-patient.html#preview" title="one patient dashboard preview" loading="lazy" tabindex="-1" aria-hidden="true"></iframe><button class="dashtap" type="button" id="dashopen" aria-label="open the one patient dashboard full screen"></button></div>
+      <div class="go"><button class="a1" type="button" id="dashopen3">tap to explore the patient</button></div>
+      <p class="rule">it opens right here. one tap on "back to the ride" and you're exactly where you left off.</p>
+      <p class="rule">a synthetic test case. no real patient, no medical advice.</p>
+    </div>
+    
+    <div class="car">
+      <div class="move"><b>your move</b><span>swipe through. five cards.</span></div>
+      <div class="deck" id="deck" tabindex="0" aria-label="the study in five cards">
+        <article class="slide"><span class="n">1 / 5 · the test</span><h4>304 of the hardest cases in medicine.</h4><p>real case records from the new england journal of medicine. the ai gets the case one piece at a time and has to ask for every question and test it wants.</p></article>
+        <article class="slide"><span class="n">2 / 5 · who it beat</span><h4>generalists, working <em>alone.</em></h4><p>primary care doctors and general internists, with reference materials. cases this hard usually go to specialists or a team. they weren't in the comparison.</p></article>
+        <article class="slide"><span class="n">3 / 5 · who wrote it</span><h4>all 15 authors work at microsoft.</h4><p>and it ran on simulations built from past cases, not live patients.</p></article>
+        <article class="slide"><span class="n">4 / 5 · where the gain comes from</span><h4>mostly the model.</h4><p>gpt-5.5 alone got 72% of the complex cases. with microsoft's system on top, nearly 87%. on emergency room cases, both scored about 85%.</p></article>
+        <article class="slide"><span class="n">5 / 5 · what's next</span><h4>real patients, with consent.</h4><p>next it gets tested at beth israel deaconess in boston, next to normal care. no release date yet.</p></article>
+      </div>
+      <div class="deck-ctl"><div class="dots" id="dots"><i class="on"></i><i></i><i></i><i></i><i></i></div><button class="pill" type="button" id="deckNext">next card →</button></div>
+      <div class="src"><a href="https://techcrunch.com/2026/10/22/microsofts-mustafa-suleyman-says-its-ai-outperforms-doctors-on-hard-cases-as-he-chases-medical-superintelligence/" target="_blank" rel="noopener">techcrunch ↗</a><a href="https://pbxscience.com/microsofts-mai-dxo-diagnoses-83-of-complex-cases-in-science-study-but-real-world-tests-are-still-ahead/" target="_blank" rel="noopener">pbx science ↗</a></div>
+    </div>
+    <!-- DRAFT teaser for simi to rewrite: next week's sdbench essay -->
+    <div class="car" id="nextessay">
+      <span class="k2">next week's essay</span>
+      <h3>this was one patient. <em>next week, more.</em></h3>
+      <p>i'm running more practice cases through sdbench and putting each one on this dashboard. next week's essay is what i found: what the ai keeps getting right, and what it keeps skipping.</p>
+      <div class="go"><a class="a1" href="https://aiimo.substack.com/subscribe" target="_blank" rel="noopener">get it in your inbox →</a></div>
+    </div>
+    </div>
+</section>
+
+<!-- ============ stop 2 ============ -->
+<section class="stop" id="s2" data-acc="butter" data-name="anthropic's ipo">
+  <div class="arrive"><div class="stage"><div class="sign" role="img" aria-label="anthropic files to go public. ticker: ANT">
+    <div class="stripe"></div>
+    <div class="body"><div class="num"><img src="assets/float-2.webp" alt="" width="512" height="512"></div><span class="k">stop 2 · now arriving</span><h2 class="long">anthropic files to go public.</h2><span class="sub">ticker: ANT</span></div>
+    <div class="foot"><span>line 02 · <b>gold</b></span><span>next: sales reps</span></div>
+  </div></div></div>
+  <div class="wrap cars">
+    <div class="car" id="news1">
+      <span class="k2">the money · oct 26</span>
+      <p class="big">anthropic filed to go public. ticker: <em>ANT.</em></p>
+      <p>the company behind claude filed its prospectus with the sec to list on the nasdaq. it had submitted the filing confidentially in june. no ipo date yet. the nasdaq closed up 0.82% that day.</p>
+      <div class="src"><a href="https://www.thestreet.com/stock-market-today/stock-market-today-dow-jones-sp-500-nasdaq-updates-oct-26-2026" target="_blank" rel="noopener">thestreet, oct 26 ↗</a></div>
+    </div>
+      </div>
+</section>
+
+<!-- ============ stop 3 ============ -->
+<section class="stop" id="s3" data-acc="aqua" data-name="sales reps">
+  <div class="arrive"><div class="stage"><div class="sign" role="img" aria-label="ai was supposed to replace sales reps. the leaders are hiring more.">
+    <div class="stripe"></div>
+    <div class="body"><div class="num"><img src="assets/float-3.webp" alt="" width="512" height="512"></div><span class="k">stop 3 · now arriving</span><h2 class="long">ai was supposed to replace sales reps.</h2><span class="sub">the leaders are hiring more.</span></div>
+    <div class="foot"><span>line 02 · <b>aqua</b></span><span>next: my essay</span></div>
+  </div></div></div>
+  <div class="wrap cars">
+    <div class="car" id="news2">
+      <span class="k2">the jobs · oct 22</span>
+      <p class="big">ai was supposed to replace sales reps. the leaders are <em>hiring more.</em></p>
+      <p>the companies furthest ahead in ai, frontier labs included, roughly doubled their sdr teams over the past year, per sam nelson of sdrleader. the jobs ai is taking first are the outsourced call-shop ones.</p>
+      <p class="said">"it's very easy to ignore an email."<small>sam nelson, to madrona</small></p>
+      <p class="small">i was one of those reps before i built one. that's my essay this week, next stop.</p>
+      <div class="src"><a href="https://www.madrona.com/ai-was-supposed-to-replace-sdrs-the-companies-furthest-ahead-are-hiring-more/" target="_blank" rel="noopener">madrona, oct 22 ↗</a></div>
+    </div>
+    </div>
+</section>
+
+<!-- ============ stop 4: this week's essay ============ -->
+<section class="stop" id="s4" data-acc="mint" data-name="my essay">
+  <div class="arrive"><div class="stage"><div class="sign" role="img" aria-label="if you've never done the job, your agent is just adding to the slop. this week's essay">
+    <div class="stripe"></div>
+    <div class="body"><div class="num"><img src="assets/float-4.webp" alt="" width="512" height="512"></div><span class="k">stop 4 · now arriving</span><h2 class="long">if you've never done the job, your agent is just adding to the slop.</h2><span class="sub">this week's essay</span></div>
+    <div class="foot"><span>line 02 · <b>mint</b></span><span>next: ask for the receipt</span></div>
+  </div></div></div>
+  <div class="wrap cars">
+    <div class="car slot" data-slot="take" data-what="video take"><span class="k2">watch my take</span><div class="slot-body"></div></div>
+    <div class="car" id="essaycar">
+      <span class="k2">out this week</span>
+      <h3>if you've never done the job, your agent is just <em>adding to the slop.</em></h3>
+      <p class="sub3">i built a healthcare bdr. i was one first.</p>
+      <p class="said">"i'm skeptical of agent demos that focus entirely on how natural the voice sounds."</p>
+      <p class="said">"intent is not execution. “send email” is not “email sent.”"</p>
+      <p class="said">"the script is not the expertise. the agent is not the system. the expertise is the decision architecture underneath both."</p>
+      <p class="sig">simi bharaj</p>
+      <div class="go"><a class="a1" id="essaybtn" href="https://aiimo.substack.com/p/if-youve-never-done-the-job-your" target="_blank" rel="noopener">read the essay →</a></div>
+    </div>
+    </div>
+</section>
+
+<!-- ============ stop 5: the one thing to try ============ -->
+<section class="stop" id="s5" data-acc="peach" data-name="ask for the receipt">
+  <div class="arrive"><div class="stage"><div class="sign" role="img" aria-label=""done" isn't proof. ask for the receipt">
+    <div class="stripe"></div>
+    <div class="body"><div class="num"><img src="assets/float-5.webp" alt="" width="512" height="512"></div><span class="k">stop 5 · now arriving</span><h2 class="long">"done" isn't proof.</h2><span class="sub">ask for the receipt</span></div>
+    <div class="foot"><span>line 02 · <b>peach</b></span><span>next: end of the line</span></div>
+  </div></div></div>
+  <div class="wrap cars">
+    <div class="car">
+      <span class="k2">the skill</span>
+      <h3>"done" is not proof. <em>ask for the receipt.</em></h3>
+      <p>ai that can act for you (send, book, buy, save) will sometimes say it did the thing when it didn't. in my essay i call it intent is not execution. one line catches it.</p>
+    </div>
+    <div class="car">
+      <div class="move"><b>your move</b><span>read the chat. then tap "ask for the receipt."</span></div>
+      <div class="chat" id="chat" aria-live="polite">
+        <div class="bub me">email my landlord that the kitchen sink is leaking and ask when they can fix it.</div>
+        <div class="bub ai">done! ✓ i emailed your landlord about the leak and asked for a repair time.</div>
+      </div>
+      <div class="go"><button class="a1" type="button" id="receipt">ask for the receipt</button></div>
+      <p class="answer" id="receiptans" hidden></p>
+    </div>
+    <div class="car">
+      <span class="k2">take it with you</span>
+      <div class="ticket"><div class="top"><span>add this to your ai</span><span>custom instructions</span></div><pre id="prompt"></pre></div>
+      <div class="go"><a class="a1" id="toClaude" href="https://claude.ai/new" target="_blank" rel="noopener">open in claude ↗</a><a class="a2" id="toGpt" href="https://chatgpt.com/" target="_blank" rel="noopener">open in chatgpt ↗</a><button class="a2" type="button" id="copyp">copy</button></div>
+      <p class="rule">paste it into your custom instructions (claude: settings, then profile. chatgpt: settings, then personalization). <b>it runs every time, so you never have to remember to ask.</b></p>
+    </div>
+    </div>
+</section>
+
+<!-- ============ end of the line ============ -->
+<section class="stop" id="s6" data-acc="holo" data-name="end of the line">
+  <div class="arrive"><div class="stage"><div class="sign" role="img" aria-label="end of the line thanks for riding">
+    <div class="stripe"></div>
+    <div class="body"><div class="num"><img src="assets/float-6.webp" alt="" width="512" height="512"></div><span class="k">final stop</span><h2>end of the line</h2><span class="sub">thanks for riding</span></div>
+    <div class="foot"><span>line 02 · <b>clear</b></span><span>next ride: tuesday</span></div>
+  </div></div></div>
+  <div class="wrap cars">
+    <a class="essay car" id="essay4" href="https://aiimo.substack.com/p/if-youve-never-done-the-job-your" target="_blank" rel="noopener">
+      <span class="k2">my new essay · out this week</span>
+      <strong>if you've never done the job, your agent is just adding to the slop</strong>
+      <span class="sub2">i built a healthcare bdr. i was one first.</span>
+      <span class="by">by simi bharaj</span>
+      <span class="read">read the essay →</span>
+    </a>
+    <div class="car open">
+      <span class="k2">open now · apply by oct 28</span>
+      <h3>anthropic is hiring <em>conceptual reasoning fellows.</em></h3>
+      <p>four months inside anthropic, jan 12 to may 8, 2027. you bring expertise where answers take judgment: philosophy, cognitive science, economics, policy or law. $117k to $167k for the four months. you need daily hands-on use of claude and claude code, plus a phd or equivalent research experience. there's a stem track too.</p>
+      <div class="row"><a class="dark" href="https://job-boards.greenhouse.io/anthropic/jobs/5447080008" target="_blank" rel="noopener">apply by oct 28 ↗</a><a href="https://www.anthropic.com/careers/jobs?team=4002065008" target="_blank" rel="noopener">all fellowships ↗</a></div>
+    </div>
+    <div class="car">
+      <span class="k2">before you go</span>
+      <h3>want to explore the patient <em>again?</em></h3>
+      <p>every question and test the ai ordered, on one body. the full story is next week's essay.</p>
+      <div class="go"><button class="a1" type="button" id="dashagain">explore the patient</button></div>
+    </div>
+    <div class="car bare">
+      <div class="grid2">
+        <a class="sub-btn" href="https://aiimo.substack.com/subscribe" target="_blank" rel="noopener">get the next edition</a>
+        <button type="button" id="share">share this ride</button>
+        <a href="https://ig.me/m/_simisim" target="_blank" rel="noopener">dm me</a>
+        <a href="https://www.instagram.com/_simisim/" target="_blank" rel="noopener">instagram</a>
+        <a href="https://www.linkedin.com/in/simibharaj" target="_blank" rel="noopener">linkedin</a>
+        <a href="https://github.com/simibharaj" target="_blank" rel="noopener">github</a>
+        <a href="https://aiimo.substack.com" target="_blank" rel="noopener">substack</a>
+      </div>
+    </div>
+    <div class="fin"><button class="pill dark" type="button" id="again">ride again ↑</button><p>next edition drops next tuesday.</p></div>
+    </div>
+</section>
+</main>
+
+<script>
+(()=>{'use strict';
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const ACC={pink:[255,111,163],butter:[255,179,15],aqua:[47,196,200],mint:[79,191,106],peach:[255,138,92],holo:[143,155,255]};
+const stops=$$('.stop'),platform=$('#platform');
+let audio=null;
+
+/* ---------- your content and the news swap zones ----------
+   MEDIA: drop a file in assets/ and fill a slot. examples:
+     intro:{type:'video',src:'assets/intro.mp4',poster:'assets/intro.jpg',shape:'v',caption:'one line under it'}
+     take:{type:'image',src:'assets/take.jpg',shape:'sq'}
+     take:{type:'link',href:'https://www.instagram.com/reel/...',thumb:'assets/take.jpg',label:'watch on instagram'}
+   an empty slot is invisible to readers. open the link with #draft on the end to see every slot and swap zone. */
+const MEDIA={intro:null,tutorial:null,dash:null,take:null};
+const PUBLISH='2026-10-27';
+const SWAP=[['.departures','news','2026-10-26'],['#s1 .car:not(.slot)','news','2026-10-26'],['#runcar','run'],['#news1','news','2026-10-26'],['#news2','news','2026-10-22'],['#nextessay','take'],['#s6 .open','news','2026-10-26']]
+const DRAFT=location.hash==='#draft';
+const escH=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+$$('.slot').forEach(sl=>{const m=MEDIA[sl.dataset.slot],body=sl.querySelector('.slot-body');
+  if(m){sl.classList.add('has');
+    if(m.type==='video')body.innerHTML=`<div class="media ${m.shape||'v'}"><video src="${escH(m.src)}"${m.poster?` poster="${escH(m.poster)}"`:''} controls playsinline preload="metadata"></video></div>`;
+    else if(m.type==='image')body.innerHTML=`<div class="media ${m.shape||'v'}"><img src="${escH(m.src)}" alt="${escH(m.alt||'')}"></div>`;
+    else body.innerHTML=`<a class="linkcard" href="${escH(m.href)}" target="_blank" rel="noopener">${m.thumb?`<img src="${escH(m.thumb)}" alt="">`:''}<span>${escH(m.label||'watch it')} ↗</span></a>`;
+    if(m.caption)body.insertAdjacentHTML('beforeend',`<p class="scap">${escH(m.caption)}</p>`);}
+  else body.innerHTML=`<div class="empty"><b>your ${sl.dataset.what} goes here</b>9:16 video, under 60 seconds.<br>or a photo, or a link to a reel.</div>`;});
+if(DRAFT){document.documentElement.classList.add('draft');
+  const pub=new Date(PUBLISH+'T12:00:00'),fmt=d=>new Date(d+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}).toLowerCase();
+  let stale=0;
+  SWAP.forEach(([sel,kind,checked])=>{const el=document.querySelector(sel);if(!el)return;const b=document.createElement('div');let cls='you',txt;
+    if(kind==='news'){const age=Math.round((pub-new Date(checked+'T12:00:00'))/864e5);cls=age<=7?'ok':age<=14?'warn':'old';if(cls!=='ok')stale++;
+      txt=`swap zone · news checked ${fmt(checked)} · ${age} day${age===1?'':'s'} old on ${fmt(PUBLISH)}`+(cls==='ok'?'':cls==='warn'?' · refresh recommended':' · refresh before publishing');}
+    else if(kind==='take')txt='your words go here · claude drafted this';
+    else if(kind==='run')txt='from your sdbench run on oct 25 · numbers checked against your results';
+    else if(kind==='share')txt='share your dashboard publicly before you send this, or readers can\u2019t open it';
+    else txt='this week\u2019s essay: add its link the moment it goes live';
+    b.className='swapbadge '+cls;b.textContent=txt;el.prepend(b);});
+  const empty=$$('.slot:not(.has)').length;
+  const bar=document.createElement('div');bar.className='draftbar';
+  bar.innerHTML=`<b>draft view</b> · publishing ${fmt(PUBLISH)} · ${empty} content slot${empty===1?'':'s'} empty · ${stale?stale+' news zone'+(stale===1?'':'s')+' need a refresh':'news is fresh'}`;
+  document.body.appendChild(bar);}
+
+/* ---------- the tunnel ---------- */
+const cv=$('#tunnel'),ctx=cv.getContext('2d');
+let W=0,H=0,DPR=1;
+function size(){DPR=Math.min(2,devicePixelRatio||1);W=innerWidth;H=innerHeight;cv.width=W*DPR;cv.height=H*DPR;}
+size();addEventListener('resize',size);
+const D=480,N=28,RW=760,RH=560;
+const px=z=>Math.sin(z/3100)*520+Math.sin(z/1300+.7)*150;
+const py=z=>Math.sin(z/4300+1)*260+Math.sin(z/1700)*60;
+const parts=[...Array(110)].map(()=>({a:Math.random()*Math.PI*2,r:.55+Math.random()*.42,z:Math.random()*N*D}));
+let cz=0,vz=0,acc=[...ACC.pink],t0=performance.now(),cruise=0,lastY=scrollY,vel=0;
+function target(){return scrollY*2.3+cruise;}
+function curAcc(){let k='pink';for(const s of stops){if(s.getBoundingClientRect().top<H*.6)k=s.dataset.acc;}return ACC[k];}
+function draw(now){
+  const dt=Math.min(.05,(now-t0)/1000);t0=now;
+  if(!reduce)cruise+=dt*55;
+  const tz=target();const prev=cz;cz=reduce?tz:cz+(tz-cz)*Math.min(1,dt*7);vz=(cz-prev)/Math.max(dt,.001);
+  const ta=curAcc();acc=acc.map((c,i)=>c+(ta[i]-c)*Math.min(1,dt*2.5));
+  const [r,g,b]=acc.map(Math.round);
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+  ctx.fillStyle='#fbfbfd';ctx.fillRect(0,0,W,H);
+  const F=Math.min(W,H)*.95;
+  const roll=clamp((px(cz+900)-px(cz))/900*.8,-.28,.28);
+  ctx.save();ctx.translate(W/2,H*.47);ctx.rotate(roll);
+  const ox=px(cz),oy=py(cz);
+  const P=(x,y,z)=>{const d=z-cz;const s=F/d;return [(x+px(z)-ox)*s,(y+py(z)-oy)*s,s,d];};
+  /* light at the end of the tunnel */
+  const far=P(0,0,cz+N*D);
+  const gl=ctx.createRadialGradient(far[0],far[1],0,far[0],far[1],Math.max(W,H)*.55);
+  gl.addColorStop(0,'rgba(255,255,255,1)');gl.addColorStop(.18,`rgba(${r},${g},${b},.16)`);gl.addColorStop(1,'rgba(255,255,255,0)');
+  ctx.fillStyle=gl;ctx.fillRect(-W,-H,W*2,H*2);
+  const first=Math.floor(cz/D)+1;
+  const ribs=[];
+  for(let i=N-1;i>=0;i--){const z=(first+i)*D;const d=z-cz;if(d<60)continue;
+    const [cx,cy,s]=P(0,0,z);const rw=RW*s,rh=RH*s;
+    const fog=clamp((d-60)/500,0,1)*Math.pow(1-d/(N*D),1.15);
+    ribs.push({z,cx,cy,rw,rh,s,fog,d});
+    ctx.lineWidth=clamp(2400/d,.6,3.2);
+    ctx.strokeStyle=`rgba(${r},${g},${b},${(fog*.55).toFixed(3)})`;
+    ctx.beginPath();ctx.roundRect(cx-rw,cy-rh,rw*2,rh*2,Math.min(rw,rh)*.62);ctx.stroke();
+    /* inner glass rim */
+    ctx.strokeStyle=`rgba(255,255,255,${(fog*.9).toFixed(3)})`;ctx.lineWidth=clamp(1200/d,.4,1.6);
+    ctx.beginPath();ctx.roundRect(cx-rw*.97,cy-rh*.97,rw*1.94,rh*1.94,Math.min(rw,rh)*.6);ctx.stroke();
+    /* overhead lights */
+    if(((first+i)%2)===0){const lw=rw*.34,lh=Math.max(1.2,16*s);ctx.fillStyle=`rgba(255,255,255,${fog})`;ctx.shadowColor=`rgba(${r},${g},${b},${fog*.8})`;ctx.shadowBlur=18*s+4;
+      ctx.beginPath();ctx.roundRect(cx-lw/2,cy-rh*.9,lw,lh,lh/2);ctx.fill();ctx.shadowBlur=0;}
+  }
+  /* rails and sleepers */
+  ribs.sort((a,b)=>b.d-a.d);
+  const rail=side=>{ctx.beginPath();ribs.forEach((q,j)=>{const x=q.cx+side*q.rw*.2,y=q.cy+q.rh*.86;j?ctx.lineTo(x,y):ctx.moveTo(x,y);});};
+  ctx.lineWidth=1.6;ctx.strokeStyle='rgba(40,40,70,.28)';rail(-1);ctx.stroke();rail(1);ctx.stroke();
+  ribs.forEach(q=>{ctx.strokeStyle=`rgba(40,40,70,${(q.fog*.22).toFixed(3)})`;ctx.lineWidth=clamp(1800/q.d,.5,2.4);ctx.beginPath();ctx.moveTo(q.cx-q.rw*.28,q.cy+q.rh*.86);ctx.lineTo(q.cx+q.rw*.28,q.cy+q.rh*.86);ctx.stroke();});
+  /* wall lines */
+  for(let k=0;k<10;k++){const ang=k/10*Math.PI*2+.3;ctx.beginPath();ribs.forEach((q,j)=>{const x=q.cx+Math.cos(ang)*q.rw*.99,y=q.cy+Math.sin(ang)*q.rh*.99;j?ctx.lineTo(x,y):ctx.moveTo(x,y);});
+    ctx.strokeStyle=`rgba(${r},${g},${b},.10)`;ctx.lineWidth=1;ctx.stroke();}
+  /* speed streaks */
+  const sp=Math.abs(vz);const len=clamp(sp*.09,8,900);
+  ctx.lineCap='round';
+  for(const p of parts){while(p.z<cz+70)p.z+=N*D;while(p.z>cz+N*D)p.z-=N*D;
+    const x=Math.cos(p.a)*RW*p.r,y=Math.sin(p.a)*RH*p.r;
+    const a1=P(x,y,p.z),a2=P(x,y,p.z+len);const fog=clamp((a1[3]-70)/400,0,1)*(1-a1[3]/(N*D));
+    ctx.strokeStyle=`rgba(${r},${g},${b},${(fog*clamp(.25+sp/2600,.25,.85)).toFixed(3)})`;ctx.lineWidth=clamp(1400/a1[3],.6,2.6);
+    ctx.beginPath();ctx.moveTo(a1[0],a1[1]);ctx.lineTo(a2[0],a2[1]);ctx.stroke();}
+  ctx.restore();
+  hud(sp);
+  if(!reduce)requestAnimationFrame(draw);
+}
+if(reduce){cz=target();requestAnimationFrame(draw);addEventListener('scroll',()=>requestAnimationFrame(n=>{t0=n;draw(n);}),{passive:true});}
+else requestAnimationFrame(draw);
+
+/* ---------- hud: route, speed, next stop ---------- */
+const route=$('#route'),train=$('#train'),done=$('#done'),speedEl=$('#speed'),nextline=$('#nextline');
+const cols=['pink','butter','aqua','mint','peach'];
+cols.forEach((c,i)=>{const d=document.createElement('i');d.className='st';d.style.left=`calc(6px + (100% - 12px) * ${(i+1)/6})`;d.style.setProperty('--c',`var(--${c})`);route.appendChild(d);});
+const dots=$$('.route .st');let shownKmh=0;
+function hud(sp){
+  const tops=stops.map(s=>s.getBoundingClientRect().top+scrollY);
+  const y=scrollY+H*.5;let pos=0;
+  for(let i=0;i<tops.length;i++){const a=tops[i],b=tops[i+1]??document.documentElement.scrollHeight;if(y>=a){pos=i+1+clamp((y-a)/(b-a),0,1)*(i<tops.length-1?1:0);} }
+  if(y<tops[0])pos=clamp(y/tops[0],0,1);
+  const f=clamp(pos/6,0,1);
+  train.style.left=`calc(6px + (100% - 12px) * ${f})`;done.style.width=`calc((100% - 12px) * ${f})`;
+  dots.forEach((d,i)=>d.classList.toggle('on',pos>=i+1));
+  const kmh=Math.round(clamp(sp*.11,0,320));shownKmh+= (kmh-shownKmh)*.15;
+  speedEl.innerHTML=`${Math.round(shownKmh)} <small>km/h</small>`;
+  const ni=stops.findIndex(s=>s.getBoundingClientRect().top>H*.5);
+  nextline.innerHTML=ni<0?'<b>end of the line</b>':`next stop: <b>${stops[ni].dataset.name}</b>`;
+  if(audio)audio.speed(sp);
+}
+
+/* ---------- arrivals: the sign flies out of the light ---------- */
+const arrivals=stops.map(s=>({el:s.querySelector('.arrive'),sign:s.querySelector('.sign'),s,rang:false}));
+/* ---------- cars: everything rides past ---------- */
+const cars=$$('.car');
+function frame(){
+  const vh=innerHeight;
+  for(const A of arrivals){const r=A.el.getBoundingClientRect();if(r.bottom<-20||r.top>vh+20)continue;
+    const run=Math.max(1,r.height-vh);const a=clamp(-r.top/run,0,1);
+    let sc,op;
+    if(a<.5){const e=1-Math.pow(1-a/.5,3);sc=.07+.93*e;op=clamp(a/.12,0,1);}
+    else if(a<.76){sc=1;op=1;if(!A.rang&&audio){audio.chime();}A.rang=true;}
+    else{const e=(a-.76)/.24;sc=1+2.6*e*e;op=1-e;}
+    if(a<.3)A.rang=false;
+    A.sign.style.setProperty('--sc',sc.toFixed(4));A.sign.style.setProperty('--op',op.toFixed(3));}
+  for(const c of cars){const r=c.getBoundingClientRect();
+    if(r.top>vh+40||r.bottom<-40){continue;}
+    const k=clamp((vh-r.top)/(vh*.48),0,1),e=1-Math.pow(1-k,3);
+    const x=clamp((vh*.1-r.bottom)/(vh*.3),0,1);
+    if(e>=1&&x<=0){if(c.style.transform){c.style.transform='';c.style.opacity='';}continue;}
+    c.style.transform=`perspective(900px) translate3d(0,${((1-e)*90).toFixed(1)}px,${((1-e)*-420).toFixed(1)}px) rotateX(${((1-e)*16).toFixed(2)}deg) scale(${(1+x*.16).toFixed(4)})`;
+    c.style.opacity=((.08+.92*e)*(1-x*.9)).toFixed(3);}
+}
+if(!reduce){let q=0;const on=()=>{if(!q)q=requestAnimationFrame(()=>{q=0;frame();});};addEventListener('scroll',on,{passive:true});addEventListener('resize',on);frame();}
+
+/* ---------- stop 2: deck and the v game ---------- */
+const deck=$('#deck'),dl=$$('#dots i');
+deck.addEventListener('scroll',()=>{const w=deck.firstElementChild.getBoundingClientRect().width+12;const i=clamp(Math.round(deck.scrollLeft/w),0,4);dl.forEach((d,j)=>d.classList.toggle('on',j===i));$('#deckNext').textContent=i===4?'back to start ↺':'next card →';},{passive:true});
+$('#deckNext').addEventListener('click',()=>{const w=deck.firstElementChild.getBoundingClientRect().width+12;const i=Math.round(deck.scrollLeft/w);deck.scrollTo({left:i>=4?0:(i+1)*w,behavior:reduce?'auto':'smooth'});ding(660);});
+$('#vgame').addEventListener('click',e=>{const b=e.target.closest('.choice');if(!b||b.disabled)return;
+  $$('#vgame .choice').forEach(x=>{x.disabled=true;x.classList.add(x.dataset.ok==='1'?'right':'wrong');});b.setAttribute('aria-pressed','true');
+  const ok=b.dataset.ok==='1';const a=$('#vans');a.hidden=false;
+  a.innerHTML=(ok?'<b>yes. 36%.</b> ':'<b>it was 36%.</b> ')+'the ai got 83%. that’s the headline. the fine print: those doctors were generalists working alone, not specialists. but first, i ran the test myself.';ding(ok?880:520);});
+
+/* ---------- stop 5: ask for the receipt ---------- */
+const escT=t=>t.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+$('#receipt').addEventListener('click',e=>{const btn=e.currentTarget;if(btn.disabled)return;btn.disabled=true;btn.textContent='asked';
+  const chat=$('#chat');const add=(cls,t)=>{const d=document.createElement('div');d.className='bub '+cls+' new';d.innerHTML=t;chat.appendChild(d);return d;};
+  add('me','show me the receipt: the exact email, who it went to, and the confirmation it was sent.');ding(700);
+  const dots=add('ai typing','<i></i><i></i><i></i>');
+  setTimeout(()=>{dots.remove();add('ai warn','here\u2019s the receipt: i wrote the email, but i don\u2019t have your landlord\u2019s email address, so it wasn\u2019t sent. nothing went out. want me to send it to an address you give me?');
+    const a=$('#receiptans');a.hidden=false;a.innerHTML='<b>it said done. nothing was sent.</b> that\u2019s intent, not execution. one follow-up caught it.';ding(520);},reduce?0:1100);});
+const PROMPT='whenever you take an action for me (send, book, buy, save or delete), show me proof it happened: the confirmation, the time and where it went. if it didn\u2019t happen, say so plainly. never say done until it\u2019s done.';
+$('#prompt').textContent=PROMPT;
+$('#toClaude').href='https://claude.ai/new?q='+encodeURIComponent(PROMPT);$('#toGpt').href='https://chatgpt.com/?q='+encodeURIComponent(PROMPT);$('#copyp').dataset.t=PROMPT;
+function copy(text,btn,label){const done=t=>{btn.textContent=t;setTimeout(()=>btn.textContent=label,1600);};
+  try{navigator.clipboard.writeText(text).then(()=>done('copied'),()=>done('select it and copy'));}catch(_){done('select it and copy');}}
+$('#copyp').addEventListener('click',e=>copy(e.currentTarget.dataset.t,e.currentTarget,'copy'));
+$('#share').addEventListener('click',e=>copy('ai, in my opinion · edition 02. microsoft says its ai beats doctors on hard cases. i ran the test myself. take the ride: '+location.href.split('#')[0],e.currentTarget,'share this ride'));
+/* ---------- the dashboard, full screen inside the edition ---------- */
+function openDash(e){const o=document.createElement('div');if(e&&e.currentTarget&&e.currentTarget.id==='dashagain')o.dataset.end='1';o.className='dashfull';o.setAttribute('role','dialog');o.setAttribute('aria-label','one patient dashboard');
+  o.innerHTML='<div class="bar2"><b>one patient <span>· '+(o.dataset.end?'thanks for riding':'2 stops left on the ride')+'</span></b><button class="pill dark" type="button">back to the ride ↓</button></div><iframe src="one-patient.html" title="one patient dashboard"></iframe>';
+  const from=e&&e.currentTarget;const close=()=>{o.remove();document.body.style.overflow='';removeEventListener('keydown',esc2);(from||$('#dashopen')).focus({preventScroll:true});};
+  const esc2=e=>{if(e.key==='Escape')close();};
+  o.querySelector('button').addEventListener('click',close);addEventListener('keydown',esc2);
+  document.body.appendChild(o);document.body.style.overflow='hidden';o.querySelector('button').focus();ding(660);}
+$('#dashopen').addEventListener('click',openDash);$('#dashopen3').addEventListener('click',openDash);$('#dashagain').addEventListener('click',openDash);
+$('#again').addEventListener('click',()=>scrollTo({top:0,behavior:reduce?'auto':'smooth'}));
+
+/* ---------- sound: off until you turn it on ---------- */
+function ding(f){if(audio)audio.tone(f);}
+$('#snd').addEventListener('click',async e=>{const btn=e.currentTarget;
+  try{if(!audio){const ac=new(window.AudioContext||window.webkitAudioContext)();const g=ac.createGain();g.gain.value=0;const lp=ac.createBiquadFilter();lp.type='lowpass';lp.frequency.value=380;lp.connect(g);g.connect(ac.destination);
+      const o1=ac.createOscillator(),o2=ac.createOscillator();o1.type='sawtooth';o2.type='triangle';o1.frequency.value=55;o2.frequency.value=110;const m=ac.createGain();m.gain.value=.22;o1.connect(m);o2.connect(m);m.connect(lp);o1.start();o2.start();
+      let live=false;
+      const tone=(f,d=.45,v=.06,at=0)=>{if(!live)return;const t=ac.currentTime+at,o=ac.createOscillator(),k=ac.createGain();o.type='sine';o.frequency.value=f;k.gain.setValueAtTime(0,t);k.gain.linearRampToValueAtTime(v,t+.01);k.gain.exponentialRampToValueAtTime(.0005,t+d);o.connect(k);k.connect(ac.destination);o.start(t);o.stop(t+d+.05);};
+      audio={ac,toggle(){live=!live;g.gain.setTargetAtTime(live?.05:0,ac.currentTime,.3);return live;},
+        speed(sp){if(!live)return;const k=clamp(sp/3000,0,1);o1.frequency.setTargetAtTime(55+k*60,ac.currentTime,.2);lp.frequency.setTargetAtTime(380+k*900,ac.currentTime,.2);g.gain.setTargetAtTime(.03+k*.06,ac.currentTime,.2);},
+        tone,chime(){tone(659.25,.7,.07,0);tone(523.25,.9,.07,.32);}};}
+    await audio.ac.resume();const live=audio.toggle();btn.setAttribute('aria-pressed',live);btn.textContent=live?'sound on':'sound off';}catch(_){btn.textContent='no sound here';}});
+document.addEventListener('visibilitychange',()=>{if(audio)(document.hidden?audio.ac.suspend():audio.ac.resume()).catch(()=>{});});
+})();
+</script>
+
+</body>
+</html>
