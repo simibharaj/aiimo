@@ -1,0 +1,675 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>ai, in my opinion · edition 03</title>
+<meta name="description" content="edition 03. a 4 minute flight through china's ai crash, plus one skill that holds up whichever way it goes.">
+<meta name="theme-color" content="#eaf4ff">
+<meta property="og:title" content="ai, in my opinion · edition 03">
+<meta property="og:description" content="in china, the ai bubble has already burst. a 4 minute flight through what fell.">
+<meta property="og:image" content="https://simibharaj.github.io/aiimo/03/assets/cover.jpg">
+<meta property="og:url" content="https://simibharaj.github.io/aiimo/03/">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="assets/float-0N.webp">
+<style>:root{padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}[hidden]{display:none!important}</style>
+</head>
+<body>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;1,6..96,400;1,6..96,500&family=Schibsted+Grotesk:wght@400;500;600&display=swap">
+<style>
+/* edition 03, the flight. a canvas sky streams toward you as you scroll. each stop's title flies in from the horizon, then the stop's page slides up. one serif for titles, one grotesk for reading, ink plus a little pink. */
+:root{
+  --sky:#eaf4ff; --paper:#fffdfa; --ink:#18171d; --soft:#25242c; --muted:#54525c; --line:rgba(27,26,33,.13);
+  --pink:#d6336f; --pink-wash:#fdeef3;
+  --serif:"Bodoni Moda","Didot","Bodoni 72",Georgia,serif;
+  --sans:"Schibsted Grotesk","Helvetica Neue",Arial,sans-serif;
+  color-scheme:light;
+}
+html{scroll-behavior:smooth;background:var(--sky)}
+body{margin:0;background:var(--sky);color:var(--ink);font:400 18px/1.6 var(--sans);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--paper)}
+*{box-sizing:border-box}
+button{font:inherit;color:inherit}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--pink);outline-offset:3px}
+#sky{position:fixed;inset:0;width:100%;height:100%;z-index:0;display:block}
+main{position:relative;z-index:1;overflow-x:clip}
+.wrap{max-width:640px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+em{font-style:italic}
+.serif{font-family:var(--serif)}
+
+/* top bar: name, sound, and the flight line */
+.hud{position:fixed;z-index:20;top:env(safe-area-inset-top,0px);left:0;right:0;background:var(--paper);border-bottom:1px solid var(--line)}
+.hud-in{max-width:980px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:10px max(16px,env(safe-area-inset-right,0px)) 8px max(16px,env(safe-area-inset-left,0px))}
+.brand{font:500 15px var(--serif);text-decoration:none;white-space:nowrap}
+.brand span{color:var(--muted);font-family:var(--sans);font-size:13px;margin-left:6px}
+.snd{border:0;background:none;padding:4px 0;font:400 13px var(--sans);color:var(--muted);cursor:pointer;text-decoration:underline;text-underline-offset:3px;white-space:nowrap}
+.snd[aria-pressed=true]{color:var(--ink)}
+.route{position:relative;height:16px;max-width:980px;margin:0 auto 6px;padding:0 max(16px,env(safe-area-inset-right,0px)) 0 max(16px,env(safe-area-inset-left,0px))}
+.route .rail{position:relative;height:16px}
+.route .track{position:absolute;left:0;right:0;top:8px;height:1px;background:var(--line)}
+.route .done{position:absolute;left:0;top:8px;height:1px;background:var(--pink);width:0}
+.route .st{position:absolute;top:5px;width:1px;height:7px;background:var(--muted)}
+.route .train{position:absolute;top:0;margin-left:-11px;width:22px;height:16px;transition:left .15s linear}
+.route .train svg{display:block;width:22px;height:16px}
+
+/* the gate */
+.platform{min-height:100svh;padding-top:110px;padding-bottom:56px}
+.hero{width:min(300px,72vw);aspect-ratio:3/2;margin:0 0 10px -10px}
+.hero img{width:100%;height:100%;object-fit:contain}
+.dateline{margin:0;font-size:15px;color:var(--muted)}
+h1{margin:6px 0 0;font:500 clamp(46px,12vw,96px)/.98 var(--serif);letter-spacing:-.02em}
+.lede{margin:18px 0 0;max-width:32em;font-size:clamp(18px,2.3vw,20px);line-height:1.5;color:var(--soft)}
+.lede q{quotes:"\201C" "\201D";color:var(--ink)}
+.board-btn{display:inline-block;margin-top:22px;padding:14px 22px;border-radius:6px;background:var(--ink);color:#fff;font:600 16px var(--sans);text-decoration:none}
+.plan{margin-top:34px;background:var(--paper);border:1px solid var(--line);border-radius:4px;padding:14px 18px 6px}
+.plan h2{margin:0 0 4px;font:400 13px var(--sans);color:var(--muted)}
+.plan ol{list-style:none;margin:0;padding:0}
+.plan li{display:grid;grid-template-columns:46px 1fr;gap:10px;padding:10px 0;border-top:1px solid var(--line);font-size:16px;line-height:1.35}
+.plan li:first-child{border-top:0}
+.plan .t{font-variant-numeric:tabular-nums;color:var(--muted);font-size:14px;padding-top:1px}
+.plan small{display:block;color:var(--muted);font-size:15px}
+
+/* a stop: the title flies in from the horizon */
+.arrive{position:relative;height:170svh}
+.arrive .stage{position:sticky;top:0;height:100svh;display:grid;place-items:center;padding:96px max(16px,env(safe-area-inset-right,0px)) 24px max(16px,env(safe-area-inset-left,0px))}
+.sign{--sc:.08;--op:0;width:min(780px,100%);text-align:center;transform:scale(var(--sc));opacity:var(--op);will-change:transform,opacity;
+  padding:10px 8px 18px;background:radial-gradient(closest-side,rgba(255,253,250,.82),rgba(255,253,250,0))}
+.sign .num{display:block;width:clamp(96px,26vw,150px);aspect-ratio:1;margin:0 auto -6px;object-fit:contain}
+.sign h2{margin:0;font:500 clamp(40px,min(10.5vw,8.4vh),72px)/1.02 var(--serif);letter-spacing:-.02em;text-wrap:balance}
+.sign .sub{display:block;margin-top:10px;font-size:17px;color:var(--soft)}
+
+/* the page that rides up after each title */
+.sheet{background:var(--paper);border:1px solid var(--line);border-radius:4px;padding:6px 22px 26px;margin-bottom:120px;will-change:transform,opacity;transform-origin:50% 0}
+.car{padding-top:22px}
+.car + .car{margin-top:22px;border-top:1px solid var(--line)}
+.big{margin:0;font:600 clamp(28px,7vw,44px)/1.12 var(--sans);letter-spacing:-.02em;text-wrap:balance}
+h3{margin:0;font:600 clamp(24px,6vw,34px)/1.18 var(--sans);letter-spacing:-.015em;text-wrap:balance}
+.car p{margin:12px 0 0;color:var(--soft)}
+.car p.small{font-size:16px;color:var(--muted)}
+.label{display:block;margin-bottom:8px;font-size:15px;color:var(--muted)}
+.pull{margin:20px 0 0;padding:0}
+.pull blockquote{margin:0;font:500 clamp(21px,5vw,25px)/1.4 var(--sans);color:var(--ink)}
+.pull figcaption{margin-top:6px;font-size:15px;color:var(--muted)}
+.src{margin-top:16px;font-size:15px;color:var(--muted)}
+.src a{color:var(--muted);text-underline-offset:3px}
+.src a:hover{color:var(--ink)}
+.ask{margin:0;font-weight:600;color:var(--ink);font-size:18px;line-height:1.4}
+
+/* choices */
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+.choices.list{grid-template-columns:1fr}
+.choice{border:1px solid var(--line);border-radius:6px;background:var(--paper);text-align:left;padding:13px 14px;min-height:52px;font:500 16px/1.3 var(--sans);cursor:pointer;transition:border-color .15s,background .15s}
+.choice:hover{border-color:rgba(27,26,33,.35)}
+.choice[aria-pressed=true]{border-color:var(--pink);background:var(--pink-wash)}
+.choice.right{border:1.5px solid var(--ink);background:var(--paper);font-weight:600}
+.choice.right::after{content:" (right)";font-weight:400;color:var(--muted)}
+.choice.wrong{opacity:.45}
+.answer{margin-top:14px;padding:14px 16px;border-radius:4px;background:var(--pink-wash);color:var(--ink);font-size:16px}
+
+/* the five cards */
+.deck{display:flex;gap:0;overflow-x:auto;scroll-snap-type:x mandatory;margin:16px -22px 0;padding:0 22px;scrollbar-width:none;-webkit-overflow-scrolling:touch;scroll-padding-left:22px}
+.deck::-webkit-scrollbar{display:none}
+.slide{flex:0 0 84%;scroll-snap-align:start;min-width:0;padding:4px 20px 6px 0;margin-right:20px;border-right:1px solid var(--line)}
+.slide:last-child{border-right:0}
+.slide .n{font-size:13px;color:var(--muted)}
+.slide h4{margin:6px 0 0;font:600 22px/1.25 var(--sans);text-wrap:balance}
+.slide p{margin:8px 0 0;font-size:17px}
+.deck-ctl{display:flex;align-items:center;justify-content:space-between;margin-top:14px;font-size:14px;color:var(--muted)}
+.textbtn{border:0;background:none;padding:6px 0;font:600 15px var(--sans);color:var(--ink);text-decoration:underline;text-underline-offset:4px;cursor:pointer}
+
+/* my take */
+.sig{margin-top:16px;font:italic 500 20px var(--serif);color:var(--soft)}
+
+/* your turn */
+.switches{margin-top:14px;border-top:1px solid var(--line)}
+.sw{display:flex;align-items:center;justify-content:space-between;gap:14px;width:100%;border:0;border-bottom:1px solid var(--line);background:none;padding:14px 2px;font:500 16px/1.3 var(--sans);text-align:left;cursor:pointer}
+.sw .tg{flex:none;width:40px;height:24px;border-radius:12px;background:#dedbe2;position:relative;transition:background .2s}
+.sw .tg::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:transform .2s ease}
+.sw[aria-pressed=true] .tg{background:var(--pink)}
+.sw[aria-pressed=true] .tg::after{transform:translateX(16px)}
+.post{margin-top:18px;border:1px solid var(--line);border-radius:4px;background:#fff;overflow:hidden}
+.post-h{display:flex;align-items:center;gap:8px;padding:10px 12px;font-size:14px}
+.post-h i{width:26px;height:26px;border-radius:50%;background:#f3c9d6}
+.post-h span{margin-left:auto;font-size:12px;color:var(--muted)}
+.post-sq{aspect-ratio:1.6;display:grid;place-items:center;background:#f6ece4}
+.post-sq strong{font:500 clamp(24px,6vw,32px) var(--serif);color:#4a3a36}
+.post-c{margin:0;padding:12px 14px 6px;font-size:15px;line-height:1.45;color:#22222a}
+.post-c b{font-weight:600;margin-right:4px}
+.post-c .new{animation:fade .4s ease;display:inline}
+.checks{margin:0;padding:0 14px 14px;font-size:13px;color:var(--muted)}
+.checks:empty{display:none}
+@keyframes fade{from{opacity:0}}
+.ticket{margin-top:14px;border:1px solid var(--ink);border-radius:4px;background:#fff}
+.ticket .top{display:flex;justify-content:space-between;gap:10px;padding:10px 14px;border-bottom:1px solid var(--line);font-size:14px;color:var(--muted)}
+.ticket .top b{color:var(--ink);font-weight:600}
+.ticket pre{margin:0;padding:14px;white-space:pre-wrap;word-break:break-word;font:400 15px/1.55 var(--sans);color:#24242e}
+.ticket pre mark{background:var(--pink-wash);color:inherit;padding:0 2px}
+.go{display:flex;flex-wrap:wrap;align-items:center;gap:8px 20px;margin-top:14px}
+.btn{display:inline-flex;justify-content:center;align-items:center;min-height:48px;padding:0 20px;border:0;border-radius:6px;background:var(--ink);color:#fff;font:600 16px var(--sans);text-decoration:none;cursor:pointer}
+.btn.pink{background:var(--pink)}
+.go a.text,.go button.text{min-height:44px;display:inline-flex;align-items:center}
+.rule{margin-top:14px;font-size:15px;color:var(--muted)}
+
+/* the lesson */
+.steps{list-style:none;counter-reset:st;margin:18px 0 0;padding:0}
+.steps li{counter-increment:st;position:relative;padding:16px 0 18px 44px;border-top:1px solid var(--line)}
+.steps li::before{content:counter(st);position:absolute;left:0;top:14px;width:30px;height:30px;border-radius:50%;background:var(--ink);color:#fff;display:grid;place-items:center;font:600 16px var(--sans)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.chip{border:1px solid var(--line);border-radius:20px;background:#fff;padding:8px 14px;font:500 15px var(--sans);cursor:pointer}
+.chip[aria-pressed=true]{border-color:var(--pink);background:var(--pink-wash)}
+.field{display:block;margin-top:10px}
+.field textarea,.field input{width:100%;border:1px solid rgba(24,23,29,.3);border-radius:6px;background:#fff;padding:12px 13px;font:400 17px/1.45 var(--sans);color:var(--ink);resize:vertical}
+.field textarea:focus,.field input:focus{outline:2px solid var(--pink);outline-offset:1px;border-color:transparent}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.compose{margin-top:12px;border:1px solid var(--ink);border-radius:6px;background:#fff}
+.compose-top{display:flex;justify-content:space-between;gap:10px;padding:10px 14px;border-bottom:1px solid var(--line);font-size:14px;color:var(--muted)}
+#msg{margin:0;padding:14px;font-size:17px;line-height:1.55;color:var(--ink)}
+#msg mark{background:var(--pink-wash);color:inherit;padding:0 2px}
+#msg .ph{color:#9a98a2}
+
+/* the essay */
+.essaybox{display:block;text-decoration:none;color:inherit}
+.essaybox .said{margin:14px 0 0;font:500 20px/1.45 var(--sans);color:var(--ink)}
+
+/* landing */
+.essay{display:block;text-decoration:none}
+.essay strong{display:block;margin-top:2px;font:600 clamp(26px,6.4vw,36px)/1.15 var(--sans);letter-spacing:-.015em;text-wrap:balance}
+.essay .sub2{display:block;margin-top:8px;color:var(--soft)}
+.essay .said{display:block;margin-top:14px;font:500 20px/1.45 var(--sans);color:var(--ink)}
+.essayline{margin:16px 0 0;font-size:16px;color:var(--soft)}
+.essayline a{color:var(--ink);font-weight:600;text-underline-offset:3px}
+.essay .read{display:inline-block;margin-top:12px;font-weight:600;text-decoration:underline;text-underline-offset:4px}
+.social{margin:14px 0 0;font-size:15px;color:var(--muted)}
+.social a{color:var(--ink);text-underline-offset:3px;margin-right:14px;display:inline-block;padding:6px 0}
+.fin{text-align:center;padding:10px 0 80px}
+
+@media (max-width:640px){
+  .hud-in{padding-top:9px}
+  .sheet{padding:4px 18px 22px}
+  .deck{margin-left:-18px;margin-right:-18px;padding:0 18px;scroll-padding-left:18px}
+  .choices{grid-template-columns:1fr}
+}
+@media (min-width:760px){.slide{flex-basis:58%}}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .arrive{height:auto}.arrive .stage{position:relative;height:auto;min-height:60svh}
+  .sign{--sc:1!important;--op:1!important}
+}
+
+/* content slots and swap zones. add #draft to the link to see them. */
+.slot{display:none}
+.slot.has,.draft .slot{display:block}
+.slotwrap:not(:has(.slot.has)){display:none}
+.draft .slotwrap{display:block}
+.slot .media{border-radius:4px;overflow:hidden;background:#fff;border:1px solid var(--line);margin:12px auto 0}
+.slot .media.v{aspect-ratio:9/16;max-width:min(340px,100%)}
+.slot .media.h{aspect-ratio:16/9;max-width:100%}
+.slot .media.sq{aspect-ratio:1;max-width:min(420px,100%)}
+.slot video,.slot .media img{display:block;width:100%;height:100%;object-fit:cover}
+.slot .empty{display:grid;place-items:center;text-align:center;gap:6px;padding:20px;margin:12px auto 0;max-width:min(300px,100%);aspect-ratio:9/16;border:2px dashed rgba(30,30,60,.28);border-radius:4px;font-size:14px;line-height:1.5;color:var(--muted)}
+.slot .empty b{color:var(--ink)}
+.slot .scap{margin-top:12px;text-align:center}
+.slot .linkcard{display:flex;flex-direction:column;align-items:center;gap:10px;margin-top:12px;text-decoration:none}
+.slot .linkcard img{width:min(300px,100%);aspect-ratio:9/16;object-fit:cover;border-radius:4px}
+.slot .linkcard span{display:inline-flex;min-height:46px;align-items:center;padding:0 18px;border-radius:6px;background:var(--ink);color:#fff;font-weight:600}
+.swapbadge{display:block;width:max-content;max-width:100%;margin:0 0 12px;padding:6px 10px;border-radius:4px;font:600 12px/1.35 var(--sans)}
+.swapbadge.ok{background:#e6f8ec;color:#1f6f35}.swapbadge.warn{background:#fff1cc;color:#7a5000}.swapbadge.old{background:#ffe1e1;color:#9a2020}.swapbadge.you{background:#ece8ff;color:#4436b0}
+.draftbar{position:fixed;z-index:25;left:0;right:0;bottom:0;padding:10px max(16px,env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));background:#fff;border-top:1px solid var(--line);font-size:13px;line-height:1.45}
+.draftbar b{font-weight:600}
+</style>
+<canvas id="sky" aria-hidden="true"></canvas>
+
+<header class="hud">
+  <div class="hud-in">
+    <a class="brand" href="#platform">ai, in my opinion<span>edition 03</span></a>
+    <button class="snd" id="snd" type="button" aria-pressed="false">sound off</button>
+  </div>
+  <div class="route" id="route" aria-label="how far along the flight you are">
+    <div class="rail" id="rail"><div class="track"></div><div class="done" id="done"></div>
+      <div class="train" id="train" aria-hidden="true"><svg viewBox="0 0 26 22"><path d="M3 12.2 22 7.5c1.6-.4 2.6.9 1.7 2.1L21 12.2l-5.6 1.6-4.6 5.2H8.2l2.4-4.2L5 16.4 3.6 18.6H2l.9-3.7L1 13.4z" fill="#fff" stroke="#1b1a21" stroke-width="1.4" stroke-linejoin="round"/><path d="M11.4 9.6 9 4.4h2.6l5.2 3.9z" fill="#f3c9d6" stroke="#1b1a21" stroke-width="1.2" stroke-linejoin="round"/></svg></div>
+    </div>
+  </div>
+</header>
+
+<main>
+<!-- ============ the gate ============ -->
+<section class="platform" id="platform" data-acc="aqua">
+  <div class="wrap">
+    <div class="hero"><img src="assets/float-0N.webp" alt="the number 03 in clear glass" width="1200" height="800" fetchpriority="high"></div>
+    <p class="dateline">edition 03, nov 5</p>
+    <h1>ai, in my opinion</h1>
+    <p class="lede"><q>in china, the ai bubble has already burst.</q> that's a real headline from the globe and mail, and it comes with a number: about $480 billion wiped off ai stocks in under four months. we'll fly through what fell, then i'll show you one skill that holds up whichever way this goes.</p>
+    <a class="board-btn" href="#s1">take off ↓</a>
+    <p class="essayline">my latest essay: <a href="https://aiimo.substack.com/p/if-youve-never-done-the-job-your" target="_blank" rel="noopener">if you've never done the job, your agent is just adding to the slop</a></p>
+    <div class="plan departures">
+      <h2>flight plan, about 4 minutes</h2>
+      <ol>
+        <li><span class="t">0:20</span><span>china's ai bubble has burst<small>two fund managers say so</small></span></li>
+        <li><span class="t">0:50</span><span>$480 billion, gone<small>what actually fell</small></span></li>
+        <li><span class="t">1:40</span><span>salesforce's "digital workers"<small>a professor says that's a mistake</small></span></li>
+        <li><span class="t">2:20</span><span>the tools still work<small>my take</small></span></li>
+        <li><span class="t">3:00</span><span>ask ai to explain the news<small>a one minute lesson</small></span></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<section class="wrap slotwrap" aria-label="from simi"><div class="sheet"><div class="car slot" data-slot="intro" data-what="intro video"><span class="label">a word from your captain</span><div class="slot-body"></div></div></div></section>
+
+<!-- ============ stop 1 ============ -->
+<section class="stop" id="s1" data-acc="pink" data-name="china's ai bubble">
+  <div class="arrive"><div class="stage"><div class="sign" role="img" aria-label="stop 1. china's ai bubble has burst. two fund managers say so.">
+    <img class="num" src="assets/float-1.webp" alt="" width="512" height="512">
+    <h2>china's ai bubble has burst</h2><span class="sub">two fund managers say so</span>
+  </div></div></div>
+  <div class="wrap"><div class="sheet">
+    <div class="car">
+      <p class="big">in china, the ai bubble has <em>already burst.</em></p>
+      <figure class="pull"><blockquote>"and now we see the bubble bursting."</blockquote><figcaption>dong baozhen, fund manager in beijing</figcaption></figure>
+      <figure class="pull"><blockquote>"all bubbles inevitably burst."</blockquote><figcaption>wang zhuo, fund manager in shanghai</figcaption></figure>
+      <p class="src">source: <a href="https://finwire.io/news/stock-markets-news/in-china-the-ai-bubble-has-already-burst" target="_blank" rel="noopener">the globe and mail, via finwire, oct 26</a></p>
+    </div>
+    <div class="car">
+      <p class="ask">guess first. how far did china's ai stock index fall in under four months?</p>
+      <div class="choices" id="drop">
+        <button class="choice" type="button" data-ok="0">10%</button>
+        <button class="choice" type="button" data-ok="0">25%</button>
+        <button class="choice" type="button" data-ok="1">40%</button>
+        <button class="choice" type="button" data-ok="0">70%</button>
+      </div>
+      <p class="answer" id="dropans" hidden></p>
+      <p class="small">this is a stock price story. nobody in it is claiming the ai stopped working.</p>
+    </div>
+  </div></div>
+</section>
+
+<!-- ============ stop 2 ============ -->
+<section class="stop" id="s2" data-acc="butter" data-name="$480 billion, gone">
+  <div class="arrive"><div class="stage"><div class="sign" role="img" aria-label="stop 2. $480 billion, gone. what actually fell.">
+    <img class="num" src="assets/float-2.webp" alt="" width="512" height="512">
+    <h2>$480 billion, gone</h2><span class="sub">what actually fell</span>
+  </div></div></div>
+  <div class="wrap"><div class="sheet">
+    <div class="car">
+      <p class="ask">swipe through the five cards, or tap next.</p>
+      <div class="deck" id="deck" tabindex="0" aria-label="the crash in five cards">
+        <article class="slide"><span class="n">1 of 5</span><h4>$480 billion is gone</h4><p>the star50 is china's index of ai and chip leaders. it fell about 40% in less than four months.</p></article>
+        <article class="slide"><span class="n">2 of 5</span><h4>8,000 times oversubscribed, and now down 23%</h4><p>retail buyers piled into robot maker unitree's listing in august. by friday its shares had closed about 23% below where they started trading. chipmakers metax and moore threads have each lost about half their value since july.</p></article>
+        <article class="slide"><span class="n">3 of 5</span><h4>about 100 times earnings, down from nearly 250</h4><p>that's what investors pay for every dollar these companies earn. for comparison, the us nasdaq 100 sits around 30.</p></article>
+        <article class="slide"><span class="n">4 of 5</span><h4>ai is 42% of china's market</h4><p>goldman sachs counts ai stocks as 42% of the market's value and 57% of its trading, which is why the drop dragged everyone else down with it. the csi 300, china's main index of big companies, lost 8.5% in october, its worst month in more than a decade.</p></article>
+        <article class="slide"><span class="n">5 of 5</span><h4>not everyone is selling</h4><p>goldman still counts dozens of chinese ai stocks as promising, and bnp paribas sees openings for careful buyers. the us is shakier than it was a week ago. the nasdaq fell 2.9% on friday after weak results from intel and amazon and closed 7.8% below its record.</p></article>
+      </div>
+      <div class="deck-ctl"><span id="dcount">1 of 5</span><button class="textbtn" type="button" id="deckNext">next card</button></div>
+      <p class="src">sources: <a href="https://finwire.io/news/stock-markets-news/in-china-the-ai-bubble-has-already-burst" target="_blank" rel="noopener">the globe and mail, via finwire, oct 26</a>, <a href="https://www.thedailyupside.com/technology/artificial-intelligence/chinas-ai-bubble-rapidly-loses-air/" target="_blank" rel="noopener">the daily upside, nov 2</a>, <a href="https://www.brecorder.com/news/40446726/china-stocks-post-biggest-monthly-loss-on-ai-selloff" target="_blank" rel="noopener">reuters, oct 31</a> and <a href="https://finance.yahoo.com/markets/stocks/articles/nasdaq-futures-sink-amazon-intel-114737736.html" target="_blank" rel="noopener">reuters, oct 30</a></p>
+    </div>
+    <div class="car">
+      <p class="ask">so is the us next?</p>
+      <div class="choices list" id="usnext">
+        <button class="choice" type="button" data-s="yes">yes, it's coming</button>
+        <button class="choice" type="button" data-s="no">no, it's a different market</button>
+        <button class="choice" type="button" data-s="later">ask me in a year</button>
+      </div>
+      <p class="answer" id="usans" hidden></p>
+    </div>
+  </div></div>
+</section>
+
+<!-- ============ stop 3 ============ -->
+<section class="stop" id="s3" data-acc="aqua" data-name="digital workers">
+  <div class="arrive"><div class="stage"><div class="sign" role="img" aria-label="stop 3. salesforce's digital workers. a professor says that's a mistake.">
+    <img class="num" src="assets/float-3.webp" alt="" width="512" height="512">
+    <h2>salesforce's "digital workers"</h2><span class="sub">a professor says that's a mistake</span>
+  </div></div></div>
+  <div class="wrap"><div class="sheet">
+    <div class="car">
+      <p class="big">salesforce calls ai agents <em>"digital workers."</em></p>
+      <p>enrique dans teaches at ie business school, and he wrote in fast company that the label is a mistake.</p>
+      <figure class="pull"><blockquote>"it's a bad idea to build the org chart in silicon."</blockquote><figcaption>enrique dans, in fast company</figcaption></figure>
+      <p>his argument is that an agent should be a part you can swap out, and whatever the company learns along the way should stay with the company when you do.</p>
+      <p class="src">source: <a href="https://www.fastcompany.com/91627432/stop-building-digital-employees-start-building-intelligent-companies" target="_blank" rel="noopener">fast company, oct 24</a></p>
+    </div>
+    <div class="car" id="essay3">
+      <a class="essaybox" href="https://aiimo.substack.com/p/if-youve-never-done-the-job-your" target="_blank" rel="noopener">
+        <span class="label">i wrote about this in my latest essay</span>
+        <p class="said">"the template sdr was the stored words. the expertise was the knowledge underneath them."</p>
+        <p>if you've never done the job, your agent is just adding to the slop. i built a healthcare bdr. i was one first.</p>
+        <span class="btn" style="margin-top:14px">read the essay</span>
+      </a>
+    </div>
+    <div class="car">
+      <p class="ask">say you switch to a better ai tomorrow. tap the two things you'd keep.</p>
+      <div class="choices" id="keep">
+        <button class="choice" type="button" data-ok="0">the agent's name and avatar</button>
+        <button class="choice" type="button" data-ok="1">your playbook (the job, examples, rules)</button>
+        <button class="choice" type="button" data-ok="0">this month's model</button>
+        <button class="choice" type="button" data-ok="1">a log of what it did and why</button>
+      </div>
+      <p class="answer" id="keepans" hidden></p>
+    </div>
+  </div></div>
+</section>
+
+<!-- ============ stop 4 ============ -->
+<!-- DRAFT for simi to rewrite: every line in this stop is a draft in her voice, not her words yet -->
+<section class="stop" id="s4" data-acc="mint" data-name="my take">
+  <div class="arrive"><div class="stage"><div class="sign" role="img" aria-label="stop 4. the tools still work. my take.">
+    <img class="num" src="assets/float-4.webp" alt="" width="512" height="512">
+    <h2>the tools still work</h2><span class="sub">my take</span>
+  </div></div></div>
+  <div class="wrap"><div class="sheet">
+    <div class="car slot" data-slot="take" data-what="video take"><span class="label">watch my take</span><div class="slot-body"></div></div>
+    <div class="car take">
+      <h3>the stocks crashed, and i'm still using the same tools on monday.</h3>
+      <p>a bubble means people paid more for these companies than they were worth. the tools i use every day didn't get worse because a chip stock in shanghai lost half its value.</p>
+      <p>if one of these companies disappears, the instructions you wrote for your ai still work somewhere else.</p>
+      <p class="sig">simi</p>
+    </div>
+  </div></div>
+</section>
+
+<!-- ============ stop 5 ============ -->
+<section class="stop" id="s5" data-acc="peach" data-name="ask ai to explain the news">
+  <div class="arrive"><div class="stage"><div class="sign" role="img" aria-label="stop 5. ask ai to explain the news. a one minute lesson.">
+    <img class="num" src="assets/float-5.webp" alt="" width="512" height="512">
+    <h2>ask ai to explain the news</h2><span class="sub">a one minute lesson</span>
+  </div></div></div>
+  <div class="wrap"><div class="sheet">
+    <div class="car">
+      <p style="margin-top:0">most people type a few words into ai, like <i>"china ai bubble?"</i>, and get a textbook answer back. if you add who you are and what you want to know, the answer is about your life. try it with this week's news.</p>
+      <ol class="steps" id="lesson">
+        <li>
+          <p class="ask">pick a headline, or paste any headline you saw today.</p>
+          <div class="chips" data-for="h">
+            <button type="button" class="chip" data-v="in china, the ai bubble has already burst">china's ai bubble</button>
+            <button type="button" class="chip" data-v="ai stocks lost about $480 billion in under four months">$480 billion gone</button>
+            <button type="button" class="chip" data-v="salesforce is calling ai agents &quot;digital workers&quot;">digital workers</button>
+          </div>
+          <label class="field"><span class="sr">the headline</span><textarea id="in-h" rows="2" placeholder="paste a headline here"></textarea></label>
+        </li>
+        <li>
+          <p class="ask">tell it who you are, in a few words.</p>
+          <div class="chips" data-for="w">
+            <button type="button" class="chip" data-v="i'm retired and have a 401k">i'm retired</button>
+            <button type="button" class="chip" data-v="i'm a nurse">i'm a nurse</button>
+            <button type="button" class="chip" data-v="i run a small business">i run a small business</button>
+            <button type="button" class="chip" data-v="i'm a college student">i'm a student</button>
+          </div>
+          <label class="field"><span class="sr">who you are</span><input id="in-w" type="text" placeholder="like: i'm a teacher"></label>
+        </li>
+        <li>
+          <p class="ask">ask what you actually want to know.</p>
+          <div class="chips" data-for="q">
+            <button type="button" class="chip" data-v="does this affect my money?">my money?</button>
+            <button type="button" class="chip" data-v="does this affect my job?">my job?</button>
+            <button type="button" class="chip" data-v="is there anything i should actually do about it?">should i do anything?</button>
+          </div>
+          <label class="field"><span class="sr">your question</span><input id="in-q" type="text" placeholder="like: should i worry?"></label>
+        </li>
+      </ol>
+    </div>
+    <div class="car">
+      <p class="ask">here's what you'll send. it updates as you type.</p>
+      <div class="compose" aria-live="polite">
+        <div class="compose-top"><span>new chat</span><span id="knows">the ai knows: nothing yet</span></div>
+        <p id="msg"></p>
+      </div>
+      <div class="go"><a class="btn" id="toClaude" href="https://claude.ai/new" target="_blank" rel="noopener">send it to claude</a><a class="textbtn text" id="toGpt" href="https://chatgpt.com/" target="_blank" rel="noopener">send it to chatgpt</a><button class="textbtn text" type="button" id="copyp">copy it</button></div>
+      <p class="rule">the button opens a new chat with your message already typed in. press send and read what comes back. next time you see a headline that worries you, ask the same way: the story, who you are, and what you want to know.</p>
+    </div>
+  </div></div>
+</section>
+
+<!-- ============ landing ============ -->
+<section class="stop" id="s6" data-acc="holo" data-name="landing">
+  <div class="arrive"><div class="stage"><div class="sign" role="img" aria-label="landing. edition 04 is next tuesday.">
+    <img class="num" src="assets/float-6.webp" alt="" width="512" height="512">
+    <h2>landing</h2><span class="sub">edition 04 is next tuesday</span>
+  </div></div></div>
+  <div class="wrap"><div class="sheet">
+    <div class="car">
+      <a class="essay" href="https://aiimo.substack.com/p/if-youve-never-done-the-job-your" target="_blank" rel="noopener">
+        <span class="label">my latest essay</span>
+        <strong>if you've never done the job, your agent is just adding to the slop</strong>
+        <span class="sub2">i built a healthcare bdr. i was one first.</span>
+        <span class="said">"the words are cheap now. knowing which ones are true is not."</span>
+        <span class="btn" style="margin-top:16px">read the essay</span>
+      </a>
+    </div>
+    <div class="car">
+      <p style="margin-top:0">tell me what you're building.</p>
+      <div class="go"><a class="btn pink" href="https://aiimo.substack.com/subscribe" target="_blank" rel="noopener">get next tuesday's edition</a><a class="textbtn text" href="https://ig.me/m/_simisim" target="_blank" rel="noopener">message me</a><button class="textbtn text" type="button" id="share">share this flight</button></div>
+      <p class="social"><a href="https://www.instagram.com/_simisim/" target="_blank" rel="noopener">instagram</a><a href="https://www.linkedin.com/in/simibharaj" target="_blank" rel="noopener">linkedin</a><a href="https://github.com/simibharaj" target="_blank" rel="noopener">github</a><a href="https://aiimo.substack.com" target="_blank" rel="noopener">substack</a></p>
+    </div>
+  </div>
+  <div class="fin"><button class="textbtn" type="button" id="again">fly again ↑</button></div>
+  </div>
+</section>
+</main>
+
+<script>
+(()=>{'use strict';
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const ACC={pink:[255,111,163],butter:[255,179,15],aqua:[47,196,200],mint:[79,191,106],peach:[255,138,92],holo:[143,155,255]};
+const stops=$$('.stop');
+let audio=null;
+
+/* ---------- your content and the news swap zones ----------
+   MEDIA: drop a file in assets/ and fill a slot. examples:
+     intro:{type:'video',src:'assets/intro.mp4',poster:'assets/intro.jpg',shape:'v',caption:'one line under it'}
+     take:{type:'image',src:'assets/take.jpg',shape:'sq'}
+     take:{type:'link',href:'https://www.instagram.com/reel/...',thumb:'assets/take.jpg',label:'watch on instagram'}
+   an empty slot is invisible to readers. open the link with #draft on the end to see every slot and swap zone. */
+const MEDIA={intro:null,take:null};
+const PUBLISH='2026-11-05';
+const SWAP=[['.departures','news','2026-11-02'],['#s1 .car:not(.slot)','news','2026-11-02'],['#s2 .car:not(.slot)','news','2026-11-02'],['#s3 .car:not(.slot)','news','2026-11-02'],['#s4 .car.take','take'],['#essay3','essay'],['#s6 .car','essay']];
+const DRAFT=location.hash==='#draft';
+const escH=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+$$('.slot').forEach(sl=>{const m=MEDIA[sl.dataset.slot],body=sl.querySelector('.slot-body');
+  if(m){sl.classList.add('has');
+    if(m.type==='video')body.innerHTML=`<div class="media ${m.shape||'v'}"><video src="${escH(m.src)}"${m.poster?` poster="${escH(m.poster)}"`:''} controls playsinline preload="metadata"></video></div>`;
+    else if(m.type==='image')body.innerHTML=`<div class="media ${m.shape||'v'}"><img src="${escH(m.src)}" alt="${escH(m.alt||'')}"></div>`;
+    else body.innerHTML=`<a class="linkcard" href="${escH(m.href)}" target="_blank" rel="noopener">${m.thumb?`<img src="${escH(m.thumb)}" alt="">`:''}<span>${escH(m.label||'watch it')} ↗</span></a>`;
+    if(m.caption)body.insertAdjacentHTML('beforeend',`<p class="scap">${escH(m.caption)}</p>`);}
+  else body.innerHTML=`<div class="empty"><b>your ${sl.dataset.what} goes here</b>9:16 video, under 60 seconds.<br>or a photo, or a link to a reel.</div>`;});
+if(DRAFT){document.documentElement.classList.add('draft');
+  const pub=new Date(PUBLISH+'T12:00:00'),fmt=d=>new Date(d+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}).toLowerCase();
+  let stale=0;
+  SWAP.forEach(([sel,kind,checked])=>{const el=document.querySelector(sel);if(!el)return;const b=document.createElement('div');let cls='you',txt;
+    if(kind==='news'){const age=Math.round((pub-new Date(checked+'T12:00:00'))/864e5);cls=age<=7?'ok':age<=14?'warn':'old';if(cls!=='ok')stale++;
+      txt=`swap zone · news checked ${fmt(checked)} · ${age} day${age===1?'':'s'} old on ${fmt(PUBLISH)}`+(cls==='ok'?'':cls==='warn'?' · refresh recommended':' · refresh before publishing');}
+    else if(kind==='take')txt='your words go here · claude drafted this';
+    else txt='swap in your newest essay if one is out';
+    b.className='swapbadge '+cls;b.textContent=txt;el.prepend(b);});
+  const empty=$$('.slot:not(.has)').length;
+  const bar=document.createElement('div');bar.className='draftbar';
+  bar.innerHTML=`<b>draft view</b> · publishing ${fmt(PUBLISH)} · ${empty} content slot${empty===1?'':'s'} empty · ${stale?stale+' news zone'+(stale===1?'':'s')+' need a refresh':'news is fresh'}`;
+  document.body.appendChild(bar);}
+
+/* ---------- the sky ---------- */
+const cv=$('#sky'),ctx=cv.getContext('2d');
+let W=0,H=0,DPR=1;
+function size(){DPR=Math.min(2,devicePixelRatio||1);W=innerWidth;H=innerHeight;cv.width=W*DPR;cv.height=H*DPR;}
+size();addEventListener('resize',size);
+const K=2.6,ZR=15000;
+const camX=z=>Math.sin(z/5200)*900+Math.sin(z/2100+.4)*260;
+const camY=z=>Math.sin(z/3900)*300+Math.sin(z/1500+1)*90;   /* + is down, toward the cloud sea */
+/* cloud sprites, drawn once */
+function rng(seed){let s=seed*9301+49297;return()=>((s=(s*9301+49297)%233280)/233280);}
+const sprites=[...Array(7)].map((_,v)=>{const c=document.createElement('canvas');c.width=420;c.height=230;const g=c.getContext('2d');const r=rng(v+3);
+  const n=16+Math.floor(r()*10);
+  for(let i=0;i<n;i++){const x=70+r()*280,y=95+r()*70-(Math.abs(x-210)<90?r()*40:0),rad=34+r()*62;
+    const gr=g.createRadialGradient(x,y,0,x,y,rad);gr.addColorStop(0,'rgba(255,255,255,.95)');gr.addColorStop(.55,'rgba(255,255,255,.75)');gr.addColorStop(1,'rgba(255,255,255,0)');
+    g.fillStyle=gr;g.beginPath();g.arc(x,y,rad,0,Math.PI*2);g.fill();}
+  g.globalCompositeOperation='source-atop';
+  const sh=g.createLinearGradient(0,60,0,215);sh.addColorStop(0,'rgba(255,255,255,0)');sh.addColorStop(.6,'rgba(196,186,232,.18)');sh.addColorStop(1,'rgba(160,150,214,.34)');
+  g.fillStyle=sh;g.fillRect(0,0,420,230);
+  const hi=g.createLinearGradient(0,40,0,120);hi.addColorStop(0,'rgba(255,236,246,.35)');hi.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=hi;g.fillRect(0,0,420,230);
+  return c;});
+const R=rng(42),phone=innerWidth<700;
+const clouds=[...Array(phone?78:110)].map((_,i)=>{const t=R();let y,x,sc;
+  if(t<.48){y=560+R()*420;x=(R()-.5)*11000;sc=3+R()*4;}          /* the cloud sea below */
+  else if(t<.78){y=-300+R()*620;x=(R()<.5?-1:1)*(650+R()*3600);sc=1.6+R()*2.4;}  /* clouds you fly past */
+  else{y=-1700+R()*900;x=(R()-.5)*9000;sc=2.4+R()*3;}             /* high clouds */
+  return {x,y,z:R()*ZR,sc,v:Math.floor(R()*sprites.length)};});
+const wind=[...Array(60)].map(()=>({x:(R()-.5)*2600,y:(R()-.5)*1500,z:R()*4000}));
+let cz=0,vz=0,acc=[...ACC.aqua],t0=performance.now(),cruise=0;
+const target=()=>scrollY*K+cruise;
+function curAcc(){let k='aqua';for(const s of stops){if(s.getBoundingClientRect().top<H*.6)k=s.dataset.acc;}return ACC[k];}
+function gates(){return stops.map(s=>{const a=s.querySelector('.arrive');const top=s.getBoundingClientRect().top+scrollY;return {z:(top+a.offsetHeight*.62-scrollY)*K+cz,acc:ACC[s.dataset.acc]};});}
+function draw(now){
+  const dt=Math.min(.05,(now-t0)/1000);t0=now;
+  if(!reduce)cruise+=dt*70;
+  const tz=target(),prev=cz;cz=reduce?tz:cz+(tz-cz)*Math.min(1,dt*6);vz=(cz-prev)/Math.max(dt,.001);
+  const ta=curAcc();acc=acc.map((c,i)=>c+(ta[i]-c)*Math.min(1,dt*2.5));const [r,g,b]=acc.map(Math.round);
+  const F=Math.min(W,H)*1.05;
+  const ox=camX(cz),oy=camY(cz);
+  const roll=clamp((camX(cz+1200)-ox)/1200*.75,-.3,.3);
+  const pitch=clamp((camY(cz+900)-oy)/900,-.5,.5);
+  const hy=H*.08-pitch*H*.55;              /* horizon, relative to screen center */
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+  ctx.save();ctx.translate(W/2,H/2);ctx.rotate(roll);
+  const ext=Math.hypot(W,H);
+  const sky=ctx.createLinearGradient(0,hy-H*1.1,0,hy+H*.7);
+  sky.addColorStop(0,'#9ccfff');sky.addColorStop(.42,'#cfe7ff');sky.addColorStop(.6,'#eef0ff');sky.addColorStop(.66,'#ffe8f1');sky.addColorStop(.7,'#fff1e8');sky.addColorStop(1,'#f6f2ff');
+  ctx.fillStyle=sky;ctx.fillRect(-ext,-ext,ext*2,ext*2);
+  /* the sun, low ahead */
+  const sun=ctx.createRadialGradient(0,hy-H*.06,0,0,hy-H*.06,ext*.55);
+  sun.addColorStop(0,'rgba(255,255,255,1)');sun.addColorStop(.05,'rgba(255,251,236,.95)');sun.addColorStop(.2,'rgba(255,214,140,.32)');sun.addColorStop(.45,`rgba(${r},${g},${b},.10)`);sun.addColorStop(1,'rgba(255,255,255,0)');
+  ctx.fillStyle=sun;ctx.fillRect(-ext,-ext,ext*2,ext*2);
+  const P=(x,y,z)=>{const d=z-cz,s=F/d;return [(x-ox)*s,(y-oy)*s+hy,s,d];};
+  /* everything with depth, far to near */
+  const items=[];
+  for(const c of clouds){while(c.z<cz+60)c.z+=ZR;while(c.z>cz+ZR)c.z-=ZR;items.push({d:c.z-cz,c});}
+  for(const gt of gates()){const d=gt.z-cz;if(d>40&&d<ZR)items.push({d,gt});}
+  items.sort((a,b)=>b.d-a.d);
+  for(const it of items){
+    if(it.c){const c=it.c,[sx,sy,s,d]=P(c.x,c.y,c.z);const w=420*c.sc*s,h=230*c.sc*s;
+      if(sx+w/2<-ext||sx-w/2>ext||sy+h/2<-ext||sy-h/2>ext)continue;
+      const fade=clamp((ZR-d)/(ZR*.3),0,1)*clamp((d-60)/700,0,1);if(fade<=.01)continue;
+      ctx.globalAlpha=fade*(c.y>500?.95:.88);ctx.drawImage(sprites[c.v],sx-w/2,sy-h*.62,w,h);ctx.globalAlpha=1;}
+    else{const gt=it.gt,d=it.d,gz=gt.z,[sx,sy,s]=P(camX(gz),camY(gz),gz);const rx=760*s,ry=560*s;
+      const fade=clamp((ZR-d)/(ZR*.35),0,1)*clamp((d-40)/500,0,1);const [gr,gg,gb]=gt.acc;
+      const lw=clamp(9000/d,1.2,26);
+      ctx.lineWidth=lw*1.6;ctx.strokeStyle=`rgba(${gr},${gg},${gb},${(fade*.22).toFixed(3)})`;ctx.beginPath();ctx.ellipse(sx,sy,rx,ry,0,0,Math.PI*2);ctx.stroke();
+      ctx.lineWidth=lw;ctx.strokeStyle=`rgba(${gr},${gg},${gb},${(fade*.7).toFixed(3)})`;ctx.beginPath();ctx.ellipse(sx,sy,rx,ry,0,0,Math.PI*2);ctx.stroke();
+      ctx.lineWidth=Math.max(.8,lw*.35);ctx.strokeStyle=`rgba(255,255,255,${(fade*.95).toFixed(3)})`;ctx.beginPath();ctx.ellipse(sx,sy-lw*.18,rx-lw*.2,ry-lw*.2,0,Math.PI*1.05,Math.PI*1.95);ctx.stroke();
+      ctx.lineWidth=Math.max(.6,lw*.18);ctx.strokeStyle=`rgba(255,255,255,${(fade*.7).toFixed(3)})`;ctx.beginPath();ctx.ellipse(sx,sy,rx*.94,ry*.94,0,0,Math.PI*2);ctx.stroke();}
+  }
+  /* wind */
+  const sp=Math.abs(vz),len=clamp(sp*.08,4,700);ctx.lineCap='round';
+  for(const p of wind){while(p.z<cz+40)p.z+=4000;while(p.z>cz+4000)p.z-=4000;
+    const a1=P(p.x+ox,p.y+oy,p.z),a2=P(p.x+ox,p.y+oy,p.z+len);const f=clamp((a1[3]-40)/300,0,1)*(1-a1[3]/4000);
+    ctx.strokeStyle=`rgba(255,255,255,${(f*clamp(.2+sp/2400,.2,.85)).toFixed(3)})`;ctx.lineWidth=clamp(900/a1[3],.6,2.2);
+    ctx.beginPath();ctx.moveTo(a1[0],a1[1]);ctx.lineTo(a2[0],a2[1]);ctx.stroke();}
+  ctx.restore();
+  hud(sp);
+  if(!reduce)requestAnimationFrame(draw);
+}
+
+/* ---------- the flight line ---------- */
+const rail=$('#rail'),plane=$('#train'),done=$('#done');
+for(let i=1;i<=5;i++){const d=document.createElement('i');d.className='st';d.style.left=`${(i/6*100).toFixed(3)}%`;rail.appendChild(d);}
+function hud(sp){
+  const tops=stops.map(s=>s.getBoundingClientRect().top+scrollY);const y=scrollY+H*.5;let pos=0;
+  for(let i=0;i<tops.length;i++){const a=tops[i],b=tops[i+1]??document.documentElement.scrollHeight;if(y>=a)pos=i+1+(i<tops.length-1?clamp((y-a)/(b-a),0,1):0);}
+  if(y<tops[0])pos=clamp(y/tops[0],0,1);
+  const f=clamp(pos/6,0,1);plane.style.left=`${(f*100).toFixed(3)}%`;done.style.width=`${(f*100).toFixed(3)}%`;
+  if(audio)audio.speed(sp);
+}
+if(reduce){cz=target();requestAnimationFrame(draw);addEventListener('scroll',()=>requestAnimationFrame(n=>{t0=n;draw(n);}),{passive:true});}
+else requestAnimationFrame(draw);
+
+/* ---------- waypoint signs and the cards that fly in ---------- */
+const arrivals=stops.map(s=>({el:s.querySelector('.arrive'),sign:s.querySelector('.sign'),rang:false}));
+const cars=$$('.sheet');
+function frame(){const vh=innerHeight;
+  for(const A of arrivals){const r=A.el.getBoundingClientRect();if(r.bottom<-20||r.top>vh+20)continue;
+    const a=clamp(-r.top/Math.max(1,r.height-vh),0,1);let sc,op;
+    if(a<.5){const e=1-Math.pow(1-a/.5,3);sc=.07+.93*e;op=clamp(a/.12,0,1);}
+    else if(a<.76){sc=1;op=1;if(!A.rang&&audio)audio.chime();A.rang=true;}
+    else{const e=(a-.76)/.24;sc=1+2.6*e*e;op=1-e;}
+    if(a<.3)A.rang=false;
+    A.sign.style.setProperty('--sc',sc.toFixed(4));A.sign.style.setProperty('--op',op.toFixed(3));}
+  for(const c of cars){const r=c.getBoundingClientRect();if(r.top>vh+40||r.bottom<-40)continue;
+    const k=clamp((vh-r.top)/(vh*.48),0,1),e=1-Math.pow(1-k,3),x=clamp((vh*.1-r.bottom)/(vh*.3),0,1);
+    if(e>=1&&x<=0){if(c.style.transform){c.style.transform='';c.style.opacity='';}continue;}
+    c.style.transform=`perspective(900px) translate3d(0,${((1-e)*90).toFixed(1)}px,${((1-e)*-420).toFixed(1)}px) rotateX(${((1-e)*16).toFixed(2)}deg) scale(${(1+x*.16).toFixed(4)})`;
+    c.style.opacity=((.08+.92*e)*(1-x*.9)).toFixed(3);}
+}
+if(!reduce){let q=0;const on=()=>{if(!q)q=requestAnimationFrame(()=>{q=0;frame();});};addEventListener('scroll',on,{passive:true});addEventListener('resize',on);frame();}
+
+/* ---------- stop 2: the five cards ---------- */
+const deck=$('#deck'),last=deck.children.length-1,dcount=$('#dcount');
+const step=()=>{const s=deck.children;return s.length>1?s[1].offsetLeft-s[0].offsetLeft:1;};
+const cur=()=>deck.scrollLeft+deck.clientWidth>=deck.scrollWidth-4?last:clamp(Math.round(deck.scrollLeft/step()),0,last);
+deck.addEventListener('scroll',()=>{const i=cur();dcount.textContent=`${i+1} of ${last+1}`;$('#deckNext').textContent=i===last?'back to the first card':'next card';},{passive:true});
+$('#deckNext').addEventListener('click',()=>{const i=cur();deck.scrollTo({left:i>=last?0:(i+1)*step(),behavior:reduce?'auto':'smooth'});ding(660);});
+
+/* ---------- waypoint 1: guess the drop ---------- */
+$('#drop').addEventListener('click',e=>{const b=e.target.closest('.choice');if(!b||b.disabled)return;
+  $$('#drop .choice').forEach(x=>{x.disabled=true;x.classList.add(x.dataset.ok==='1'?'right':'wrong');});b.setAttribute('aria-pressed','true');
+  const ok=b.dataset.ok==='1';const a=$('#dropans');a.hidden=false;
+  a.innerHTML=(ok?'<b>right, about 40%.</b> ':'<b>it was about 40%.</b> ')+'that\'s roughly $480 billion of value, gone in less than four months.';ding(ok?880:520);});
+/* ---------- waypoint 2: is the us next ---------- */
+const US={yes:'maybe. the nasdaq had a rough friday and sits 7.8% below its record. china\'s ai index is down about 40%, so they\'re still far apart.',
+  no:'could be. the us market is bigger and spread across a lot more than ai, while 42% of china\'s market is ai stocks.',
+  later:'fair, nobody knows yet. for now china\'s ai index is down about 40% and the nasdaq about 8%.'};
+$('#usnext').addEventListener('click',e=>{const b=e.target.closest('.choice');if(!b)return;$$('#usnext .choice').forEach(x=>x.setAttribute('aria-pressed',x===b));const a=$('#usans');a.hidden=false;a.textContent=US[b.dataset.s];ding(740);});
+/* ---------- waypoint 3: keep two ---------- */
+const picked=new Set();
+$('#keep').addEventListener('click',e=>{const b=e.target.closest('.choice');if(!b||b.disabled)return;
+  const i=[...b.parentNode.children].indexOf(b);if(picked.has(i)){picked.delete(i);b.setAttribute('aria-pressed','false');return;}
+  picked.add(i);b.setAttribute('aria-pressed','true');ding(700);
+  if(picked.size<2)return;
+  const btns=$$('#keep .choice');btns.forEach(x=>{x.disabled=true;x.classList.add(x.dataset.ok==='1'?'right':'wrong');});
+  const score=[...picked].filter(j=>btns[j].dataset.ok==='1').length;
+  const a=$('#keepans');a.hidden=false;
+  a.innerHTML=(score===2?'<b>both right.</b> ':score===1?'<b>one of two.</b> ':'<b>not quite.</b> ')+'keep the playbook and the log. you\'ll swap models again, and nobody remembers what the agent was called. dans puts it this way: "the organization\'s accumulated experience must remain."';
+  ding(score===2?880:520);});
+
+/* ---------- stop 5: ask ai to explain the news ---------- */
+const F={h:$('#in-h'),w:$('#in-w'),q:$('#in-q')};
+const esc=s=>s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+F.h.value='in china, the ai bubble has already burst';
+function build(){
+  const h=F.h.value.trim(),w=F.w.value.trim(),q=F.q.value.trim();
+  const ph=(v,p)=>v?`<mark>${esc(v)}</mark>`:`<span class="ph">[${p}]</span>`;
+  $('#msg').innerHTML=`explain this news story to me: "${ph(h,'the headline')}"<br><br>about me: ${ph(w,'who you are')}<br><br>what i want to know: ${ph(q,'your question')}<br><br>keep it short and skip the jargon.`;
+  const text=`explain this news story to me: "${h||'[the headline]'}"\n\nabout me: ${w||'[who you are]'}\n\nwhat i want to know: ${q||'[your question]'}\n\nkeep it short and skip the jargon.`;
+  const n=[h,w,q].filter(Boolean).length;
+  $('#knows').textContent=n===3?'ready to send':`${n} of 3 steps done`;
+  $('#toClaude').href='https://claude.ai/new?q='+encodeURIComponent(text);$('#toGpt').href='https://chatgpt.com/?q='+encodeURIComponent(text);$('#copyp').dataset.t=text;
+  $$('#lesson .chip').forEach(c=>c.setAttribute('aria-pressed',String(F[c.parentNode.dataset.for].value.trim()===c.dataset.v)));
+}
+$('#lesson').addEventListener('click',e=>{const c=e.target.closest('.chip');if(!c)return;F[c.parentNode.dataset.for].value=c.dataset.v;build();ding(760);});
+Object.values(F).forEach(f=>f.addEventListener('input',build));
+build();
+
+function copy(text,btn,label){const fin=t=>{btn.textContent=t;setTimeout(()=>btn.textContent=label,1600);};
+  try{navigator.clipboard.writeText(text).then(()=>fin('copied'),()=>fin('select it and copy'));}catch(_){fin('select it and copy');}}
+$('#copyp').addEventListener('click',e=>copy(e.currentTarget.dataset.t,e.currentTarget,'copy it'));
+$('#share').addEventListener('click',e=>copy('edition 03 of ai, in my opinion is a 4 minute flight through china\'s ai crash. '+location.href.split('#')[0],e.currentTarget,'share this flight'));
+$('#again').addEventListener('click',()=>scrollTo({top:0,behavior:reduce?'auto':'smooth'}));
+
+/* ---------- sound: off until you turn it on ---------- */
+function ding(f){if(audio)audio.tone(f);}
+$('#snd').addEventListener('click',async e=>{const btn=e.currentTarget;
+  try{if(!audio){const ac=new(window.AudioContext||window.webkitAudioContext)();const g=ac.createGain();g.gain.value=0;
+      const len=ac.sampleRate*2,buf=ac.createBuffer(1,len,ac.sampleRate),ch=buf.getChannelData(0);for(let i=0;i<len;i++)ch[i]=Math.random()*2-1;
+      const src=ac.createBufferSource();src.buffer=buf;src.loop=true;const bp=ac.createBiquadFilter();bp.type='lowpass';bp.frequency.value=500;src.connect(bp);bp.connect(g);g.connect(ac.destination);src.start();
+      let live=false;
+      const tone=(f,d=.45,v=.06,at=0)=>{if(!live)return;const t=ac.currentTime+at,o=ac.createOscillator(),k=ac.createGain();o.type='sine';o.frequency.value=f;k.gain.setValueAtTime(0,t);k.gain.linearRampToValueAtTime(v,t+.01);k.gain.exponentialRampToValueAtTime(.0005,t+d);o.connect(k);k.connect(ac.destination);o.start(t);o.stop(t+d+.05);};
+      audio={ac,toggle(){live=!live;g.gain.setTargetAtTime(live?.05:0,ac.currentTime,.3);return live;},
+        speed(sp){if(!live)return;const k=clamp(sp/3000,0,1);bp.frequency.setTargetAtTime(500+k*1500,ac.currentTime,.2);g.gain.setTargetAtTime(.035+k*.08,ac.currentTime,.2);},
+        tone,chime(){tone(783.99,.6,.06,0);tone(1046.5,.9,.06,.22);}};}
+    await audio.ac.resume();const live=audio.toggle();btn.setAttribute('aria-pressed',live);btn.textContent=live?'sound on':'sound off';}catch(_){btn.textContent='no sound here';}});
+document.addEventListener('visibilitychange',()=>{if(audio)(document.hidden?audio.ac.suspend():audio.ac.resume()).catch(()=>{});});
+})();
+</script>
+</body>
+</html>
