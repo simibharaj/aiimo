@@ -170,7 +170,7 @@ main{position:relative;z-index:2}
 .small{font-size:14.5px!important;color:var(--muted)!important}
 
 /* the 41 votes */
-.reveal{position:relative;height:150svh}.reveal[hidden]{display:none}
+.reveal{position:relative;height:150svh}.reveal[hidden]{display:none}.breath{height:200svh}
 .reveal .in{position:sticky;top:0;height:100svh;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:80px max(18px,env(safe-area-inset-right,0px)) 40px max(18px,env(safe-area-inset-left,0px));text-align:center}
 .tally{display:flex;flex-direction:column;align-items:center}
 .tally b{font:400 clamp(110px,34vw,220px)/.85 var(--serif);letter-spacing:-.04em;font-variant-numeric:tabular-nums;color:var(--ink);text-shadow:0 2px 30px rgba(255,255,255,.6)}
@@ -237,7 +237,7 @@ main{position:relative;z-index:2}
 .tile .tt.gh{background:#16151a;color:#fff}
 </style>
 
-<div id="film" aria-hidden="true"><img id="poster" src="assets/v/poster.jpg" alt=""><video data-k="0" muted playsinline disablepictureinpicture></video><video data-k="1" muted playsinline disablepictureinpicture></video><video data-k="2" muted playsinline disablepictureinpicture></video><video data-k="3" muted playsinline disablepictureinpicture></video><video data-k="4" muted playsinline disablepictureinpicture></video><video data-k="5" muted playsinline disablepictureinpicture></video></div>
+<div id="film" aria-hidden="true"><img id="poster" src="assets/v/poster.jpg" alt=""><video data-k="0" muted playsinline disablepictureinpicture></video><video data-k="1" muted playsinline disablepictureinpicture></video><video data-k="2" muted playsinline disablepictureinpicture></video><video data-k="3" muted playsinline disablepictureinpicture></video><video data-k="4" muted playsinline disablepictureinpicture></video><video data-k="5" muted playsinline disablepictureinpicture></video><video data-k="6" muted playsinline disablepictureinpicture></video><video data-k="7" muted playsinline disablepictureinpicture></video></div>
 <div class="veil t"></div><div class="veil b"></div>
 <header class="top"><a href="#top">ai, in my opinion</a><span id="where">edition 04</span></header>
 <div class="progress" id="progress"></div>
@@ -253,8 +253,8 @@ main{position:relative;z-index:2}
 </section>
 
 <!-- 01 the vote -->
-<section class="door slow" data-t="0" data-where="01 · the vote"><div class="in"><div class="word"><span class="label">01</span><b>the <em>vote</em></b></div></div></section>
-<article class="card" data-t="0">
+<section class="door slow" data-t="1.6" data-where="01 · the vote"><div class="in"><div class="word"><span class="label">01</span><b>the <em>vote</em></b></div></div></section>
+<article class="card" data-t="3.2">
   <div class="label">01 · the vote</div>
   <h2>america voted on ai. <em>ai lost.</em></h2>
   <p>on election day, 41 towns and cities voted on data centers, the giant buildings where chips like this one do their work.</p>
@@ -264,14 +264,14 @@ main{position:relative;z-index:2}
 </article>
 
 <!-- the reveal: 41 votes light up as you scroll -->
-<section class="reveal" data-where="01 · the count" hidden><div class="in">
+<section class="reveal" data-t="4.8" data-where="01 · the count"><div class="in">
   <div class="tally"><b id="tn">0</b><span>of 41 voted against</span></div>
   <div class="dots" id="dots" aria-hidden="true"></div>
   <p class="dotnote" id="dotnote">the one clear dot is harwood, north dakota.</p>
   <p class="src"><a href="https://ballotpedia.org/Data_center-related_ballot_measures,_2026" target="_blank" rel="noopener">ballotpedia, data center ballot measures 2026</a></p>
 </div></section>
 
-<article class="card" data-t="0">
+<article class="card" data-t="7.79">
   <div class="label">01 · two days later</div>
   <h2>then wall street <em>noticed.</em></h2>
   <div class="chart" aria-label="nvidia shares fell 8.2% between wednesday's close and thursday midday">
@@ -286,8 +286,8 @@ main{position:relative;z-index:2}
 </article>
 
 <!-- 02 the honeypot -->
-<section class="door slow" data-t="4.4" data-where="02 · the honeypot"><div class="in"><div class="word"><span class="label">02</span><b>the <em>honeypot</em></b></div></div></section>
-<article class="card" data-t="7.6">
+<section class="door slow" data-t="12.19" data-where="02 · the honeypot"><div class="in"><div class="word"><span class="label">02</span><b>the <em>honeypot</em></b></div></div></section>
+<article class="card" data-t="15.39">
   <div class="label">02 · the honeypot</div>
   <h2>who gets <em>the chips?</em></h2>
   <p>the ceo of the company that makes the world's most wanted chips is at the center of a spy story. it's two stories at once. swipe between them.</p>
@@ -300,27 +300,27 @@ main{position:relative;z-index:2}
 </article>
 
 <!-- 03 my take -->
-<section class="door" data-t="10.6" data-where="03 · my take"><div class="in"><div class="word"><span class="label">03</span><b>my <em>take</em></b></div></div></section>
-<article class="card" data-t="13.6">
+<section class="door" data-t="18.39" data-where="03 · my take"><div class="in"><div class="word"><span class="label">03</span><b>my <em>take</em></b></div></div></section>
+<article class="card" data-t="21.39">
   <div class="label">03 · my take</div>
   <h2>fear is <em>a fair vote.</em></h2>
   <p>a town that votes no on a data center is doing math, and the math isn't crazy. these buildings need a lot of power and water, and the neighbors are the ones who live with that. somebody still has to show those towns what they get back.</p>
 </article>
 
 <!-- 04 the making of -->
-<section class="door" data-t="16.6" data-where="04 · the making of"><div class="in"><div class="word"><span class="label">04</span><b>the <em>making of</em></b></div></div></section>
-<article class="card" data-t="19.8" id="making">
+<section class="breath" data-t="24.39" data-where="03 · my take" aria-hidden="true"></section>
+<article class="card" id="making" hidden>
   <div class="label">04 · the film</div>
   <h2>you've been playing <em>a film</em> with your thumb.</h2>
   <p>everything behind these words is one continuous shot of that chip. every time you scroll, you move it forward a frame.</p>
-  <div class="meter"><b id="fnow">1</b><span>of <span id="ftot">865</span> frames</span></div>
+  <div class="meter"><b id="fnow">1</b><span>of <span id="ftot">1052</span> frames</span></div>
   <div class="bar"><i id="fbar"></i></div>
 </article>
 
 <!-- 05 home: the showcase -->
-<section class="door" data-t="24" data-where="05 · home"><div class="in"><div class="word"><span class="label">05 · the chip is home</span><b><em>home</em></b></div></div></section>
+<section class="door" data-t="31.79" data-where="04 · home"><div class="in"><div class="word"><span class="label">04 · the chip is home</span><b><em>home</em></b></div></div></section>
 
-<section class="ringsec" data-t="30.5" data-where="05 · my work"><div class="in">
+<section class="ringsec" data-t="38.29" data-where="04 · my work"><div class="in">
   <div class="ringhead"><span class="label">my work</span><h2>things i've <em>built</em></h2><p>drag or keep scrolling. tap any of them.</p></div>
   <div class="stage3d" id="stage3d"><div class="ring" id="ring">
     <a class="tile" href="#top"><img src="assets/w/chip.webp" alt=""><span class="label">edition 04</span><b>one chip, one week</b><i>you're in it</i></a>
@@ -334,7 +334,7 @@ main{position:relative;z-index:2}
   </div></div>
 </div></section>
 
-<article class="card hero" data-t="33.6" id="work">
+<article class="card hero" data-t="41.39" id="work">
   <span class="label">who made this</span>
   <h2 class="big">i build ai you can <em>feel.</em></h2>
   <p class="line">agents that hold their own on a <a class="hl b" href="https://aiimo.substack.com/p/if-youve-never-done-the-job-your" target="_blank" rel="noopener">healthcare phone line</a>, and sites like this one for <a class="hl p" href="https://ig.me/m/_simisim" target="_blank" rel="noopener">businesses that want to stand out</a>. or just <a class="hl g" href="https://ig.me/m/_simisim" target="_blank" rel="noopener">tell me what you're building</a>.</p>
@@ -351,7 +351,7 @@ main{position:relative;z-index:2}
   <div class="go"><a class="btn pink" href="https://ig.me/m/_simisim" target="_blank" rel="noopener">work with me</a><button class="tl" type="button" id="copydm">copy a message to send me</button></div>
 </article>
 
-<article class="card" data-t="35.3">
+<article class="card" data-t="43.09">
   <span class="label">keep up with me</span>
   <div class="ctas">
     <a class="cta" href="https://aiimo.substack.com/p/will-ai-end-or-save-humanity" target="_blank" rel="noopener"><span class="label">this week's essay</span><b>everyone's scared ai will end humanity. what if it's what keeps us alive?</b><i>read it ↗</i></a>
@@ -361,7 +361,7 @@ main{position:relative;z-index:2}
   <p class="src">the elevenlabs link is an affiliate link, so it supports me too.</p>
   <p class="social"><a href="https://www.instagram.com/_simisim/" target="_blank" rel="noopener">instagram</a><a href="https://www.linkedin.com/in/simibharaj" target="_blank" rel="noopener">linkedin</a><a href="https://github.com/simibharaj" target="_blank" rel="noopener">github</a><a href="https://aiimo.substack.com" target="_blank" rel="noopener">substack</a><button class="tl" type="button" id="share" style="font:500 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;min-height:0">share this edition</button></p>
 </article>
-<div class="end" data-t="36"></div>
+<div class="end" data-t="43.79"></div>
 </main>
 
 <script>
@@ -370,11 +370,11 @@ const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-/* ---------- the film: the real video, in six 6-second pieces, scrubbed by your thumb ----------
+/* ---------- the film: the real video, in eight 6-second pieces, scrubbed by your thumb ----------
    every piece is fetched whole into memory first, so seeking never waits on the network.
    only the piece you're on and its neighbours hold a video decoder.
    every frame is a keyframe, so the phone's video chip jumps to any frame instantly. */
-const N=865,FPS=24,TMAX=(N-1)/FPS,SEG=144,NS=6,FW=1080,FH=1920;
+const N=1052,FPS=24,TMAX=(N-1)/FPS,SEG=144,NS=8,FW=1080,FH=1920;
 const film=$('#film'),vids=$$('#film video'),poster=$('#poster');
 const ready=new Array(NS).fill(false),blobs=new Array(NS),attached=new Array(NS).fill(false);let active=-1,wantSeg=0;
 const vurl=k=>`assets/v/f${k}.mp4`;
@@ -392,7 +392,7 @@ function manage(){const c=wantSeg;for(let k=0;k<NS;k++){if(Math.abs(k-c)<=1)atta
 (async()=>{for(let k=0;k<NS;k++){try{const r=await fetch(vurl(k));if(!r.ok)throw 0;blobs[k]=URL.createObjectURL(await r.blob());}catch(e){blobs[k]=vurl(k);}manage();}})();
 const segOf=f=>Math.min(NS-1,Math.floor(Math.min(f,N-1)/SEG));
 let CW=innerWidth,CH=innerHeight,want=0,fpos=0,lastPos='';
-const FOC=[[0,.58],[2,.45],[4,.36],[12.3,.38],[15.55,.38],[16.95,.45],[18.35,.6],[20.35,.6],[21.75,.5],[60,.5]];
+const FOC=[[0,.58],[7.79,.58],[9.79,.45],[11.79,.36],[20.09,.38],[23.34,.38],[24.74,.45],[26.14,.6],[28.14,.6],[29.54,.5],[90,.5]];
 const focus=t=>{for(let i=1;i<FOC.length;i++)if(t<=FOC[i][0]){const [t0,a]=FOC[i-1],[t1,c]=FOC[i];return a+(c-a)*(t-t0)/(t1-t0);}return .5;};
 function size(){CW=innerWidth;CH=innerHeight;lastPos='';sync(true);}
 /* on a tall phone the frame fits the height and nothing is cropped top to bottom. on wider screens, keep the chip in view. */
