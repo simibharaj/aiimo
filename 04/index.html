@@ -170,7 +170,7 @@ main{position:relative;z-index:2}
 .small{font-size:14.5px!important;color:var(--muted)!important}
 
 /* the 41 votes */
-.reveal{position:relative;height:150svh}
+.reveal{position:relative;height:150svh}.reveal[hidden]{display:none}
 .reveal .in{position:sticky;top:0;height:100svh;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:80px max(18px,env(safe-area-inset-right,0px)) 40px max(18px,env(safe-area-inset-left,0px));text-align:center}
 .tally{display:flex;flex-direction:column;align-items:center}
 .tally b{font:400 clamp(110px,34vw,220px)/.85 var(--serif);letter-spacing:-.04em;font-variant-numeric:tabular-nums;color:var(--ink);text-shadow:0 2px 30px rgba(255,255,255,.6)}
@@ -263,7 +263,7 @@ main{position:relative;z-index:2}
 </article>
 
 <!-- the reveal: 41 votes light up as you scroll -->
-<section class="reveal" data-t="0" data-where="01 · the count"><div class="in">
+<section class="reveal" data-where="01 · the count" hidden><div class="in">
   <div class="tally"><b id="tn">0</b><span>of 41 voted against</span></div>
   <div class="dots" id="dots" aria-hidden="true"></div>
   <p class="dotnote" id="dotnote">the one clear dot is harwood, north dakota.</p>
@@ -309,12 +309,11 @@ main{position:relative;z-index:2}
 <!-- 04 the making of -->
 <section class="door" data-t="16.6" data-where="04 · the making of"><div class="in"><div class="word"><span class="label">04</span><b>the <em>making of</em></b></div></div></section>
 <article class="card" data-t="19.8" id="making">
-  <div class="label">04 · how this edition was made</div>
+  <div class="label">04 · the film</div>
   <h2>you've been playing <em>a film</em> with your thumb.</h2>
   <p>everything behind these words is one continuous shot of that chip. every time you scroll, you move it forward a frame.</p>
   <div class="meter"><b id="fnow">1</b><span>of <span id="ftot">865</span> frames</span></div>
   <div class="bar"><i id="fbar"></i></div>
-  <p class="small">i directed every shot with google's veo model, then built the page, the scroll and the stories with claude. each new shot starts on the exact last frame of the one before it, so you never see a cut.</p>
 </article>
 
 <!-- 05 home: the showcase -->
