@@ -1,0 +1,475 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>ai, in my opinion · edition 04</title>
+<meta name="theme-color" content="#f3eae4">
+<meta property="og:title" content="ai, in my opinion · edition 04">
+<meta property="og:description" content="one chip, one week. a film you play with your thumb. follow the chip and see who came for it.">
+<meta property="og:image" content="https://simibharaj.github.io/aiimo/04/assets/cover.jpg">
+<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta property="og:url" content="https://simibharaj.github.io/aiimo/04/">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://simibharaj.github.io/aiimo/04/assets/cover.jpg">
+<link rel="icon" href="assets/v/poster.jpg">
+<meta name="description" content="edition 04. one glass ai chip, from the factory floor to a data center, and the week that came for it.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&family=Schibsted+Grotesk:wght@400;500;600&display=swap">
+<style>
+/* edition 04. one continuous film of a glass chip: factory, sky, a flip, data center, drawer, hallway, gallery.
+   your scroll plays it. each story opens like a door, then a card slides up over the moving scene. */
+:root{
+  --paper:#f3eae4; --card:#fbf9f6; --ink:#16151a; --soft:#33313a; --muted:#6c6873; --line:rgba(22,21,26,.12);
+  --pink:#d6336f; --blue:#2f5bd3;
+  --serif:"Instrument Serif","Times New Roman",Georgia,serif;
+  --sans:"Schibsted Grotesk","Helvetica Neue",Arial,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html{background:var(--paper)}
+body{margin:0;background:var(--paper);color:var(--ink);font:400 17px/1.55 var(--sans);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit} button{font:inherit;color:inherit;-webkit-tap-highlight-color:transparent}
+:focus-visible{outline:2px solid var(--pink);outline-offset:3px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+em{font-style:italic}
+
+/* the world behind everything */
+#film{position:fixed;inset:0;z-index:0;overflow:hidden;background:#eef1f4;--fp:50% 50%}
+#film video,#film img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:var(--fp);pointer-events:none}
+#film video{opacity:0}#film video.on{opacity:1}#film img.gone{visibility:hidden}
+#film video::-webkit-media-controls,#film video::-webkit-media-controls-start-playback-button{display:none!important;-webkit-appearance:none}
+.veil{position:fixed;left:0;right:0;z-index:1;pointer-events:none}
+.veil.t{top:0;height:22%;background:linear-gradient(rgba(246,242,238,.7),rgba(246,242,238,0))}
+.veil.b{bottom:0;height:18%;background:linear-gradient(rgba(246,242,238,0),rgba(246,242,238,.45))}
+
+/* top bar */
+.top{position:fixed;z-index:20;top:0;left:0;right:0;display:flex;justify-content:space-between;align-items:baseline;padding:calc(env(safe-area-inset-top,0px) + 14px) max(18px,env(safe-area-inset-right,0px)) 22px max(18px,env(safe-area-inset-left,0px));pointer-events:none;background:linear-gradient(rgba(244,240,236,.92),rgba(244,240,236,.7) 55%,rgba(244,240,236,0))}
+.top a{pointer-events:auto;font:400 22px/1 var(--serif);text-decoration:none;letter-spacing:-.01em}
+.top span{font:500 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--soft)}
+.progress{position:fixed;z-index:21;top:env(safe-area-inset-top,0px);left:0;width:100%;height:2px;background:var(--pink);transform-origin:0 0;transform:scaleX(0)}
+
+main{position:relative;z-index:2}
+.label{font:500 11px/1.4 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+
+/* the cover */
+.cover{min-height:100svh;display:flex;flex-direction:column;justify-content:space-between;padding:calc(env(safe-area-inset-top,0px) + 70px) max(20px,env(safe-area-inset-right,0px)) calc(env(safe-area-inset-bottom,0px) + 28px) max(20px,env(safe-area-inset-left,0px))}
+.cover h1{margin:10px 0 0;font:400 clamp(58px,17vw,128px)/.9 var(--serif);letter-spacing:-.02em}
+.cover p{margin:16px 0 0;max-width:21em;font-size:17px;color:var(--soft)}
+.cover{position:relative}
+.cover::before{content:"";position:absolute;left:0;right:0;top:0;height:62%;z-index:-1;pointer-events:none;background:linear-gradient(rgba(248,246,243,.94),rgba(248,246,243,.86) 55%,rgba(248,246,243,0))}
+.cover p{color:var(--ink)}
+.cue{font:500 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--soft)}
+.cue::after{content:"";display:block;width:1px;height:36px;margin-top:10px;background:var(--ink);transform-origin:top;animation:cue 2.4s ease-in-out infinite}
+@keyframes cue{0%{transform:scaleY(0)}50%{transform:scaleY(1)}100%{transform:scaleY(1);opacity:0}}
+
+/* a door: the scene fills the screen and the name of the story rises */
+.door{position:relative;height:115svh}
+.door .in{position:sticky;top:0;height:100svh;overflow:hidden;display:flex;align-items:flex-end;padding:0 max(18px,env(safe-area-inset-right,0px)) calc(env(safe-area-inset-bottom,0px) + 9svh) max(18px,env(safe-area-inset-left,0px))}
+.word{--y:60;--o:0;transform:translate3d(0,calc(var(--y) * 1svh),0);opacity:var(--o);will-change:transform,opacity}
+.word .label{display:block;margin-bottom:6px;color:var(--soft)}
+.word b{display:block;font:400 clamp(76px,24vw,210px)/.84 var(--serif);letter-spacing:-.035em;color:var(--ink);text-shadow:0 2px 30px rgba(255,255,255,.55)}
+.word b em{font-style:italic}
+
+/* a card slides up over the moving scene */
+.card{position:relative;width:min(560px,calc(100% - 28px));margin:0 auto 34svh;background:var(--card);border-radius:22px;padding:22px 20px 24px;
+  box-shadow:0 1px 0 rgba(255,255,255,.7) inset,0 24px 60px rgba(30,24,40,.14),0 2px 8px rgba(30,24,40,.06);
+  opacity:0;transform:translate3d(0,46px,0) scale(.98);transition:opacity .7s ease,transform .9s cubic-bezier(.2,.75,.2,1)}
+.card.in{opacity:1;transform:none}
+.card + .card{margin-top:calc(-34svh + 14px)}
+.card h2{margin:8px 0 0;font:400 clamp(38px,10.5vw,58px)/.98 var(--serif);letter-spacing:-.02em;text-wrap:balance}
+.card h3{margin:6px 0 0;font:400 30px/1.05 var(--serif);letter-spacing:-.01em}
+.card p{margin:12px 0 0;color:var(--soft)}
+.src{margin-top:14px;font-size:13.5px;color:var(--muted)}
+.src a{text-underline-offset:3px}
+.draft{display:inline-block;margin-left:6px;font:500 10px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:#4436b0}
+
+/* things to tap */
+.q{margin-top:18px;padding-top:16px;border-top:1px solid var(--line)}
+.q .ask{margin:0;font:500 17px/1.35 var(--sans);color:var(--ink)}
+.opts{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.opt{border:1px solid var(--line);border-radius:999px;background:#fff;padding:10px 16px;font:500 15.5px var(--sans);cursor:pointer;transition:border-color .2s,background .2s,color .2s}
+.opt.big{font:400 28px/1 var(--serif);padding:10px 20px}
+.opt[aria-pressed=true]{border-color:var(--pink);background:#fdeef3}
+.opt.right{border-color:var(--ink);background:var(--ink);color:#fff}
+.opt.dim{opacity:.4}
+.reply{margin-top:12px;min-height:0;font-size:15.5px;color:var(--soft)}
+.reply:empty{display:none}
+.seg{display:flex;gap:6px;margin-top:14px;padding:4px;border-radius:999px;background:#efebe6;width:max-content}
+.seg button{border:0;border-radius:999px;background:none;padding:9px 16px;font:500 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);cursor:pointer}
+.seg button[aria-pressed=true]{background:#fff;color:var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.swap p[hidden]{display:none}
+.five{list-style:none;margin:14px 0 0;padding:0;counter-reset:f}
+.five li{counter-increment:f;display:grid;grid-template-columns:30px 1fr;gap:2px 8px;padding:12px 0;border-top:1px solid var(--line)}
+.five li::before{content:"0" counter(f);font:500 11px/1.9 var(--mono);color:var(--pink)}
+.five b{font:600 16px/1.35 var(--sans)}
+.five span{grid-column:2;font-size:15px;color:var(--soft)}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+.stats div{border-top:1px solid var(--line);padding-top:10px}
+.stats b{display:block;font:400 44px/1 var(--serif);letter-spacing:-.02em}
+
+/* the lesson */
+.steps{list-style:none;counter-reset:s;margin:16px 0 0;padding:0}
+.steps li{counter-increment:s;padding:16px 0;border-top:1px solid var(--line)}
+.steps li::before{content:"0" counter(s);display:block;font:500 11px var(--mono);color:var(--pink);margin-bottom:4px}
+.steps .ask{margin:0;font:400 24px/1.15 var(--serif)}
+.field{display:block;margin-top:10px}
+.field textarea,.field input{width:100%;border:1px solid var(--line);border-radius:12px;background:#fff;padding:12px 13px;font:400 16.5px/1.45 var(--sans);color:var(--ink);resize:vertical}
+.field textarea:focus,.field input:focus{outline:2px solid var(--pink);outline-offset:1px}
+.compose{margin-top:16px;border-radius:16px;background:#fff;border:1px solid var(--line)}
+.compose .head{display:flex;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--line)}
+#msg{margin:0;padding:14px;font-size:16px;line-height:1.55;color:var(--ink)}
+#msg mark{background:#fdeef3;color:inherit;padding:0 2px}
+#msg .ph{color:#a19da6}
+.go{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;margin-top:16px}
+.btn{display:inline-flex;align-items:center;min-height:48px;padding:0 22px;border-radius:999px;background:var(--ink);color:#fff;font:600 15.5px var(--sans);text-decoration:none;border:0;cursor:pointer}
+.btn.pink{background:var(--pink)}
+.tl{border:0;background:none;padding:6px 0;min-height:44px;font:600 15px var(--sans);text-decoration:underline;text-underline-offset:5px;cursor:pointer}
+.essay{display:block;text-decoration:none}
+.essay strong{display:block;margin-top:6px;font:400 clamp(32px,8.5vw,46px)/1.02 var(--serif);letter-spacing:-.015em;text-wrap:balance}
+.essay span{display:block;margin-top:8px;color:var(--soft)}
+.essay i{display:block;margin-top:14px;font:italic 400 24px/1.25 var(--serif)}
+.social{margin-top:14px}
+.social a{margin-right:14px;font:500 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;display:inline-block;padding:6px 0;text-underline-offset:4px}
+.end{height:60svh}
+
+@media (min-width:900px){
+  .cover{padding-left:7vw;padding-right:7vw}
+  .door .in{padding-left:7vw;padding-right:7vw}
+  .card{margin-left:7vw;margin-right:auto}
+}
+@media (prefers-reduced-motion:reduce){
+  .card{opacity:1;transform:none;transition:none}
+  .word{--y:0!important;--o:1!important}
+  .cue::after{animation:none}
+}
+
+/* the making of: a live frame counter */
+.meter{display:flex;align-items:baseline;gap:10px;margin-top:16px;padding:14px 16px;border-radius:16px;background:#fff;border:1px solid var(--line)}
+.meter b{font:400 52px/1 var(--serif);letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.meter span{color:var(--muted)}
+.bar{height:3px;margin-top:10px;border-radius:2px;background:#ece7e2;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--pink)}
+.trio{list-style:none;margin:16px 0 0;padding:0}
+.trio li{display:grid;grid-template-columns:30px 1fr;gap:2px 8px;padding:12px 0;border-top:1px solid var(--line)}
+.trio li b{font:600 16px/1.35 var(--sans)}
+.trio li span{grid-column:2;font-size:15px;color:var(--soft)}
+.trio li::before{content:attr(data-n);font:500 11px/1.9 var(--mono);color:var(--pink)}
+/* work with me */
+.idea{margin-top:14px;padding:16px;border-radius:16px;background:#fff;border:1px solid var(--line);min-height:84px}
+.idea .label{display:block;margin-bottom:6px}
+.idea p{margin:0!important;font:400 26px/1.15 var(--serif);color:var(--ink)!important}
+.idea p.ph{color:var(--muted)!important}
+.support{margin-top:6px}
+.support li{list-style:none}
+/* slower start: the opening stories get more room */
+.cover{min-height:100svh}
+.door.slow{height:125svh}
+.small{font-size:14.5px!important;color:var(--muted)!important}
+
+/* the 41 votes */
+.reveal{position:relative;height:150svh}
+.reveal .in{position:sticky;top:0;height:100svh;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:80px max(18px,env(safe-area-inset-right,0px)) 40px max(18px,env(safe-area-inset-left,0px));text-align:center}
+.tally{display:flex;flex-direction:column;align-items:center}
+.tally b{font:400 clamp(110px,34vw,220px)/.85 var(--serif);letter-spacing:-.04em;font-variant-numeric:tabular-nums;color:var(--ink);text-shadow:0 2px 30px rgba(255,255,255,.6)}
+.tally span{margin-top:6px;font:500 12px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink);background:rgba(255,255,255,.7);padding:6px 10px;border-radius:999px}
+.dots{display:grid;grid-template-columns:repeat(7,1fr);gap:12px;margin:26px auto 0;width:min(330px,86vw)}
+.dots i{aspect-ratio:1;border-radius:50%;background:rgba(255,255,255,.45);border:1px solid rgba(255,255,255,.85);box-shadow:inset 0 1px 6px rgba(255,255,255,.8),0 4px 14px rgba(40,60,100,.12);backdrop-filter:none;transform:scale(.82);transition:background .35s,transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .35s}
+.dots i.on{background:radial-gradient(circle at 35% 30%,#ffd1e2,#d6336f 70%);border-color:rgba(255,255,255,.9);transform:scale(1);box-shadow:0 6px 18px rgba(214,51,111,.35),inset 0 1px 4px rgba(255,255,255,.7)}
+.dots i.nd{border:1.5px solid var(--ink)}
+.dots.done i.nd{background:rgba(255,255,255,.95);transform:scale(1.08)}
+.dotnote{margin:20px 0 0;font:500 15px var(--sans);color:var(--ink);background:rgba(255,255,255,.75);padding:8px 14px;border-radius:999px;opacity:0;transition:opacity .5s}
+.dots.done + .dotnote{opacity:1}
+.reveal .src{margin-top:10px;background:rgba(255,255,255,.7);padding:4px 10px;border-radius:999px}
+
+/* the drop line */
+.chart{margin-top:16px;padding:16px 14px 12px;border-radius:16px;background:#fff;border:1px solid var(--line)}
+.chart svg{display:block;width:100%;height:150px;overflow:visible}
+.chart .base{stroke:rgba(22,21,26,.15);stroke-width:1;stroke-dasharray:3 4}
+.chart path{fill:none;stroke:var(--pink);stroke-width:3;stroke-linecap:round}
+.chart circle{fill:var(--pink);stroke:#fff;stroke-width:2}
+.chart .ax{display:flex;justify-content:space-between;align-items:baseline;margin-top:6px;font:500 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.chart .ax b{font:400 40px/1 var(--serif);letter-spacing:-.02em;color:var(--pink);text-transform:none}
+
+/* two panes you swipe between */
+.panes{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;margin:16px -20px 0;padding:0 20px 4px;scrollbar-width:none}
+.panes::-webkit-scrollbar{display:none}
+.pane{flex:0 0 86%;scroll-snap-align:center;border-radius:18px;padding:16px;background:#fff}
+.pane p{margin:8px 0 0!important;color:var(--ink)!important}
+.pane.sure{border:1.5px solid var(--ink)}
+.pane.maybe{border:1.5px dashed var(--pink);background:#fff8fb}
+.pane.maybe .label{color:var(--pink)}
+.panedots{display:flex;align-items:center;gap:6px;margin-top:12px}
+.panedots i{width:7px;height:7px;border-radius:50%;background:#ddd6d0;transition:background .3s,width .3s}
+.panedots i.on{background:var(--ink);width:18px;border-radius:4px}
+.panedots span{margin-left:8px;font-size:13.5px;color:var(--muted)}
+
+/* the ring of work */
+.ringsec{position:relative;height:220svh}
+.ringsec .in{position:sticky;top:0;height:100svh;overflow:hidden;display:flex;flex-direction:column;align-items:center;padding-top:calc(env(safe-area-inset-top,0px) + 74px)}
+.ringhead{text-align:center;padding:0 18px;background:radial-gradient(closest-side,rgba(255,255,255,.75),rgba(255,255,255,0));}
+.ringhead h2{margin:6px 0 0;font:400 clamp(44px,13vw,84px)/.95 var(--serif);letter-spacing:-.03em}
+.ringhead p{margin:8px 0 0;font-size:14px;color:var(--soft)}
+.stage3d{position:relative;flex:1;width:100%;perspective:900px;perspective-origin:50% 40%;touch-action:pan-y;cursor:grab}
+.ring{position:absolute;left:50%;top:44%;width:0;height:0;transform-style:preserve-3d}
+.tile{position:absolute;left:-85px;top:-120px;width:170px;height:240px;border-radius:18px;overflow:hidden;text-decoration:none;color:var(--ink);background:rgba(255,255,255,.82);border:1px solid rgba(255,255,255,.95);box-shadow:0 18px 40px rgba(30,30,60,.18);backface-visibility:hidden;display:flex;flex-direction:column;justify-content:flex-end;padding:12px}
+.tile img{position:absolute;inset:0;width:100%;height:62%;object-fit:cover}
+.tile .tt{position:absolute;left:0;right:0;top:0;height:62%;display:flex;align-items:center;justify-content:center;padding:12px;text-align:center;font:italic 400 30px/1 var(--serif);background:linear-gradient(135deg,#fde7f0,#e3f4f7);color:var(--ink)}
+.tile .label{position:relative;font-size:10px}
+.tile b{position:relative;margin-top:2px;font:600 14.5px/1.2 var(--sans)}
+.tile i{position:relative;margin-top:4px;font:500 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--pink);font-style:normal}
+
+/* who made this */
+.card.hero{padding-top:26px}
+.card .big{font:400 clamp(48px,14vw,84px)/.92 var(--serif)!important;letter-spacing:-.03em}
+.line{font:400 24px/1.3 var(--serif)!important;color:var(--ink)!important}
+.hl{text-decoration:none;border-bottom:2px solid;padding-bottom:1px}
+.hl.b{border-color:#2f5bd3}.hl.p{border-color:var(--pink)}.hl.g{border-color:#1f9d6b;background:#e9f8f1}
+.ctas{display:grid;gap:10px;margin-top:12px}
+.cta{display:block;text-decoration:none;padding:16px;border-radius:18px;background:#fff;border:1px solid var(--line);transition:transform .25s,box-shadow .25s}
+.cta:active{transform:scale(.98)}
+.cta b{display:block;margin-top:4px;font:400 23px/1.15 var(--serif);color:var(--ink)}
+.cta i{display:block;margin-top:8px;font:600 14px var(--sans);font-style:normal;color:var(--ink);text-decoration:underline;text-underline-offset:4px}
+.cta.pinkc{background:linear-gradient(135deg,#ffe3ee,#fff5f9);border-color:rgba(214,51,111,.35)}
+.cta.pinkc i{color:var(--pink)}
+</style>
+
+<div id="film" aria-hidden="true"><img id="poster" src="assets/v/poster.jpg" alt=""><video data-k="0" muted playsinline disablepictureinpicture></video><video data-k="1" muted playsinline disablepictureinpicture></video><video data-k="2" muted playsinline disablepictureinpicture></video><video data-k="3" muted playsinline disablepictureinpicture></video><video data-k="4" muted playsinline disablepictureinpicture></video><video data-k="5" muted playsinline disablepictureinpicture></video></div>
+<div class="veil t"></div><div class="veil b"></div>
+<header class="top"><a href="#top">ai, in my opinion</a><span id="where">edition 04</span></header>
+<div class="progress" id="progress"></div>
+
+<main id="top">
+<section class="cover" data-t="0" data-where="edition 04">
+  <div>
+    <div class="label">edition 04 · tuesday nov 10</div>
+    <h1>one chip, <em>one week.</em></h1>
+    <p>this little piece of glass is what the whole week was about. follow it from the factory floor to where it lives, and see who came for it along the way.</p>
+  </div>
+  <div class="cue">scroll slowly</div>
+</section>
+
+<!-- 01 the vote -->
+<section class="door slow" data-t="1.2" data-where="01 · the vote"><div class="in"><div class="word"><span class="label">01</span><b>the <em>vote</em></b></div></div></section>
+<article class="card" data-t="1.9">
+  <div class="label">01 · the vote</div>
+  <h2>america voted on ai. <em>ai lost.</em></h2>
+  <p>on election day, 41 towns and cities voted on data centers, the giant buildings where chips like this one do their work.</p>
+  <div class="q"><p class="ask">before you scroll, guess. how many of the 41 went against them?</p>
+    <div class="opts" id="vote"><button class="opt big" type="button">12</button><button class="opt big" type="button">23</button><button class="opt big" type="button">31</button><button class="opt big" type="button" data-ok="1">40</button></div>
+    <p class="reply" id="voteans"></p></div>
+</article>
+
+<!-- the reveal: 41 votes light up as you scroll -->
+<section class="reveal" data-t="2.6" data-where="01 · the count"><div class="in">
+  <div class="tally"><b id="tn">0</b><span>of 41 voted against</span></div>
+  <div class="dots" id="dots" aria-hidden="true"></div>
+  <p class="dotnote" id="dotnote">the one clear dot is harwood, north dakota.</p>
+  <p class="src"><a href="https://ballotpedia.org/Data_center-related_ballot_measures,_2026" target="_blank" rel="noopener">ballotpedia, data center ballot measures 2026</a></p>
+</div></section>
+
+<article class="card" data-t="3.4">
+  <div class="label">01 · two days later</div>
+  <h2>then wall street <em>noticed.</em></h2>
+  <div class="chart" aria-label="nvidia shares fell 8.2% between wednesday's close and thursday midday">
+    <svg viewBox="0 0 320 150" preserveAspectRatio="none"><line x1="0" y1="30" x2="320" y2="30" class="base"/><path id="drop" d="M8 30 C 90 30, 150 40, 210 80 S 290 128, 312 128"/><circle id="dropdot" cx="8" cy="30" r="5"/></svg>
+    <div class="ax"><span>wed close</span><b id="pct">0.0%</b><span>thu midday</span></div>
+  </div>
+  <p>nvidia fell 8.2% by thursday midday, and micron fell nearly 14%. ubs says about 30% of the data center capacity planned for 2028 is now at risk.</p>
+  <div class="q"><p class="ask">elon musk's answer the night of the results: "data centers in space looking pretty appealing right now." real plan or a joke?</p>
+    <div class="opts" id="musk"><button class="opt" type="button" data-a="if it works, the appeal is obvious. nobody gets to vote on a building in orbit.">real plan</button><button class="opt" type="button" data-a="maybe. he posted it right after the results, while his own stocks were falling.">a joke</button><button class="opt" type="button" data-a="probably. it reads like a joke, and it also tells you where he'd build if the ground keeps saying no.">both</button></div>
+    <p class="reply" id="muskans"></p></div>
+  <p class="src"><a href="https://www.aljazeera.com/economy/2026/11/5/ai-stocks-plunge-after-election-driving-down-us-markets" target="_blank" rel="noopener">al jazeera and reuters, nov 5</a> · <a href="https://www.tikr.com/blog/musk-says-data-centers-in-space-looking-pretty-appealing-right-now-as-spacex-sinks-on-blue-wave" target="_blank" rel="noopener">tikr</a> · the line shows the two prices, not every trade in between</p>
+</article>
+
+<!-- 02 the honeypot -->
+<section class="door slow" data-t="4.4" data-where="02 · the honeypot"><div class="in"><div class="word"><span class="label">02</span><b>the <em>honeypot</em></b></div></div></section>
+<article class="card" data-t="7.6">
+  <div class="label">02 · the honeypot</div>
+  <h2>who gets <em>the chips?</em></h2>
+  <p>the ceo of the company that makes the world's most wanted chips is at the center of a spy story. it's two stories at once. swipe between them.</p>
+  <div class="panes" id="panes" tabindex="0" aria-label="what's confirmed and what's alleged">
+    <div class="pane sure"><span class="label">confirmed</span><p>jensen huang wrote to nvidia staff, "i was unfaithful to my wife." the board opened an independent investigation and says it has no reason to believe national security or nvidia secrets were compromised.</p></div>
+    <div class="pane maybe"><span class="label">alleged</span><p>reports say u.s. intelligence believes the woman was recruited by china's ministry of state security, and that she was an executive at megaspeed, a firm accused of smuggling $2 billion in ai chips into china. china calls the claims unfounded, and nvidia denies any improper dealings.</p></div>
+  </div>
+  <div class="panedots"><i class="on"></i><i></i><span id="panelabel">confirmed. swipe for what's alleged</span></div>
+  <p class="src"><a href="https://www.tomshardware.com/pc-components/gpus/nvidia-ceo-jensen-huang-admits-to-having-an-affair-with-suspected-chinese-spy-jensen-apologizes-in-letter-to-staff-company-board-forms-independent-committee-to-investigate" target="_blank" rel="noopener">tom's hardware, nov 8</a></p>
+</article>
+
+<!-- 03 my take -->
+<section class="door" data-t="10.6" data-where="03 · my take"><div class="in"><div class="word"><span class="label">03</span><b>my <em>take</em></b></div></div></section>
+<article class="card" data-t="13.6">
+  <div class="label">03 · my take <span class="draft">draft, simi to rewrite</span></div>
+  <h2>fear is <em>a fair vote.</em></h2>
+  <p>a town that votes no on a data center is doing math, and the math isn't crazy. these buildings need a lot of power and water, and the neighbors are the ones who live with that. somebody still has to show those towns what they get back.</p>
+</article>
+
+<!-- 04 the making of -->
+<section class="door" data-t="16.6" data-where="04 · the making of"><div class="in"><div class="word"><span class="label">04</span><b>the <em>making of</em></b></div></div></section>
+<article class="card" data-t="19.8" id="making">
+  <div class="label">04 · how this edition was made</div>
+  <h2>you've been playing <em>a film</em> with your thumb.</h2>
+  <p>everything behind these words is one continuous shot of that chip. every time you scroll, you move it forward a frame.</p>
+  <div class="meter"><b id="fnow">1</b><span>of <span id="ftot">865</span> frames</span></div>
+  <div class="bar"><i id="fbar"></i></div>
+  <p class="small">i directed every shot with google's veo model, then built the page, the scroll and the stories with claude. each new shot starts on the exact last frame of the one before it, so you never see a cut.</p>
+</article>
+
+<!-- 05 home: the showcase -->
+<section class="door" data-t="24" data-where="05 · home"><div class="in"><div class="word"><span class="label">05 · the chip is home</span><b><em>home</em></b></div></div></section>
+
+<section class="ringsec" data-t="30.5" data-where="05 · my work"><div class="in">
+  <div class="ringhead"><span class="label">my work</span><h2>things i've <em>built</em></h2><p>drag or keep scrolling. tap any of them.</p></div>
+  <div class="stage3d" id="stage3d"><div class="ring" id="ring">
+    <a class="tile" href="#top"><img src="assets/w/chip.webp" alt=""><span class="label">edition 04</span><b>one chip, one week</b><i>you're in it</i></a>
+    <a class="tile" href="https://aiimo.substack.com" target="_blank" rel="noopener"><div class="tt">everyone's scared ai will end humanity.</div><span class="label">latest essay</span><b>has ai earned the right to diagnose us?</b><i>read it</i></a>
+    <a class="tile" href="https://aiimo.substack.com/p/if-youve-never-done-the-job-your" target="_blank" rel="noopener"><img src="assets/w/bella.webp" alt=""><span class="label">agent</span><b>bella, my healthcare bdr</b><i>meet her</i></a>
+    <a class="tile" href="https://simibharaj.github.io/aiimo/03/" target="_blank" rel="noopener"><img src="assets/w/e03.webp" alt=""><span class="label">edition 03</span><b>the flight through china's ai crash</b><i>fly it</i></a>
+    <a class="tile" href="https://ig.me/m/_simisim" target="_blank" rel="noopener"><div class="tt">your business, but it scrolls like this.</div><span class="label">for businesses</span><b>scroll sites</b><i>ask me</i></a>
+    <a class="tile" href="https://simibharaj.github.io/aiimo/02/" target="_blank" rel="noopener"><div class="tt">02</div><span class="label">edition 02</span><b>the bullet train</b><i>ride it</i></a>
+    <a class="tile" href="https://github.com/simibharaj" target="_blank" rel="noopener"><div class="tt">github</div><span class="label">code</span><b>everything i ship</b><i>browse</i></a>
+    <a class="tile" href="https://simibharaj.github.io/aiimo/01/" target="_blank" rel="noopener"><div class="tt">01</div><span class="label">edition 01</span><b>where it started</b><i>open it</i></a>
+  </div></div>
+</div></section>
+
+<article class="card hero" data-t="33.6" id="work">
+  <span class="label">who made this</span>
+  <h2 class="big">i build ai you can <em>feel.</em></h2>
+  <p class="line">agents that hold their own on a <a class="hl b" href="https://aiimo.substack.com/p/if-youve-never-done-the-job-your" target="_blank" rel="noopener">healthcare phone line</a>, and sites like this one for <a class="hl p" href="https://ig.me/m/_simisim" target="_blank" rel="noopener">businesses that want to stand out</a>. or just <a class="hl g" href="https://ig.me/m/_simisim" target="_blank" rel="noopener">tell me what you're building</a>.</p>
+  <div class="q"><p class="ask">what's your business?</p>
+    <div class="opts" id="biz">
+      <button class="opt" type="button" data-b="coffee shop" data-i="the cup fills with espresso as your customer scrolls down the menu.">coffee shop</button>
+      <button class="opt" type="button" data-b="med spa" data-i="a drop of serum sinks into the skin, layer by layer, as they scroll to book.">med spa</button>
+      <button class="opt" type="button" data-b="restaurant" data-i="tonight's special builds itself on the plate as they scroll to reserve.">restaurant</button>
+      <button class="opt" type="button" data-b="real estate" data-i="the house rises from blueprint to finished home as they scroll the listing.">real estate</button>
+      <button class="opt" type="button" data-b="gym" data-i="the bar loads plate by plate as they scroll to the class schedule.">gym</button>
+      <button class="opt" type="button" data-b="boutique" data-i="the outfit comes together piece by piece as they scroll the new drop.">boutique</button>
+    </div>
+    <div class="idea" aria-live="polite"><span class="label" id="ideal">your site</span><p class="ph" id="idea">tap one and see what yours could do.</p></div></div>
+  <div class="go"><a class="btn pink" href="https://ig.me/m/_simisim" target="_blank" rel="noopener">work with me</a><button class="tl" type="button" id="copydm">copy a message to send me</button></div>
+</article>
+
+<article class="card" data-t="35.3">
+  <span class="label">keep up with me</span>
+  <div class="ctas">
+    <a class="cta" href="https://aiimo.substack.com" target="_blank" rel="noopener"><span class="label">this week's essay</span><b>everyone's scared ai will end humanity. what if it's what keeps us alive?</b><i>read it ↗</i></a>
+    <a class="cta pinkc" href="https://aiimo.substack.com/subscribe" target="_blank" rel="noopener"><span class="label">support the work</span><b>everything here is free. i pay for every ai tool behind it. $5 a month keeps it coming.</b><i>support ai, in my opinion ↗</i></a>
+    <a class="cta" href="https://try.elevenlabs.io/4jtjscq5xmim" target="_blank" rel="noopener"><span class="label">the voice on my essays</span><b>it's my own voice clone, made with elevenlabs.</b><i>try it with my link ↗</i></a>
+  </div>
+  <p class="src">the elevenlabs link is an affiliate link, so it supports me too.</p>
+  <p class="social"><a href="https://www.instagram.com/_simisim/" target="_blank" rel="noopener">instagram</a><a href="https://www.linkedin.com/in/simibharaj" target="_blank" rel="noopener">linkedin</a><a href="https://github.com/simibharaj" target="_blank" rel="noopener">github</a><a href="https://aiimo.substack.com" target="_blank" rel="noopener">substack</a><button class="tl" type="button" id="share" style="font:500 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;min-height:0">share this edition</button></p>
+</article>
+<div class="end" data-t="36"></div>
+</main>
+
+<script>
+(()=>{'use strict';
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---------- the film: the real video, in six 6-second pieces, scrubbed by your thumb ----------
+   every piece is fetched whole into memory first, so seeking never waits on the network.
+   every frame is a keyframe, so the phone's video chip jumps to any frame instantly. */
+const N=865,FPS=24,TMAX=(N-1)/FPS,SEG=144,NS=6,FW=1080,FH=1920;
+const film=$('#film'),vids=$$('#film video'),poster=$('#poster');
+const ready=new Array(NS).fill(false);let active=-1;
+const vurl=k=>`assets/v/f${k}.mp4`;
+function prime(v,k){v.muted=true;v.playsInline=true;
+  v.addEventListener('loadeddata',()=>{ready[k]=true;const p=v.play();if(p&&p.then)p.then(()=>{v.pause();sync(true);}).catch(()=>sync(true));else{v.pause();sync(true);}},{once:true});
+  v.addEventListener('seeked',()=>{if(v._next!=null){const t=v._next;v._next=null;v.currentTime=t;return;}show(k);});}
+let wantSeg=0;
+function show(k){if(k!==wantSeg||active===k)return;vids.forEach((v,i)=>v.classList.toggle('on',i===k));active=k;poster.classList.add('gone');}
+async function getVid(k){const v=vids[k];prime(v,k);
+  try{const r=await fetch(vurl(k));if(!r.ok)throw 0;const b=await r.blob();v.src=URL.createObjectURL(b);}catch(e){v.preload='auto';v.src=vurl(k);}
+  v.load();}
+(async()=>{for(let k=0;k<NS;k++){await getVid(k);await new Promise(r=>{if(ready[k])r();else vids[k].addEventListener('loadeddata',r,{once:true});setTimeout(r,20000);});}})();
+const segOf=f=>Math.min(NS-1,Math.floor(Math.min(f,N-1)/SEG));
+let CW=innerWidth,CH=innerHeight,want=0,fpos=0,lastPos='';
+const FOC=[[0,.58],[2,.45],[4,.36],[12.3,.38],[15.55,.38],[16.95,.45],[18.35,.6],[20.35,.6],[21.75,.5],[60,.5]];
+const focus=t=>{for(let i=1;i<FOC.length;i++)if(t<=FOC[i][0]){const [t0,a]=FOC[i-1],[t1,c]=FOC[i];return a+(c-a)*(t-t0)/(t1-t0);}return .5;};
+function size(){CW=innerWidth;CH=innerHeight;lastPos='';sync(true);}
+/* on a tall phone the frame fits the height and nothing is cropped top to bottom. on wider screens, keep the chip in view. */
+function aim(){const s=Math.max(CW/FW,CH/FH),h=FH*s;let p=50;
+  if(h>CH+1){let y=CH/2-focus(fpos/FPS)*h;y=Math.min(0,Math.max(CH-h,y));p=+(y/(CH-h)*100).toFixed(1);}
+  const o='50% '+p+'%';if(o!==lastPos){lastPos=o;film.style.setProperty('--fp',o);}}
+function sync(force){let f=Math.round(fpos),k=segOf(f);
+  /* if the piece isn't in yet, hold on the last frame we do have */
+  while(k>0&&!ready[k])k--;if(!ready[k]){aim();return;}
+  if(k<segOf(f))f=k*SEG+SEG;
+  wantSeg=k;
+  const v=vids[k],t=Math.max(0,(f-k*SEG)/FPS+.001),d=v.duration||6.1,lt=Math.min(t,d-.02);
+  if(force||Math.abs(v.currentTime-lt)>.4/FPS){if(v.seeking)v._next=lt;else v.currentTime=lt;}
+  if(active!==k&&v.readyState>=2&&!v.seeking)show(k);
+  aim();}
+/* ---------- the 41 votes ---------- */
+const dots=$('#dots');for(let i=0;i<41;i++){const d=document.createElement('i');if(i===40)d.className='nd';dots.appendChild(d);}
+const dotEls=[...dots.children],tn=$('#tn');let lit=-1;
+function setDots(n){if(n===lit)return;lit=n;dotEls.forEach((d,i)=>d.classList.toggle('on',i<n&&i<40));tn.textContent=Math.min(n,40);dots.classList.toggle('done',n>=40);}
+
+/* ---------- the drop line ---------- */
+const dropPath=$('#drop'),dropDot=$('#dropdot'),pct=$('#pct');const PL=dropPath.getTotalLength();dropPath.style.strokeDasharray=PL;
+let lastDrop=-1;function setDrop(k){k=+k.toFixed(3);if(k===lastDrop)return;lastDrop=k;dropPath.style.strokeDashoffset=PL*(1-k);const p=dropPath.getPointAtLength(PL*k);dropDot.setAttribute('cx',p.x);dropDot.setAttribute('cy',p.y);pct.textContent=(k>=.999?'−8.2':'−'+(8.2*k).toFixed(1))+'%';}
+
+/* ---------- the ring of work ---------- */
+const ring=$('#ring'),tiles=[...ring.children],NT=tiles.length;let R=0,drag=0,lastRot=null;
+function layout(){const w=tiles[0].offsetWidth||170;R=Math.round(w/2/Math.tan(Math.PI/NT))+26;tiles.forEach((t,i)=>t.style.transform=`rotateY(${i*360/NT}deg) translateZ(${R}px)`);}
+function setRing(a){const r=+(a+drag).toFixed(2);if(r===lastRot)return;lastRot=r;ring.style.transform=`translateZ(${-R}px) rotateY(${-r}deg)`;}
+let dx0=null,drag0=0;const st=$('#stage3d');
+st.addEventListener('pointerdown',e=>{dx0=e.clientX;drag0=drag;},{passive:true});
+addEventListener('pointermove',e=>{if(dx0===null)return;drag=drag0+(dx0-e.clientX)*.4;lastRot=null;on();},{passive:true});
+addEventListener('pointerup',()=>{dx0=null;},{passive:true});
+
+/* ---------- scroll: every section says which second of the film it belongs to ---------- */
+const marks=$$('[data-t]'),doors=$$('.door'),cards=$$('.card'),prog=$('#progress'),where=$('#where');
+const reveal=$('.reveal'),ringsec=$('.ringsec'),chart=$('.chart');
+const fnow=$('#fnow'),fbar=$('#fbar');$('#ftot').textContent=N;
+let A=[],D=[],VH=innerHeight,DOC=1,RV={},RS={},CHT={};
+const box=el=>({top:el.getBoundingClientRect().top+scrollY,h:el.offsetHeight});
+function measure(){VH=innerHeight;DOC=document.documentElement.scrollHeight-VH;
+  A=marks.map(el=>({y:el.getBoundingClientRect().top+scrollY-VH*.35,t:+el.dataset.t,w:el.dataset.where}));A[0].y=0;
+  D=doors.map(el=>({el,w:el.querySelector('.word'),...box(el),y:-1,o:-1}));RV=box(reveal);RS=box(ringsec);CHT=box(chart);layout();}
+function timeAt(y){if(y<=A[0].y)return A[0].t;for(let i=1;i<A.length;i++){if(y<=A[i].y){const a=A[i-1],b=A[i];return a.t+(b.t-a.t)*(y-a.y)/Math.max(1,b.y-a.y);}}return A[A.length-1].t;}
+let tgt=0,cur=0,lastWhere='',lastF=-1;
+function frame(){
+  const y=scrollY;tgt=Math.min(TMAX,timeAt(y));
+  cur=reduce?tgt:cur+(tgt-cur)*.24;if(Math.abs(tgt-cur)<.002)cur=tgt;
+  fpos=clamp(cur*FPS,0,N-1);want=Math.round(fpos);sync(false);
+  if(want!==lastF){lastF=want;fnow.textContent=want+1;fbar.style.width=((want+1)/N*100).toFixed(2)+'%';}
+  for(const d of D){if(!(y+VH>d.top&&y<d.top+d.h))continue;
+    const k=clamp((y+VH-d.top)/d.h,0,1.4),yy=+(48-62*Math.min(1,k)).toFixed(2),o=+clamp(k<.25?k/.25:k>.95?1-(k-.95)/.25:1,0,1).toFixed(3);
+    if(yy!==d.y||o!==d.o){d.y=yy;d.o=o;d.w.style.setProperty('--y',yy);d.w.style.setProperty('--o',o);}}
+  if(y+VH>RV.top&&y<RV.top+RV.h){const k=clamp((y-RV.top)/(RV.h-VH*1.1),0,1);setDots(Math.round(k*41));}else if(y<RV.top)setDots(0);else setDots(41);
+  if(y+VH>CHT.top&&y<CHT.top+CHT.h+VH){setDrop(clamp((y+VH*.85-CHT.top)/(VH*.55),0,1));}
+  if(y+VH>RS.top&&y<RS.top+RS.h){setRing(clamp((y-RS.top)/(RS.h-VH),0,1)*360*.875);}
+  let w=A[0].w;for(const m of A){if(m.w&&y>=m.y-VH*.1)w=m.w;}if(w&&w!==lastWhere){lastWhere=w;where.textContent=w;}
+  prog.style.transform=`scaleX(${clamp(y/Math.max(1,DOC),0,1).toFixed(4)})`;
+  if(cur!==tgt)requestAnimationFrame(frame);else running=false;}
+let running=false;const on=()=>{if(!running){running=true;requestAnimationFrame(frame);}};
+addEventListener('scroll',on,{passive:true});
+addEventListener('resize',()=>{measure();size();on();});
+addEventListener('load',()=>{measure();on();});
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{measure();on();});
+measure();size();on();
+
+/* ---------- cards slide up as they arrive ---------- */
+if('IntersectionObserver' in window&&!reduce){const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in');}),{rootMargin:'0px 0px -12% 0px'});cards.forEach(c=>io.observe(c));}
+else cards.forEach(c=>c.classList.add('in'));
+
+/* ---------- taps ---------- */
+$('#vote').addEventListener('click',e=>{const b=e.target.closest('.opt');if(!b||b.dataset.done)return;[...e.currentTarget.children].forEach(x=>{x.dataset.done=1;x.classList.add(x.dataset.ok?'right':'dim');});
+  $('#voteans').textContent=b.dataset.ok?'you called it. keep scrolling and watch them come in.':'keep scrolling and watch them come in.';});
+$('#musk').addEventListener('click',e=>{const b=e.target.closest('.opt');if(!b)return;[...e.currentTarget.children].forEach(x=>x.setAttribute('aria-pressed',String(x===b)));$('#muskans').textContent=b.dataset.a;});
+const panes=$('#panes'),pd=$$('.panedots i'),pl=$('#panelabel');
+panes.addEventListener('scroll',()=>{const i=panes.scrollLeft>panes.clientWidth*.4?1:0;pd.forEach((d,j)=>d.classList.toggle('on',j===i));pl.textContent=i?'alleged. reported, not proven':'confirmed. swipe for what\'s alleged';},{passive:true});
+let biz='';
+$('#biz').addEventListener('click',e=>{const b=e.target.closest('.opt');if(!b)return;[...e.currentTarget.children].forEach(x=>x.setAttribute('aria-pressed',String(x===b)));
+  biz=b.dataset.b;$('#ideal').textContent='your '+biz+' site';const p=$('#idea');p.classList.remove('ph');p.textContent=b.dataset.i;});
+function copy(text,btn,label){const fin=t=>{btn.textContent=t;setTimeout(()=>btn.textContent=label,1800);};
+  try{navigator.clipboard.writeText(text).then(()=>fin('copied. paste it in my dms'),()=>fin('select it and copy'));}catch(_){fin('select it and copy');}}
+$('#copydm').addEventListener('click',e=>copy(`hi simi, i saw edition 04. i run a ${biz||'business'} and i want my website to feel like that. can we talk?`,e.currentTarget,'copy a message to send me'));
+$('#share').addEventListener('click',e=>copy('edition 04 of ai, in my opinion: one ai chip, from the factory to the data center. '+location.href.split('#')[0],e.currentTarget,'share this edition'));
+})();
+</script>
