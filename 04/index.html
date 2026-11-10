@@ -473,9 +473,10 @@ panes.addEventListener('scroll',()=>{const i=panes.scrollLeft>panes.clientWidth*
 let biz='';
 $('#biz').addEventListener('click',e=>{const b=e.target.closest('.opt');if(!b)return;[...e.currentTarget.children].forEach(x=>x.setAttribute('aria-pressed',String(x===b)));
   biz=b.dataset.b;$('#ideal').textContent='your '+biz+' site';const p=$('#idea');p.classList.remove('ph');p.textContent=b.dataset.i;});
-function copy(text,btn,label){const fin=t=>{btn.textContent=t;setTimeout(()=>btn.textContent=label,1800);};
-  try{navigator.clipboard.writeText(text).then(()=>fin('copied. paste it in my dms'),()=>fin('select it and copy'));}catch(_){fin('select it and copy');}}
+function copy(text,btn,label,done){const fin=t=>{btn.textContent=t;setTimeout(()=>btn.textContent=label,1800);};
+  try{navigator.clipboard.writeText(text).then(()=>fin(done||'copied. paste it in my dms'),()=>fin('select it and copy'));}catch(_){fin('select it and copy');}}
 $('#copydm').addEventListener('click',e=>copy(`hi simi, i saw edition 04. i run a ${biz||'business'} and i want my website to feel like that. can we talk?`,e.currentTarget,'copy a message to send me'));
-$('#share').addEventListener('click',e=>copy('edition 04 of ai, in my opinion: one ai chip, from the factory to the data center. '+location.href.split('#')[0],e.currentTarget,'share this edition'));
+$('#share').addEventListener('click',e=>{const btn=e.currentTarget,url='https://aiimo.substack.com/p/edition-04-one-chip-one-week',text='edition 04 of ai, in my opinion. a film you play with your thumb.';
+  if(navigator.share){navigator.share({title:'ai, in my opinion · edition 04',text,url}).catch(()=>{});}else copy(text+' '+url,btn,'share this edition','link copied');});
 })();
 </script>
