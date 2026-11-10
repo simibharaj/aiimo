@@ -252,8 +252,8 @@ main{position:relative;z-index:2}
 </section>
 
 <!-- 01 the vote -->
-<section class="door slow" data-t="1.2" data-where="01 · the vote"><div class="in"><div class="word"><span class="label">01</span><b>the <em>vote</em></b></div></div></section>
-<article class="card" data-t="1.9">
+<section class="door slow" data-t="0.3" data-where="01 · the vote"><div class="in"><div class="word"><span class="label">01</span><b>the <em>vote</em></b></div></div></section>
+<article class="card" data-t="0.55">
   <div class="label">01 · the vote</div>
   <h2>america voted on ai. <em>ai lost.</em></h2>
   <p>on election day, 41 towns and cities voted on data centers, the giant buildings where chips like this one do their work.</p>
@@ -263,14 +263,14 @@ main{position:relative;z-index:2}
 </article>
 
 <!-- the reveal: 41 votes light up as you scroll -->
-<section class="reveal" data-t="2.6" data-where="01 · the count"><div class="in">
+<section class="reveal" data-t="0.75" data-where="01 · the count"><div class="in">
   <div class="tally"><b id="tn">0</b><span>of 41 voted against</span></div>
   <div class="dots" id="dots" aria-hidden="true"></div>
   <p class="dotnote" id="dotnote">the one clear dot is harwood, north dakota.</p>
   <p class="src"><a href="https://ballotpedia.org/Data_center-related_ballot_measures,_2026" target="_blank" rel="noopener">ballotpedia, data center ballot measures 2026</a></p>
 </div></section>
 
-<article class="card" data-t="3.4">
+<article class="card" data-t="1.1">
   <div class="label">01 · two days later</div>
   <h2>then wall street <em>noticed.</em></h2>
   <div class="chart" aria-label="nvidia shares fell 8.2% between wednesday's close and thursday midday">
@@ -372,20 +372,24 @@ const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /* ---------- the film: the real video, in six 6-second pieces, scrubbed by your thumb ----------
    every piece is fetched whole into memory first, so seeking never waits on the network.
+   only the piece you're on and its neighbours hold a video decoder.
    every frame is a keyframe, so the phone's video chip jumps to any frame instantly. */
 const N=865,FPS=24,TMAX=(N-1)/FPS,SEG=144,NS=6,FW=1080,FH=1920;
 const film=$('#film'),vids=$$('#film video'),poster=$('#poster');
-const ready=new Array(NS).fill(false);let active=-1;
+const ready=new Array(NS).fill(false),blobs=new Array(NS),attached=new Array(NS).fill(false);let active=-1,wantSeg=0;
 const vurl=k=>`assets/v/f${k}.mp4`;
-function prime(v,k){v.muted=true;v.playsInline=true;
-  v.addEventListener('loadeddata',()=>{ready[k]=true;const p=v.play();if(p&&p.then)p.then(()=>{v.pause();sync(true);}).catch(()=>sync(true));else{v.pause();sync(true);}},{once:true});
-  v.addEventListener('seeked',()=>{if(v._next!=null){const t=v._next;v._next=null;v.currentTime=t;return;}show(k);});}
-let wantSeg=0;
+/* iphones only have a couple of video decoders. so every piece downloads quietly in the background as plain data,
+   and only the piece you're on plus its neighbours are ever handed to a video element. */
+vids.forEach((v,k)=>{v.muted=true;v.playsInline=true;
+  v.addEventListener('loadeddata',()=>{if(!attached[k])return;ready[k]=true;
+    const go=()=>{if(k===wantSeg||active<0)sync(true);};
+    if(!v._primed){v._primed=1;const p=v.play();if(p&&p.then)p.then(()=>{v.pause();go();}).catch(go);else{v.pause();go();}}else go();});
+  v.addEventListener('seeked',()=>{if(v._next!=null){const t=v._next;v._next=null;v.currentTime=t;return;}show(k);});});
 function show(k){if(k!==wantSeg||active===k)return;vids.forEach((v,i)=>v.classList.toggle('on',i===k));active=k;poster.classList.add('gone');}
-async function getVid(k){const v=vids[k];prime(v,k);
-  try{const r=await fetch(vurl(k));if(!r.ok)throw 0;const b=await r.blob();v.src=URL.createObjectURL(b);}catch(e){v.preload='auto';v.src=vurl(k);}
-  v.load();}
-(async()=>{for(let k=0;k<NS;k++){await getVid(k);await new Promise(r=>{if(ready[k])r();else vids[k].addEventListener('loadeddata',r,{once:true});setTimeout(r,20000);});}})();
+function attach(k){if(k<0||k>=NS||attached[k]||!blobs[k])return;attached[k]=true;const v=vids[k];v.preload='auto';v.src=blobs[k];v.load();}
+function detach(k){if(!attached[k]||k===active)return;attached[k]=false;ready[k]=false;const v=vids[k];v._primed=0;v.removeAttribute('src');v.load();}
+function manage(){const c=wantSeg;for(let k=0;k<NS;k++){if(Math.abs(k-c)<=1)attach(k);else detach(k);}}
+(async()=>{for(let k=0;k<NS;k++){try{const r=await fetch(vurl(k));if(!r.ok)throw 0;blobs[k]=URL.createObjectURL(await r.blob());}catch(e){blobs[k]=vurl(k);}manage();}})();
 const segOf=f=>Math.min(NS-1,Math.floor(Math.min(f,N-1)/SEG));
 let CW=innerWidth,CH=innerHeight,want=0,fpos=0,lastPos='';
 const FOC=[[0,.58],[2,.45],[4,.36],[12.3,.38],[15.55,.38],[16.95,.45],[18.35,.6],[20.35,.6],[21.75,.5],[60,.5]];
@@ -397,12 +401,14 @@ function aim(){const s=Math.max(CW/FW,CH/FH),h=FH*s;let p=50;
   const o='50% '+p+'%';if(o!==lastPos){lastPos=o;film.style.setProperty('--fp',o);}}
 function sync(force){let f=Math.round(fpos),k=segOf(f);
   /* if the piece isn't in yet, hold on the last frame we do have */
+  const ideal=k;if(ideal!==wantSeg){wantSeg=ideal;manage();}
   while(k>0&&!ready[k])k--;if(!ready[k]){aim();return;}
-  if(k<segOf(f))f=k*SEG+SEG;
-  wantSeg=k;
-  const v=vids[k],t=Math.max(0,(f-k*SEG)/FPS+.001),d=v.duration||6.1,lt=Math.min(t,d-.02);
+  if(k<ideal)f=k*SEG+SEG;
+  wantSeg=ideal;
+  const v=vids[k];if(k!==ideal){if(active!==k&&v.readyState>=2){vids.forEach((x,i)=>x.classList.toggle('on',i===k));active=k;poster.classList.add('gone');}}
+  const t=Math.max(0,(f-k*SEG)/FPS+.001),d=v.duration||6.1,lt=Math.min(t,d-.02);
   if(force||Math.abs(v.currentTime-lt)>.4/FPS){if(v.seeking)v._next=lt;else v.currentTime=lt;}
-  if(active!==k&&v.readyState>=2&&!v.seeking)show(k);
+  if(k===ideal&&active!==k&&v.readyState>=2&&!v.seeking)show(k);
   aim();}
 /* ---------- the 41 votes ---------- */
 const dots=$('#dots');for(let i=0;i<41;i++){const d=document.createElement('i');if(i===40)d.className='nd';dots.appendChild(d);}
